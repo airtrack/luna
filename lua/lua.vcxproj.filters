@@ -20,7 +20,7 @@
     <ClInclude Include="..\src\Source.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ErrorList.h">
+    <ClInclude Include="..\src\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,7 +34,7 @@
     <ClCompile Include="..\src\Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ErrorList.cpp">
+    <ClCompile Include="..\src\Error.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,11 +8,26 @@ namespace lua
     class Source
     {
     public:
+        enum
+        {
+            EOS = -1,
+        };
+
         Source();
 
-        char Peek() const;
-        char Next();
-        void Backspace(std::size_t count = 1);
+        int Peek() const;
+        int Next();
+        void Back();
+
+        int GetLineNum() const
+        {
+            return cur_line_number_;
+        }
+
+        int GetColumnNum() const
+        {
+            return cur_column_number_;
+        }
 
     private:
         std::vector<char> source_buf_;

@@ -3,14 +3,13 @@
 
 #include "Source.h"
 #include "LexTable.h"
-#include "ErrorList.h"
 
 namespace lua
 {
     class Lexer
     {
     public:
-        Lexer(Source *source, LexTable *lex_table, ErrorList *error_list);
+        Lexer(Source *source, LexTable *lex_table);
 
         // Return token storing LexTable
         LexTable * GetLexTable() const
@@ -23,9 +22,20 @@ namespace lua
         int GetToken();
 
     private:
+        int LexToken();
+        int LexNumber();
+        int LexString();
+        int LexLongString();
+        int LexUniqueOperator();
+        int LexKeyWordAndIdentifier();
+        int LexOperatorAndNext(const char *op, TokenType type);
+        void SkipWhiteChar();
+        void LexComment();
+        void LexSingleLineComment();
+        void LexMultiLineComment();
+
         Source *source_;
         LexTable *lex_table_;
-        ErrorList *error_list_;
     };
 } // namespace lua
 

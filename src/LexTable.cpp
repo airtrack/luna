@@ -1,37 +1,10 @@
 #include "LexTable.h"
 
-namespace
-{
-    const char *lua_key_word[] = {
-        "and",
-        "break",
-        "do",
-        "else",
-        "elseif",
-        "end",
-        "false",
-        "for",
-        "function",
-        "if",
-        "in",
-        "local",
-        "nil",
-        "not",
-        "or",
-        "repeat",
-        "return",
-        "then",
-        "true",
-        "until",
-        "while"
-    };
-} // namespace
-
 namespace lua
 {
     // static variable
     bool KeyWordSet::is_inited_ = false;
-    std::set<std::string> KeyWordSet::key_words_;
+    std::map<std::string, TokenType> KeyWordSet::key_words_;
 
     // KeyWordSet -------------------------------------------------------------
 
@@ -39,16 +12,36 @@ namespace lua
     {
         if (!is_inited_)
         {
-            int total = sizeof(lua_key_word) / sizeof(lua_key_word[0]);
-            for (int i = 0; i < total; ++i)
-                key_words_.insert(lua_key_word[i]);
-            is_inited_ = true;
+            key_words_.insert(std::make_pair("and", KW_AND));
+            key_words_.insert(std::make_pair("break", KW_BREAK));
+            key_words_.insert(std::make_pair("do", KW_DO));
+            key_words_.insert(std::make_pair("else", KW_ELSE));
+            key_words_.insert(std::make_pair("elseif", KW_ELSEIF));
+            key_words_.insert(std::make_pair("end", KW_END));
+            key_words_.insert(std::make_pair("false", KW_FALSE));
+            key_words_.insert(std::make_pair("for", KW_FOR));
+            key_words_.insert(std::make_pair("function", KW_FUNCTION));
+            key_words_.insert(std::make_pair("if", KW_IF));
+            key_words_.insert(std::make_pair("in", KW_IN));
+            key_words_.insert(std::make_pair("local", KW_LOCAL));
+            key_words_.insert(std::make_pair("nil", KW_NIL));
+            key_words_.insert(std::make_pair("not", KW_NOT));
+            key_words_.insert(std::make_pair("or", KW_OR));
+            key_words_.insert(std::make_pair("repeat", KW_REPEAT));
+            key_words_.insert(std::make_pair("return", KW_RETUREN));
+            key_words_.insert(std::make_pair("then", KW_THEN));
+            key_words_.insert(std::make_pair("true", KW_TRUE));
+            key_words_.insert(std::make_pair("until", KW_UNTIL));
+            key_words_.insert(std::make_pair("while", KW_WHILE));
         }
     }
 
-    bool KeyWordSet::IsKeyWord(const std::string& token)
+    TokenType KeyWordSet::GetTokenType(const std::string& token)
     {
-        return key_words_.find(token) != key_words_.end();
+        std::map<std::string, TokenType>::iterator it = key_words_.find(token);
+        if (it != key_words_.end())
+            return it->second;
+        return IDENTIFIER;
     }
 
     // LexTable ---------------------------------------------------------------
@@ -67,14 +60,12 @@ namespace lua
         return table_[index];
     }
 
-    int LexTable::InsertNewToken(const std::string& value, int line, int column, TokenType type)
+    int LexTable::InsertNewToken(const std::string& value, TokenType type)
     {
         int index = table_.size();
 
         Token *token = new Token;
         token->value = value;
-        token->line_number = line;
-        token->column_number = column;
         token->type = type;
         table_.push_back(token);
 
