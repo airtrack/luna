@@ -2,6 +2,7 @@
 #define SOURCE_H
 
 #include <vector>
+#include <stdio.h>
 
 namespace lua
 {
@@ -13,7 +14,7 @@ namespace lua
             EOS = -1,
         };
 
-        Source();
+        explicit Source(FILE *file);
 
         int Peek() const;
         int Next();

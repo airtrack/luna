@@ -2,11 +2,21 @@
 
 namespace lua
 {
-    Source::Source()
+    Source::Source(FILE *file)
         : cur_pos_(-1),
           cur_line_number_(1),
           cur_column_number_(0)
     {
+        long cur = ftell(file);
+        fseek(file, 0, SEEK_END);
+        long len = ftell(file) - cur;
+        fseek(file, cur, SEEK_SET);
+
+        if (len > 0)
+        {
+            source_buf_.resize(len);
+            fread(&source_buf_[0], len, 1, file);
+        }
     }
 
     int Source::Peek() const

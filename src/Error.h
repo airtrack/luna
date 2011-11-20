@@ -13,7 +13,7 @@ namespace lua
             NO_MULTILINE_COMMENT_ENDER,
             NO_STRING_ENDER,
             NO_LONG_STRING_ENDER,
-            NO_COMPLETE_NOT_EQUAL,
+            NO_COMPLETE_NOT_EQUAL_OP,
             INVALIDATE_NUMBER,
             ILLEGAL_CHARACTER,
         };
@@ -29,6 +29,7 @@ namespace lua
         std::string desc_helper;
 
         static void ThrowError(Type type, int line, int column, const std::string& desc);
+        static std::string ConvertToReadable(const Error& error);
     };
 } // namespace lua
 

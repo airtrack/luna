@@ -90,7 +90,7 @@ namespace lua
                     return LexOperatorAndNext("~=", OP_NOTEQUAL);
                 else
                 {
-                    Error::ThrowError(Error::NO_COMPLETE_NOT_EQUAL,
+                    Error::ThrowError(Error::NO_COMPLETE_NOT_EQUAL_OP,
                         source_->GetLineNum(), source_->GetColumnNum(), "~=");
                     return -1;
                 }
@@ -167,6 +167,7 @@ namespace lua
             {
                 str.push_back(c);
             }
+            source_->Next();
         }
 
         return -1;
@@ -178,7 +179,7 @@ namespace lua
         source_->Next();
 
         int c = source_->Peek();
-        while (c != Source::EOS || c != '[' || c != ']')
+        while (c != Source::EOS && c != '[' && c != ']')
         {
             long_str.push_back(source_->Next());
             c = source_->Peek();
@@ -242,6 +243,7 @@ namespace lua
                 identifier.push_back(c);
             else
                 break;
+            source_->Next();
         }
 
         if (identifier.empty())
