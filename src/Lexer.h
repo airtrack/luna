@@ -27,6 +27,7 @@ namespace lua
         int LexString();
         int LexLongString();
         int LexUniqueOperator();
+        int LexDotsOperator();
         int LexKeyWordAndIdentifier();
         int LexOperatorAndNext(const char *op, TokenType type);
         void SkipWhiteChar();

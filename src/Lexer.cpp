@@ -56,12 +56,7 @@ namespace lua
             case '{': case '}': case ']': case ':':
                 return LexUniqueOperator();
             case '.':
-                source_->Next();
-                c = source_->Peek();
-                if (c == '.')
-                    return LexOperatorAndNext("..", OP_MERGE);
-                else
-                    return lex_table_->InsertNewToken(".", OP_DOT);
+                return LexDotsOperator();
             case '=':
                 source_->Next();
                 c = source_->Peek();
@@ -230,6 +225,26 @@ namespace lua
         case ':': type = OP_COLON; break;
         }
         return lex_table_->InsertNewToken(op, type);
+    }
+
+    int Lexer::LexDotsOperator()
+    {
+        source_->Next();
+        int c = source_->Peek();
+
+        if (c == '.')
+        {
+            source_->Next();
+            c = source_->Peek();
+            if (c == '.')
+                return LexOperatorAndNext("...", OP_PARAM_LIST);
+            else
+                return lex_table_->InsertNewToken("..", OP_MERGE);
+        }
+        else
+        {
+            return lex_table_->InsertNewToken(".", OP_DOT);
+        }
     }
 
     int Lexer::LexKeyWordAndIdentifier()

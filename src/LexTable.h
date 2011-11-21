@@ -59,6 +59,7 @@ namespace lua
         OP_NOTEQUAL,
         OP_DOT,
         OP_MERGE,
+        OP_PARAM_LIST,
         OP_COLON,
     };
 
