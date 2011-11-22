@@ -15,7 +15,8 @@ namespace lua
         if (len > 0)
         {
             source_buf_.resize(len);
-            fread(&source_buf_[0], len, 1, file);
+            len = fread(&source_buf_[0], 1, len, file);
+            source_buf_.resize(len);
         }
     }
 
