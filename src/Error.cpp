@@ -4,12 +4,12 @@
 namespace lua
 {
     // static
-    void Error::ThrowError(Type type, int line, int column, const std::string& desc)
+    void LexError::ThrowError(Type type, int line, int column, const std::string& desc)
     {
-        throw Error(type, line, column, desc);
+        throw LexError(type, line, column, desc);
     }
 
-    std::string Error::ConvertToReadable(const Error& error)
+    std::string LexError::ConvertToReadable(const LexError& error)
     {
         std::ostringstream es;
         es << "Error [" << error.error_line << "]: ";
@@ -41,5 +41,10 @@ namespace lua
         es << " at column " << error.error_column << ".";
 
         return es.str();
+    }
+
+    void ParserError::ThrowError(int line, int column, const std::string& desc)
+    {
+        throw ParserError(line, column, desc);
     }
 } // namespace lua

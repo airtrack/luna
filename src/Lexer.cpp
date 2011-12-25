@@ -6,7 +6,8 @@
 namespace lua
 {
     Lexer::Lexer(Source *source, LexTable *lex_table)
-        : source_(source),
+        : cur_token_(-1),
+          source_(source),
           lex_table_(lex_table)
     {
         KeyWordSet::InitKeyWordSet();
@@ -15,9 +16,16 @@ namespace lua
     int Lexer::GetToken()
     {
         if (source_->Peek() != Source::EOS)
-            return LexToken();
+            cur_token_ = LexToken();
         else
-            return -1;
+            cur_token_ = -1;
+
+        return cur_token_;
+    }
+
+    int Lexer::GetCurToken() const
+    {
+        return cur_token_;
     }
 
     int Lexer::LexToken()
@@ -85,7 +93,7 @@ namespace lua
                     return LexOperatorAndNext("~=", OP_NOTEQUAL);
                 else
                 {
-                    Error::ThrowError(Error::NO_COMPLETE_NOT_EQUAL_OP,
+                    LexError::ThrowError(LexError::NO_COMPLETE_NOT_EQUAL_OP,
                         source_->GetLineNum(), source_->GetColumnNum(), "~=");
                     return -1;
                 }
@@ -122,7 +130,7 @@ namespace lua
             }
             else if (isalpha(c))
             {
-                Error::ThrowError(Error::INVALIDATE_NUMBER,
+                LexError::ThrowError(LexError::INVALIDATE_NUMBER,
                     source_->GetLineNum(), source_->GetColumnNum(), num_str);
                 return -1;
             }
@@ -149,7 +157,7 @@ namespace lua
             {
                 std::string err_helper;
                 err_helper.push_back(ender);
-                Error::ThrowError(Error::NO_STRING_ENDER,
+                LexError::ThrowError(LexError::NO_STRING_ENDER,
                     source_->GetLineNum(), source_->GetColumnNum(), err_helper);
                 return -1;
             }
@@ -182,7 +190,7 @@ namespace lua
 
         if (c == Source::EOS || c == '[')
         {
-            Error::ThrowError(Error::NO_LONG_STRING_ENDER,
+            LexError::ThrowError(LexError::NO_LONG_STRING_ENDER,
                 source_->GetLineNum(), source_->GetColumnNum(), "]]");
             return -1;
         }
@@ -195,7 +203,7 @@ namespace lua
             return lex_table_->InsertNewToken(long_str, STRING);
         }
 
-        Error::ThrowError(Error::NO_LONG_STRING_ENDER,
+        LexError::ThrowError(LexError::NO_LONG_STRING_ENDER,
             source_->GetLineNum(), source_->GetColumnNum(), "]]");
         return -1;
     }
@@ -263,7 +271,7 @@ namespace lua
 
         if (identifier.empty())
         {
-            Error::ThrowError(Error::ILLEGAL_CHARACTER,
+            LexError::ThrowError(LexError::ILLEGAL_CHARACTER,
                 source_->GetLineNum(), source_->GetColumnNum(), "");
             return -1;
         }
@@ -330,7 +338,7 @@ namespace lua
         }
 
         // Not found multi-line comment ender, so there has an error
-        Error::ThrowError(Error::NO_MULTILINE_COMMENT_ENDER,
+        LexError::ThrowError(LexError::NO_MULTILINE_COMMENT_ENDER,
             source_->GetLineNum(), source_->GetColumnNum(), "--]]");
     }
 } // namespace lua

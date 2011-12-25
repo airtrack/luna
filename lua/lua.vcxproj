@@ -61,15 +61,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Error.h" />
+    <ClInclude Include="..\src\Expression.h" />
     <ClInclude Include="..\src\Lexer.h" />
     <ClInclude Include="..\src\LexTable.h" />
+    <ClInclude Include="..\src\Parser.h" />
+    <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
+    <ClInclude Include="..\src\Statement.h" />
+    <ClInclude Include="..\src\StlUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp" />
+    <ClCompile Include="..\src\Expression.cpp" />
     <ClCompile Include="..\src\Lexer.cpp" />
     <ClCompile Include="..\src\LexTable.cpp" />
+    <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Source.cpp" />
+    <ClCompile Include="..\src\Statement.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

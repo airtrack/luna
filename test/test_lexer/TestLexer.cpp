@@ -32,9 +32,9 @@ int main(int argc, char **argv)
         }
 
         printf("Lex successful!\n");
-    } catch (const Error& error)
+    } catch (const LexError& error)
     {
-        std::string err_str = Error::ConvertToReadable(error);
+        std::string err_str = LexError::ConvertToReadable(error);
         printf("%s\n", err_str.c_str());
     }
 

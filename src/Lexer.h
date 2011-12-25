@@ -17,9 +17,26 @@ namespace lua
             return lex_table_;
         }
 
-        // Return token index of LexTable
+        // Return next token index of LexTable
         // if return value is -1, then the source is parse over.
         int GetToken();
+
+        // Return current token index of LexTable
+        // if return value >= 0, then current token is validate,
+        // else we need call GetToken() to get new token index.
+        int GetCurToken() const;
+
+        // Get current line number of the source
+        int GetLineNumber() const
+        {
+            return source_->GetLineNum();
+        }
+
+        // Get current column number of the source
+        int GetColumnNumber() const
+        {
+            return source_->GetColumnNum();
+        }
 
     private:
         int LexToken();
@@ -35,6 +52,7 @@ namespace lua
         void LexSingleLineComment();
         void LexMultiLineComment();
 
+        int cur_token_;
         Source *source_;
         LexTable *lex_table_;
     };

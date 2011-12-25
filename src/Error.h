@@ -6,7 +6,7 @@
 
 namespace lua
 {
-    struct Error
+    struct LexError
     {
         enum Type
         {
@@ -18,7 +18,7 @@ namespace lua
             ILLEGAL_CHARACTER,
         };
 
-        Error(Type t, int line, int column, const std::string& desc)
+        LexError(Type t, int line, int column, const std::string& desc)
             : type(t), error_line(line), error_column(column), desc_helper(desc)
         {
         }
@@ -29,7 +29,23 @@ namespace lua
         std::string desc_helper;
 
         static void ThrowError(Type type, int line, int column, const std::string& desc);
-        static std::string ConvertToReadable(const Error& error);
+        static std::string ConvertToReadable(const LexError& error);
+    };
+
+    struct ParserError
+    {
+        int error_line;
+        int error_column;
+        std::string desc_helper;
+
+        ParserError(int line, int column, const std::string& desc)
+            : error_line(line),
+              error_column(column),
+              desc_helper(desc)
+        {
+        }
+
+        static void ThrowError(int line, int column, const std::string& desc);
     };
 } // namespace lua
 
