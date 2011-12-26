@@ -313,8 +313,54 @@ namespace lua
         return true;
     }
 
+    ForStatement::ForStatement()
+        : in_mode_(false),
+          name_list_(0),
+          exp_list_(0),
+          block_stmt_(0)
+    {
+    }
+
+    ForStatement::~ForStatement()
+    {
+        delete name_list_;
+        delete exp_list_;
+        delete block_stmt_;
+    }
+
     bool ForStatement::ParseNode(Lexer *lexer)
     {
+        LexTable &lex_table = *(lexer->GetLexTable());
+        int index = lexer->GetCurToken();
+
+        if (index < 0 || lex_table[index]->type != KW_FOR)
+            THROW_PARSER_ERROR("expect 'for' here");
+
+        std::unique_ptr<NameListExpression> name_list(new NameListExpression);
+        name_list->ParseNode(lexer);
+
+        index = lexer->GetCurToken();
+        if (index < 0 || lex_table[index]->type != OP_ASSIGN ||
+            lex_table[index]->type != KW_IN)
+            THROW_PARSER_ERROR("expect '=' or 'in' here");
+
+        if (lex_table[index]->type == KW_IN)
+            in_mode_ = true;
+
+        // '=' mode, then 'name' must only one.
+        if (!in_mode_ && name_list->GetNameCount() != 1)
+            THROW_PARSER_ERROR("expect only one 'name' here");
+
+        std::unique_ptr<ExpListExpression> exp_list(new ExpListExpression);
+        exp_list->ParseNode(lexer);
+
+        // '=' mode, then 'exp' must less equal than three.
+        if (!in_mode_ && exp_list->GetExpCount() > 3)
+            THROW_PARSER_ERROR("expect 3 'exp' here at most");
+
+        ParseDoBlockEnd(block_stmt_, lexer);
+        name_list_ = name_list.release();
+        exp_list_ = exp_list.release();
         return true;
     }
 

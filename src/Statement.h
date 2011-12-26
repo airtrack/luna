@@ -109,7 +109,15 @@ namespace lua
     class ForStatement : public Statement
     {
     public:
+        ForStatement();
+        virtual ~ForStatement();
         virtual bool ParseNode(Lexer *lexer);
+
+    private:
+        bool in_mode_;
+        ParseTreeNode *name_list_;
+        ParseTreeNode *exp_list_;
+        Statement *block_stmt_;
     };
 
     class FunctionStatement : public Statement
