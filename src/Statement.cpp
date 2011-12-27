@@ -15,7 +15,7 @@ namespace lua
     bool ParseDoBlockEnd(Statement *&block_stmt, Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         // Parse "do"
         if (index < 0 || lex_table[index]->type != KW_DO)
@@ -26,7 +26,7 @@ namespace lua
         block_stmt->ParseNode(lexer);
 
         // Parse "end"
-        index = lexer->GetCurToken();
+        index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
 
@@ -83,6 +83,7 @@ namespace lua
                 break;
             case KW_RETUREN:
                 return_stat_ = new ReturnStatement;
+                lexer->UngetToken(index);
                 return_stat_->ParseNode(lexer);
                 break;
             case KW_END:
@@ -90,6 +91,7 @@ namespace lua
             case KW_ELSE:
             case KW_ELSEIF:
                 // End of the block
+                lexer->UngetToken(index);
                 return true;
             default:
                 break;
@@ -98,6 +100,7 @@ namespace lua
             if (stat)
             {
                 statements_.push_back(stat);
+                lexer->UngetToken(index);
                 stat->ParseNode(lexer);
             }
 
@@ -122,7 +125,7 @@ namespace lua
         block_stmt_ = new BlockStatement;
         block_stmt_->ParseNode(lexer);
 
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
         if (index != -1)
             THROW_PARSER_ERROR("expect '<eof>' here");
 
@@ -159,7 +162,7 @@ namespace lua
     bool WhileStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_WHILE)
             THROW_PARSER_ERROR("expect 'while' here");
@@ -185,7 +188,7 @@ namespace lua
     bool RepeatStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_REPEAT)
             THROW_PARSER_ERROR("expect 'repeat' here");
@@ -193,7 +196,7 @@ namespace lua
         block_stmt_ = new BlockStatement;
         block_stmt_->ParseNode(lexer);
 
-        index = lexer->GetCurToken();
+        index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_UNTIL)
             THROW_PARSER_ERROR("expect 'until' here");
 
@@ -207,14 +210,14 @@ namespace lua
         exp = new BasicExpression;
         exp->ParseNode(lexer);
 
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_THEN)
             THROW_PARSER_ERROR("expect 'then' here");
 
         block_stmt = new BlockStatement;
         block_stmt->ParseNode(lexer);
 
-        index = lexer->GetCurToken();
+        index = lexer->GetToken();
         if (index < 0)
             THROW_PARSER_ERROR("expect 'end' here");
 
@@ -232,7 +235,10 @@ namespace lua
         }
 
         if (else_stmt)
+        {
+            lexer->UngetToken(index);
             else_stmt->ParseNode(lexer);
+        }
         return true;
     }
 
@@ -253,7 +259,7 @@ namespace lua
     bool IfStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_IF)
             THROW_PARSER_ERROR("expect 'if' here");
@@ -278,7 +284,7 @@ namespace lua
     bool ElseIfStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_ELSEIF)
             THROW_PARSER_ERROR("expect 'elseif' here");
@@ -299,7 +305,7 @@ namespace lua
     bool ElseStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_ELSE)
             THROW_PARSER_ERROR("expect 'else' here");
@@ -307,7 +313,7 @@ namespace lua
         block_stmt_ = new BlockStatement;
         block_stmt_->ParseNode(lexer);
 
-        index = lexer->GetCurToken();
+        index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
         return true;
@@ -331,7 +337,7 @@ namespace lua
     bool ForStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = *(lexer->GetLexTable());
-        int index = lexer->GetCurToken();
+        int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_FOR)
             THROW_PARSER_ERROR("expect 'for' here");
@@ -339,7 +345,7 @@ namespace lua
         std::unique_ptr<NameListExpression> name_list(new NameListExpression);
         name_list->ParseNode(lexer);
 
-        index = lexer->GetCurToken();
+        index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_ASSIGN ||
             lex_table[index]->type != KW_IN)
             THROW_PARSER_ERROR("expect '=' or 'in' here");
@@ -356,7 +362,7 @@ namespace lua
 
         // '=' mode, then 'exp' must less equal than three.
         if (!in_mode_ && exp_list->GetExpCount() > 3)
-            THROW_PARSER_ERROR("expect 3 'exp' here at most");
+            THROW_PARSER_ERROR("expect three 'exp' here at most");
 
         ParseDoBlockEnd(block_stmt_, lexer);
         name_list_ = name_list.release();

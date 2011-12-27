@@ -6,8 +6,7 @@
 namespace lua
 {
     Lexer::Lexer(Source *source, LexTable *lex_table)
-        : cur_token_(-1),
-          source_(source),
+        : source_(source),
           lex_table_(lex_table)
     {
         KeyWordSet::InitKeyWordSet();
@@ -15,17 +14,17 @@ namespace lua
 
     int Lexer::GetToken()
     {
-        if (source_->Peek() != Source::EOS)
-            cur_token_ = LexToken();
-        else
-            cur_token_ = -1;
+        if (unget_.empty())
+            return LexToken();
 
-        return cur_token_;
+        int token = unget_.top();
+        unget_.pop();
+        return token;
     }
 
-    int Lexer::GetCurToken() const
+    void Lexer::UngetToken(int token)
     {
-        return cur_token_;
+        unget_.push(token);
     }
 
     int Lexer::LexToken()

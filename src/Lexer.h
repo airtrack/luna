@@ -3,6 +3,7 @@
 
 #include "Source.h"
 #include "LexTable.h"
+#include <stack>
 
 namespace lua
 {
@@ -21,10 +22,8 @@ namespace lua
         // if return value is -1, then the source is parse over.
         int GetToken();
 
-        // Return current token index of LexTable
-        // if return value >= 0, then current token is validate,
-        // else we need call GetToken() to get new token index.
-        int GetCurToken() const;
+        // Back the token, call GetToken function will re-get the token.
+        void UngetToken(int token);
 
         // Get current line number of the source
         int GetLineNumber() const
@@ -52,7 +51,7 @@ namespace lua
         void LexSingleLineComment();
         void LexMultiLineComment();
 
-        int cur_token_;
+        std::stack<int> unget_;
         Source *source_;
         LexTable *lex_table_;
     };
