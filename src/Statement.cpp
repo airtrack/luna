@@ -14,7 +14,7 @@ namespace lua
 
     bool ParseDoBlockEnd(Statement *&block_stmt, Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         // Parse "do"
@@ -46,7 +46,7 @@ namespace lua
 
     bool BlockStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         while (index != -1 && return_stat_ != 0)
@@ -161,7 +161,7 @@ namespace lua
 
     bool WhileStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_WHILE)
@@ -187,7 +187,7 @@ namespace lua
 
     bool RepeatStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_REPEAT)
@@ -206,7 +206,7 @@ namespace lua
 
     bool ParseExpThenElse(ParseTreeNode *&exp, Statement *&block_stmt, Statement *&else_stmt, Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         exp = new BasicExpression;
         exp->ParseNode(lexer);
 
@@ -258,7 +258,7 @@ namespace lua
 
     bool IfStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_IF)
@@ -283,7 +283,7 @@ namespace lua
 
     bool ElseIfStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_ELSEIF)
@@ -304,7 +304,7 @@ namespace lua
 
     bool ElseStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_ELSE)
@@ -336,7 +336,7 @@ namespace lua
 
     bool ForStatement::ParseNode(Lexer *lexer)
     {
-        LexTable &lex_table = *(lexer->GetLexTable());
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_FOR)

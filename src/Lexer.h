@@ -13,9 +13,9 @@ namespace lua
         Lexer(Source *source, LexTable *lex_table);
 
         // Return token storing LexTable
-        LexTable * GetLexTable() const
+        LexTable& GetLexTable() const
         {
-            return lex_table_;
+            return *lex_table_;
         }
 
         // Return next token index of LexTable
