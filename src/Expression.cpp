@@ -26,4 +26,14 @@ namespace lua
     {
         return 0;
     }
+
+    bool FuncNameExpression::ParseNode(Lexer *lexer)
+    {
+        return true;
+    }
+
+    bool ParamListExpression::ParseNode(Lexer *lexer)
+    {
+        return true;
+    }
 } // namespace lua

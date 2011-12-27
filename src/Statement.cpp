@@ -107,6 +107,7 @@ namespace lua
             index = lexer->GetToken();
         }
 
+        lexer->UngetToken(index);
         return true;
     }
 
@@ -370,8 +371,48 @@ namespace lua
         return true;
     }
 
+    FunctionStatement::FunctionStatement()
+        : func_name_(0),
+          param_list_(0),
+          block_stmt_(0)
+    {
+    }
+
+    FunctionStatement::~FunctionStatement()
+    {
+        delete func_name_;
+        delete param_list_;
+        delete block_stmt_;
+    }
+
     bool FunctionStatement::ParseNode(Lexer *lexer)
     {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != KW_FUNCTION)
+            THROW_PARSER_ERROR("expect 'function' here");
+
+        func_name_ = new FuncNameExpression;
+        func_name_->ParseNode(lexer);
+
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
+            THROW_PARSER_ERROR("expect '(' here");
+
+        param_list_ = new ParamListExpression;
+        param_list_->ParseNode(lexer);
+
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
+            THROW_PARSER_ERROR("expect ')' here");
+
+        block_stmt_ = new BlockStatement;
+        block_stmt_->ParseNode(lexer);
+
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != KW_END)
+            THROW_PARSER_ERROR("expect 'end' here");
         return true;
     }
 
@@ -382,11 +423,33 @@ namespace lua
 
     bool BreakStatement::ParseNode(Lexer *lexer)
     {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != KW_BREAK)
+            THROW_PARSER_ERROR("expect 'break' here");
         return true;
+    }
+
+    ReturnStatement::ReturnStatement()
+        : exp_list_(0)
+    {
+    }
+
+    ReturnStatement::~ReturnStatement()
+    {
+        delete exp_list_;
     }
 
     bool ReturnStatement::ParseNode(Lexer *lexer)
     {
-        return true;
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != KW_RETUREN)
+            THROW_PARSER_ERROR("expect 'return' here");
+
+        exp_list_ = new ExpListExpression;
+        return exp_list_->ParseNode(lexer);
     }
 } // namespace lua

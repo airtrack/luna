@@ -123,7 +123,14 @@ namespace lua
     class FunctionStatement : public Statement
     {
     public:
+        FunctionStatement();
+        virtual ~FunctionStatement();
         virtual bool ParseNode(Lexer *lexer);
+
+    private:
+        ParseTreeNode *func_name_;
+        ParseTreeNode *param_list_;
+        Statement *block_stmt_;
     };
 
     class LocalStatement : public Statement
@@ -141,7 +148,12 @@ namespace lua
     class ReturnStatement : public Statement
     {
     public:
+        ReturnStatement();
+        virtual ~ReturnStatement();
         virtual bool ParseNode(Lexer *lexer);
+
+    private:
+        ParseTreeNode *exp_list_;
     };
 } // namespace lua
 
