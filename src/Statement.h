@@ -123,7 +123,14 @@ namespace lua
     class FunctionStatement : public Statement
     {
     public:
-        FunctionStatement();
+        enum FuncNameType
+        {
+            NORMAL_FUNC_NAME,
+            LOCAL_FUNC_NAME,
+            NO_FUNC_NAME,
+        };
+
+        explicit FunctionStatement(FuncNameType name_type = NORMAL_FUNC_NAME);
         virtual ~FunctionStatement();
         virtual bool ParseNode(Lexer *lexer);
 
@@ -136,7 +143,15 @@ namespace lua
     class LocalStatement : public Statement
     {
     public:
+        LocalStatement();
+        virtual ~LocalStatement();
         virtual bool ParseNode(Lexer *lexer);
+
+    private:
+        bool is_func_;
+        Statement *func_stmt_;
+        ParseTreeNode *name_list_;
+        ParseTreeNode *exp_list_;
     };
 
     class BreakStatement : public Statement

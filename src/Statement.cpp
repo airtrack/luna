@@ -371,11 +371,23 @@ namespace lua
         return true;
     }
 
-    FunctionStatement::FunctionStatement()
+    FunctionStatement::FunctionStatement(FuncNameType name_type)
         : func_name_(0),
           param_list_(0),
           block_stmt_(0)
     {
+        switch (name_type)
+        {
+        case NORMAL_FUNC_NAME:
+            func_name_ = new FuncNameExpression;
+            break;
+        case LOCAL_FUNC_NAME:
+            func_name_ = new NameExpression;
+            break;
+        case NO_FUNC_NAME:
+            // No func name, so we don't new a func name.
+            break;
+        }
     }
 
     FunctionStatement::~FunctionStatement()
@@ -393,8 +405,8 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_FUNCTION)
             THROW_PARSER_ERROR("expect 'function' here");
 
-        func_name_ = new FuncNameExpression;
-        func_name_->ParseNode(lexer);
+        if (func_name_)
+            func_name_->ParseNode(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
@@ -416,8 +428,57 @@ namespace lua
         return true;
     }
 
+    LocalStatement::LocalStatement()
+        : is_func_(false),
+          func_stmt_(0),
+          name_list_(0),
+          exp_list_(0)
+    {
+    }
+
+    LocalStatement::~LocalStatement()
+    {
+        delete func_stmt_;
+        delete name_list_;
+        delete exp_list_;
+    }
+
     bool LocalStatement::ParseNode(Lexer *lexer)
     {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != KW_LOCAL)
+            THROW_PARSER_ERROR("expect 'local' here");
+
+        index = lexer->GetToken();
+        if (index < 0)
+            THROW_PARSER_ERROR("expect 'function' or 'name' here");
+
+        if (lex_table[index]->type == KW_FUNCTION)
+        {
+            is_func_ = true;
+            lexer->UngetToken(index);
+            func_stmt_ = new FunctionStatement(FunctionStatement::LOCAL_FUNC_NAME);
+            func_stmt_->ParseNode(lexer);
+        }
+        else
+        {
+            lexer->UngetToken(index);
+            name_list_ = new NameListExpression;
+            name_list_->ParseNode(lexer);
+            index = lexer->GetToken();
+            if (index >= 0 && lex_table[index]->type == OP_ASSIGN)
+            {
+                exp_list_ = new ExpListExpression;
+                exp_list_->ParseNode(lexer);
+            }
+            else
+            {
+                lexer->UngetToken(index);
+            }
+        }
+
         return true;
     }
 

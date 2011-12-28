@@ -16,6 +16,12 @@ namespace lua
         virtual bool ParseNode(Lexer *lexer);
     };
 
+    class NameExpression : public Expression
+    {
+    public:
+        virtual bool ParseNode(Lexer *lexer);
+    };
+
     class NameListExpression : public Expression
     {
     public:

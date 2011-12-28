@@ -7,6 +7,11 @@ namespace lua
         return true;
     }
 
+    bool NameExpression::ParseNode(Lexer *lexer)
+    {
+        return true;
+    }
+
     bool NameListExpression::ParseNode(Lexer *lexer)
     {
         return true;
