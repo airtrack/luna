@@ -68,7 +68,6 @@
     <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
     <ClInclude Include="..\src\Statement.h" />
-    <ClInclude Include="..\src\StlUtility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp" />
