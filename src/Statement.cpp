@@ -1,18 +1,11 @@
 #include "Statement.h"
 #include "Expression.h"
-#include "StlUtility.h"
 #include "Error.h"
 #include "Lexer.h"
 
 namespace lua
 {
-#define THROW_PARSER_ERROR(desc) \
-    ParserError::ThrowError(     \
-        lexer->GetLineNumber(),  \
-        lexer->GetColumnNumber(),\
-        desc)
-
-    bool ParseDoBlockEnd(Statement *&block_stmt, Lexer *lexer)
+    bool ParseDoBlockEnd(StatementPtr &block_stmt, Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -22,7 +15,7 @@ namespace lua
             THROW_PARSER_ERROR("expect 'do' here");
 
         // Parse the block statements
-        block_stmt = new BlockStatement;
+        block_stmt.reset(new BlockStatement);
         block_stmt->ParseNode(lexer);
 
         // Parse "end"
@@ -33,17 +26,6 @@ namespace lua
         return true;
     }
 
-    BlockStatement::BlockStatement()
-        : return_stat_(0)
-    {
-    }
-
-    BlockStatement::~BlockStatement()
-    {
-        erase_elements(statements_);
-        delete return_stat_;
-    }
-
     bool BlockStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -51,38 +33,38 @@ namespace lua
 
         while (index != -1 && return_stat_ != 0)
         {
-            Statement *stat = 0;
+            ParseTreeNodePtr stat;
             switch (lex_table[index]->type)
             {
             case OP_SEMICOLON:
                 // Empty statement
                 break;
             case KW_DO:
-                stat = new DoStatement;
+                stat.reset(new DoStatement);
                 break;
             case KW_WHILE:
-                stat = new WhileStatement;
+                stat.reset(new WhileStatement);
                 break;
             case KW_REPEAT:
-                stat = new RepeatStatement;
+                stat.reset(new RepeatStatement);
                 break;
             case KW_IF:
-                stat = new IfStatement;
+                stat.reset(new IfStatement);
                 break;
             case KW_FOR:
-                stat = new ForStatement;
+                stat.reset(new ForStatement);
                 break;
             case KW_FUNCTION:
-                stat = new FunctionStatement;
+                stat.reset(new FunctionStatement);
                 break;
             case KW_LOCAL:
-                stat = new LocalStatement;
+                stat.reset(new LocalStatement);
                 break;
             case KW_BREAK:
-                stat = new BreakStatement;
+                stat.reset(new BreakStatement);
                 break;
             case KW_RETUREN:
-                return_stat_ = new ReturnStatement;
+                return_stat_.reset(new ReturnStatement);
                 lexer->UngetToken(index);
                 return_stat_->ParseNode(lexer);
                 break;
@@ -94,14 +76,15 @@ namespace lua
                 lexer->UngetToken(index);
                 return true;
             default:
+                stat = ParseFuncCallOrAssignExpression(lexer);
                 break;
             }
 
             if (stat)
             {
-                statements_.push_back(stat);
                 lexer->UngetToken(index);
                 stat->ParseNode(lexer);
+                statements_.push_back(std::move(stat));
             }
 
             index = lexer->GetToken();
@@ -111,19 +94,9 @@ namespace lua
         return true;
     }
 
-    ChunkStatement::ChunkStatement()
-        : block_stmt_(0)
-    {
-    }
-
-    ChunkStatement::~ChunkStatement()
-    {
-        delete block_stmt_;
-    }
-
     bool ChunkStatement::ParseNode(Lexer *lexer)
     {
-        block_stmt_ = new BlockStatement;
+        block_stmt_.reset(new BlockStatement);
         block_stmt_->ParseNode(lexer);
 
         int index = lexer->GetToken();
@@ -133,31 +106,9 @@ namespace lua
         return true;
     }
 
-    DoStatement::DoStatement()
-        : block_stmt_(0)
-    {
-    }
-
-    DoStatement::~DoStatement()
-    {
-        delete block_stmt_;
-    }
-
     bool DoStatement::ParseNode(Lexer *lexer)
     {
         return ParseDoBlockEnd(block_stmt_, lexer);
-    }
-
-    WhileStatement::WhileStatement()
-        : exp_(0),
-          block_stmt_(0)
-    {
-    }
-
-    WhileStatement::~WhileStatement()
-    {
-        delete exp_;
-        delete block_stmt_;
     }
 
     bool WhileStatement::ParseNode(Lexer *lexer)
@@ -168,22 +119,9 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_WHILE)
             THROW_PARSER_ERROR("expect 'while' here");
 
-        exp_ = new BasicExpression;
-        exp_->ParseNode(lexer);
+        exp_ = ParseBasicExpression(lexer);
 
         return ParseDoBlockEnd(block_stmt_, lexer);
-    }
-
-    RepeatStatement::RepeatStatement()
-        : block_stmt_(0),
-          exp_(0)
-    {
-    }
-
-    RepeatStatement::~RepeatStatement()
-    {
-        delete block_stmt_;
-        delete exp_;
     }
 
     bool RepeatStatement::ParseNode(Lexer *lexer)
@@ -194,28 +132,28 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_REPEAT)
             THROW_PARSER_ERROR("expect 'repeat' here");
 
-        block_stmt_ = new BlockStatement;
+        block_stmt_.reset(new BlockStatement);
         block_stmt_->ParseNode(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_UNTIL)
             THROW_PARSER_ERROR("expect 'until' here");
 
-        exp_ = new BasicExpression;
-        return exp_->ParseNode(lexer);
+        exp_ = ParseBasicExpression(lexer);
+        return true;
     }
 
-    bool ParseExpThenElse(ParseTreeNode *&exp, Statement *&block_stmt, Statement *&else_stmt, Lexer *lexer)
+    bool ParseExpThenElse(ParseTreeNodePtr &exp, StatementPtr &block_stmt, StatementPtr &else_stmt, Lexer *lexer)
     {
-        LexTable &lex_table = lexer->GetLexTable();
-        exp = new BasicExpression;
-        exp->ParseNode(lexer);
+        exp = ParseBasicExpression(lexer);
 
+        LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
+
         if (index < 0 || lex_table[index]->type != KW_THEN)
             THROW_PARSER_ERROR("expect 'then' here");
 
-        block_stmt = new BlockStatement;
+        block_stmt.reset(new BlockStatement);
         block_stmt->ParseNode(lexer);
 
         index = lexer->GetToken();
@@ -225,10 +163,10 @@ namespace lua
         switch (lex_table[index]->type)
         {
         case KW_ELSEIF:
-            else_stmt = new ElseIfStatement;
+            else_stmt.reset(new ElseIfStatement);
             break;
         case KW_ELSE:
-            else_stmt = new ElseStatement;
+            else_stmt.reset(new ElseStatement);
             break;
         case KW_END:
             // No else statement, so else_stmt_ is 0.
@@ -243,20 +181,6 @@ namespace lua
         return true;
     }
 
-    IfStatement::IfStatement()
-        : exp_(0),
-          block_stmt_(0),
-          else_stmt_(0)
-    {
-    }
-
-    IfStatement::~IfStatement()
-    {
-        delete exp_;
-        delete block_stmt_;
-        delete else_stmt_;
-    }
-
     bool IfStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -266,20 +190,6 @@ namespace lua
             THROW_PARSER_ERROR("expect 'if' here");
 
         return ParseExpThenElse(exp_, block_stmt_, else_stmt_, lexer);
-    }
-
-    ElseIfStatement::ElseIfStatement()
-        : exp_(0),
-          block_stmt_(0),
-          else_stmt_(0)
-    {
-    }
-
-    ElseIfStatement::~ElseIfStatement()
-    {
-        delete exp_;
-        delete block_stmt_;
-        delete else_stmt_;
     }
 
     bool ElseIfStatement::ParseNode(Lexer *lexer)
@@ -293,16 +203,6 @@ namespace lua
         return ParseExpThenElse(exp_, block_stmt_, else_stmt_, lexer);
     }
 
-    ElseStatement::ElseStatement()
-        : block_stmt_(0)
-    {
-    }
-
-    ElseStatement::~ElseStatement()
-    {
-        delete block_stmt_;
-    }
-
     bool ElseStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -311,7 +211,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_ELSE)
             THROW_PARSER_ERROR("expect 'else' here");
 
-        block_stmt_ = new BlockStatement;
+        block_stmt_.reset(new BlockStatement);
         block_stmt_->ParseNode(lexer);
 
         index = lexer->GetToken();
@@ -321,18 +221,8 @@ namespace lua
     }
 
     ForStatement::ForStatement()
-        : in_mode_(false),
-          name_list_(0),
-          exp_list_(0),
-          block_stmt_(0)
+        : in_mode_(false)
     {
-    }
-
-    ForStatement::~ForStatement()
-    {
-        delete name_list_;
-        delete exp_list_;
-        delete block_stmt_;
     }
 
     bool ForStatement::ParseNode(Lexer *lexer)
@@ -343,8 +233,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_FOR)
             THROW_PARSER_ERROR("expect 'for' here");
 
-        std::unique_ptr<NameListExpression> name_list(new NameListExpression);
-        name_list->ParseNode(lexer);
+        std::unique_ptr<NameListExpression> name_list = ParseNameListExpression(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_ASSIGN ||
@@ -355,46 +244,24 @@ namespace lua
             in_mode_ = true;
 
         // '=' mode, then 'name' must only one.
-        if (!in_mode_ && name_list->GetNameCount() != 1)
+        if (!in_mode_ && name_list->GetCount() != 1)
             THROW_PARSER_ERROR("expect only one 'name' here");
 
-        std::unique_ptr<ExpListExpression> exp_list(new ExpListExpression);
-        exp_list->ParseNode(lexer);
+        std::unique_ptr<ExpListExpression> exp_list = ParseExpListExpression(lexer);
 
         // '=' mode, then 'exp' must less equal than three.
-        if (!in_mode_ && exp_list->GetExpCount() > 3)
+        if (!in_mode_ && exp_list->GetCount() > 3)
             THROW_PARSER_ERROR("expect three 'exp' here at most");
 
         ParseDoBlockEnd(block_stmt_, lexer);
-        name_list_ = name_list.release();
-        exp_list_ = exp_list.release();
+        name_list_ = name_list;
+        exp_list_ = exp_list;
         return true;
     }
 
     FunctionStatement::FunctionStatement(FuncNameType name_type)
-        : func_name_(0),
-          param_list_(0),
-          block_stmt_(0)
+        : name_type_(name_type)
     {
-        switch (name_type)
-        {
-        case NORMAL_FUNC_NAME:
-            func_name_ = new FuncNameExpression;
-            break;
-        case LOCAL_FUNC_NAME:
-            func_name_ = new NameExpression;
-            break;
-        case NO_FUNC_NAME:
-            // No func name, so we don't new a func name.
-            break;
-        }
-    }
-
-    FunctionStatement::~FunctionStatement()
-    {
-        delete func_name_;
-        delete param_list_;
-        delete block_stmt_;
     }
 
     bool FunctionStatement::ParseNode(Lexer *lexer)
@@ -405,21 +272,19 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_FUNCTION)
             THROW_PARSER_ERROR("expect 'function' here");
 
-        if (func_name_)
-            func_name_->ParseNode(lexer);
+        ParseFuncName(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
             THROW_PARSER_ERROR("expect '(' here");
 
-        param_list_ = new ParamListExpression;
-        param_list_->ParseNode(lexer);
+        param_list_ = ParseParamListExpression(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
             THROW_PARSER_ERROR("expect ')' here");
 
-        block_stmt_ = new BlockStatement;
+        block_stmt_.reset(new BlockStatement);
         block_stmt_->ParseNode(lexer);
 
         index = lexer->GetToken();
@@ -428,19 +293,25 @@ namespace lua
         return true;
     }
 
-    LocalStatement::LocalStatement()
-        : is_func_(false),
-          func_stmt_(0),
-          name_list_(0),
-          exp_list_(0)
+    void FunctionStatement::ParseFuncName(Lexer *lexer)
     {
+        switch (name_type_)
+        {
+        case NORMAL_FUNC_NAME:
+            func_name_ = ParseFuncNameExpression(lexer);
+            break;
+        case LOCAL_FUNC_NAME:
+            func_name_ = ParseNameExpression(lexer);
+            break;
+        case NO_FUNC_NAME:
+            // No func name, so we don't parse func name.
+            break;
+        }
     }
 
-    LocalStatement::~LocalStatement()
+    LocalStatement::LocalStatement()
+        : is_func_(false)
     {
-        delete func_stmt_;
-        delete name_list_;
-        delete exp_list_;
     }
 
     bool LocalStatement::ParseNode(Lexer *lexer)
@@ -459,19 +330,17 @@ namespace lua
         {
             is_func_ = true;
             lexer->UngetToken(index);
-            func_stmt_ = new FunctionStatement(FunctionStatement::LOCAL_FUNC_NAME);
+            func_stmt_.reset(new FunctionStatement(FunctionStatement::LOCAL_FUNC_NAME));
             func_stmt_->ParseNode(lexer);
         }
         else
         {
             lexer->UngetToken(index);
-            name_list_ = new NameListExpression;
-            name_list_->ParseNode(lexer);
+            name_list_ = ParseNameListExpression(lexer);
             index = lexer->GetToken();
             if (index >= 0 && lex_table[index]->type == OP_ASSIGN)
             {
-                exp_list_ = new ExpListExpression;
-                exp_list_->ParseNode(lexer);
+                exp_list_ = ParseExpListExpression(lexer);
             }
             else
             {
@@ -492,16 +361,6 @@ namespace lua
         return true;
     }
 
-    ReturnStatement::ReturnStatement()
-        : exp_list_(0)
-    {
-    }
-
-    ReturnStatement::~ReturnStatement()
-    {
-        delete exp_list_;
-    }
-
     bool ReturnStatement::ParseNode(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -510,7 +369,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_RETUREN)
             THROW_PARSER_ERROR("expect 'return' here");
 
-        exp_list_ = new ExpListExpression;
-        return exp_list_->ParseNode(lexer);
+        exp_list_ = ParseExpListExpression(lexer);
+        return true;
     }
 } // namespace lua
