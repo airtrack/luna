@@ -391,6 +391,7 @@ namespace lua
             break;
         case OP_MINUS:
             unary_type = UnaryExpression::UNARY_TYPE_NEGATIVE;
+            break;
         default:
             lexer->UngetToken(index);
             return ParsePowerExpression(lexer);
