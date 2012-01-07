@@ -1,4 +1,5 @@
 #include "Expression.h"
+#include "Statement.h"
 #include "Error.h"
 #include "Lexer.h"
 
@@ -15,6 +16,45 @@ namespace lua
           left_exp_(std::move(left_exp)),
           right_exp_(std::move(right_exp))
     {
+    }
+
+    BinaryExpression::BinaryType BinaryExpression::GetBinaryType(TokenType type)
+    {
+        switch (type)
+        {
+        case OP_POWER:
+            return BINARY_TYPE_POWER;
+        case OP_MULTIPLY:
+            return BINARY_TYPE_MULTIPLY;
+        case OP_DIVIDE:
+            return BINARY_TYPE_DIVIDE;
+        case OP_MOD:
+            return BINARY_TYPE_MOD;
+        case OP_PLUS:
+            return BINARY_TYPE_PLUS;
+        case OP_MINUS:
+            return BINARY_TYPE_MINUS;
+        case OP_CONCAT:
+            return BINARY_TYPE_CONCAT;
+        case OP_LESS:
+            return BINARY_TYPE_LESS;
+        case OP_GREATER:
+            return BINARY_TYPE_GREATER;
+        case OP_LESSEQUAL:
+            return BINARY_TYPE_LESS_EQUAL;
+        case OP_GREATEREQUAL:
+            return BINARY_TYPE_GREATER_EQUAL;
+        case OP_NOTEQUAL:
+            return BINARY_TYPE_NOT_EQUAL;
+        case OP_EQUAL:
+            return BINARY_TYPE_EQUAL;
+        case KW_AND:
+            return BINARY_TYPE_AND;
+        case KW_OR:
+            return BINARY_TYPE_OR;
+        default:
+            return BINARY_TYPE_NONE;
+        }
     }
 
     UnaryExpression::UnaryExpression(UnaryType type, ExpressionPtr exp)
@@ -66,6 +106,14 @@ namespace lua
     {
     }
 
+    FuncDefineExpression::FuncDefineExpression(ParseTreeNodePtr func_def)
+        : func_def_(std::move(func_def))
+    {
+    }
+
+    ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, bool *is_func_call);
+    ExpressionPtr ParseTableExpression(Lexer *lexer);
+
     ExpressionPtr ParseDotMemberExpression(Lexer *lexer)
     {
         ExpressionPtr member = ParseNameExpression(lexer);
@@ -76,7 +124,7 @@ namespace lua
 
     ExpressionPtr ParseSubMemberExpression(Lexer *lexer)
     {
-        ExpressionPtr member = ParseBasicExpression(lexer);
+        ExpressionPtr member = ParseExpression(lexer);
         if (!member)
             THROW_PARSER_ERROR("expect 'expression' here");
 
@@ -152,15 +200,227 @@ namespace lua
         return name_list;
     }
 
-    ExpressionPtr ParseBasicExpression(Lexer *lexer)
+    ExpressionPtr ParseTermExpression(Lexer *lexer)
     {
-        return ExpressionPtr();
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+        if (index < 0)
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
+
+        TermExpression::TermType type;
+        switch (lex_table[index]->type)
+        {
+        case KW_NIL:
+            type = TermExpression::TERM_NIL;
+            break;
+        case KW_FALSE:
+            type = TermExpression::TERM_FALSE;
+            break;
+        case KW_TRUE:
+            type = TermExpression::TERM_TRUE;
+            break;
+        case NUMBER:
+            type = TermExpression::TERM_NUMBER;
+            break;
+        case STRING:
+            type = TermExpression::TERM_STRING;
+            break;
+        case OP_PARAM_LIST:
+            type = TermExpression::TERM_PARAM_LIST;
+            break;
+        default:
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
+
+        return ExpressionPtr(new TermExpression(type, index));
+    }
+
+    ExpressionPtr ParseFuncDefineExpression(Lexer *lexer)
+    {
+        ParseTreeNodePtr func(new FunctionStatement(FunctionStatement::NO_FUNC_NAME));
+        func->ParseNode(lexer);
+        return ExpressionPtr(new FuncDefineExpression(std::move(func)));
+    }
+
+    ExpressionPtr ParsePreexpExpression(Lexer *lexer)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+        if (index < 0)
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
+
+        if (lex_table[index]->type == OP_LEFT_PARENTHESE)
+        {
+            ExpressionPtr exp = ParseExpression(lexer);
+            if (!exp)
+                THROW_PARSER_ERROR("expect expression here");
+            index = lexer->GetToken();
+            if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
+                THROW_PARSER_ERROR("expect ')' here");
+            return exp;
+        }
+        else
+        {
+            lexer->UngetToken(index);
+            ExpressionPtr exp = ParseFuncCallOrVarExpression(lexer, 0);
+            return exp;
+        }
+    }
+
+    ExpressionPtr ParseFactorExpression(Lexer *lexer)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+        if (index < 0)
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
+
+        ExpressionPtr exp;
+        lexer->UngetToken(index);
+        switch (lex_table[index]->type)
+        {
+        case KW_NIL:
+        case KW_FALSE:
+        case KW_TRUE:
+        case NUMBER:
+        case STRING:
+        case OP_PARAM_LIST:
+            exp = ParseTermExpression(lexer);
+            break;
+        case KW_FUNCTION:
+            exp = ParseFuncDefineExpression(lexer);
+            break;
+        case OP_LEFT_BRACE:
+            exp = ParseTableExpression(lexer);
+            break;
+        default:
+            exp = ParsePreexpExpression(lexer);
+            break;
+        }
+
+        return exp;
+    }
+
+    template<typename ParseExpFunc, typename TokenChecker>
+    ExpressionPtr ParseBinaryExpression(Lexer *lexer, ParseExpFunc parse_exp_func, TokenChecker token_checker)
+    {
+        ExpressionPtr left_exp = parse_exp_func(lexer);
+        if (!left_exp)
+            return left_exp;
+
+        LexTable &lex_table = lexer->GetLexTable();
+        while (true)
+        {
+            int index = lexer->GetToken();
+            if (index < 0 || !token_checker(lex_table[index]->type))
+            {
+                lexer->UngetToken(index);
+                return left_exp;
+            }
+
+            ExpressionPtr right_exp = parse_exp_func(lexer);
+            if (!right_exp)
+                THROW_PARSER_ERROR("expect expression here");
+            BinaryExpression::BinaryType type = BinaryExpression::GetBinaryType(lex_table[index]->type);
+            left_exp.reset(new BinaryExpression(type, std::move(left_exp), std::move(right_exp)));
+        }
+    }
+
+    ExpressionPtr ParsePowerExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseFactorExpression,
+            [](int type) { return type == OP_POWER; });
+    }
+
+    ExpressionPtr ParseUnaryExpression(Lexer *lexer)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+        if (index < 0)
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
+
+        UnaryExpression::UnaryType unary_type;
+        switch (lex_table[index]->type)
+        {
+        case KW_NOT:
+            unary_type = UnaryExpression::UNARY_TYPE_NOT;
+            break;
+        case OP_POUND:
+            unary_type = UnaryExpression::UNARY_TYPE_LENGTH;
+            break;
+        case OP_MINUS:
+            unary_type = UnaryExpression::UNARY_TYPE_NEGATIVE;
+        default:
+            lexer->UngetToken(index);
+            return ParsePowerExpression(lexer);
+        }
+
+        ExpressionPtr exp = ParseUnaryExpression(lexer);
+        if (!exp)
+            THROW_PARSER_ERROR("expect expression here");
+        return ExpressionPtr(new UnaryExpression(unary_type, std::move(exp)));
+    }
+
+    ExpressionPtr ParseMultiplyDivideExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseUnaryExpression,
+            [](int type) { return type == OP_MULTIPLY || type == OP_DIVIDE || type == OP_MOD; });
+    }
+
+    ExpressionPtr ParsePlusMinusExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseMultiplyDivideExpression,
+            [](int type) { return type == OP_PLUS || type == OP_MINUS; });
+    }
+
+    ExpressionPtr ParseConcatExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParsePlusMinusExpression,
+            [](int type) { return type == OP_CONCAT; });
+    }
+
+    ExpressionPtr ParseRelationOpExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseConcatExpression,
+            [](int type) {
+                return type == OP_LESS || type == OP_GREATER || type == OP_EQUAL ||
+                    type == OP_LESSEQUAL || type == OP_GREATEREQUAL || type == OP_NOTEQUAL;
+        });
+    }
+
+    ExpressionPtr ParseAndExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseRelationOpExpression,
+            [](int type) { return type == KW_AND; });
+    }
+
+    ExpressionPtr ParseOrExpression(Lexer *lexer)
+    {
+        return ParseBinaryExpression(lexer, ParseAndExpression,
+            [](int type) { return type == KW_OR; });
+    }
+
+    ExpressionPtr ParseExpression(Lexer *lexer)
+    {
+        return ParseOrExpression(lexer);
     }
 
     std::unique_ptr<ExpListExpression> ParseExpListExpression(Lexer *lexer)
     {
         std::unique_ptr<ExpListExpression> exp_list;
-        ExpressionPtr exp = ParseBasicExpression(lexer);
+        ExpressionPtr exp = ParseExpression(lexer);
         if (!exp)
             return exp_list;
 
@@ -178,7 +438,7 @@ namespace lua
                 break;
             }
 
-            exp = ParseBasicExpression(lexer);
+            exp = ParseExpression(lexer);
             if (!exp)
                 THROW_PARSER_ERROR("expect expression here");
         }
@@ -322,7 +582,7 @@ namespace lua
 
         if (lex_table[index]->type == OP_LEFT_BRACKET)
         {
-            key = ParseBasicExpression(lexer);
+            key = ParseExpression(lexer);
             if (!key)
                 THROW_PARSER_ERROR("expect 'exp' here");
             index = lexer->GetToken();
@@ -351,7 +611,7 @@ namespace lua
 
     ExpressionPtr ParseTableFieldValueExpression(Lexer *lexer)
     {
-        return ParseBasicExpression(lexer);
+        return ParseExpression(lexer);
     }
 
     ExpressionPtr ParseTableFieldExpression(Lexer *lexer)
@@ -471,7 +731,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
             THROW_PARSER_ERROR("expect '(' here");
 
-        ExpressionPtr result = ParseBasicExpression(lexer);
+        ExpressionPtr result = ParseExpression(lexer);
         if (!result)
             THROW_PARSER_ERROR("expect expression here");
 

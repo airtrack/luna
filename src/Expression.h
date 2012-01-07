@@ -2,6 +2,7 @@
 #define EXPRESSION_H
 
 #include "ParseTreeNode.h"
+#include "LexTable.h"
 #include <vector>
 
 namespace lua
@@ -39,7 +40,8 @@ namespace lua
     public:
         enum BinaryType
         {
-            BINARY_TYPE_FACTORIAL,
+            BINARY_TYPE_NONE,
+            BINARY_TYPE_POWER,
             BINARY_TYPE_MULTIPLY,
             BINARY_TYPE_DIVIDE,
             BINARY_TYPE_MOD,
@@ -52,9 +54,13 @@ namespace lua
             BINARY_TYPE_GREATER_EQUAL,
             BINARY_TYPE_NOT_EQUAL,
             BINARY_TYPE_EQUAL,
+            BINARY_TYPE_AND,
+            BINARY_TYPE_OR,
         };
 
         BinaryExpression(BinaryType type, ExpressionPtr left_exp, ExpressionPtr right_exp);
+
+        static BinaryType GetBinaryType(TokenType type);
 
     private:
         BinaryType type_;
@@ -109,11 +115,6 @@ namespace lua
     private:
         ExpressionPtr table_exp_;
         ExpressionPtr member_exp_;
-    };
-
-    class BasicExpression : public Expression
-    {
-    public:
     };
 
     class NameExpression : public Expression
@@ -218,9 +219,18 @@ namespace lua
         ExpressionPtr exp_list_;
     };
 
+    class FuncDefineExpression : public Expression
+    {
+    public:
+        explicit FuncDefineExpression(ParseTreeNodePtr func_def);
+
+    public:
+        ParseTreeNodePtr func_def_;
+    };
+
     ExpressionPtr ParseNameExpression(Lexer *lexer);
     std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer);
-    ExpressionPtr ParseBasicExpression(Lexer *lexer);
+    ExpressionPtr ParseExpression(Lexer *lexer);
     std::unique_ptr<ExpListExpression> ParseExpListExpression(Lexer *lexer);
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer);
     ExpressionPtr ParseParamListExpression(Lexer *lexer);

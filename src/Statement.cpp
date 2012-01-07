@@ -119,7 +119,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_WHILE)
             THROW_PARSER_ERROR("expect 'while' here");
 
-        exp_ = ParseBasicExpression(lexer);
+        exp_ = ParseExpression(lexer);
 
         return ParseDoBlockEnd(block_stmt_, lexer);
     }
@@ -139,13 +139,13 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_UNTIL)
             THROW_PARSER_ERROR("expect 'until' here");
 
-        exp_ = ParseBasicExpression(lexer);
+        exp_ = ParseExpression(lexer);
         return true;
     }
 
     bool ParseExpThenElse(ParseTreeNodePtr &exp, StatementPtr &block_stmt, StatementPtr &else_stmt, Lexer *lexer)
     {
-        exp = ParseBasicExpression(lexer);
+        exp = ParseExpression(lexer);
 
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();

@@ -216,10 +216,10 @@ namespace lua
         TokenType type = OPERATOR;
         switch (c)
         {
-        case '+': type = OP_ADD; break;
+        case '+': type = OP_PLUS; break;
         case '*': type = OP_MULTIPLY; break;
         case '/': type = OP_DIVIDE; break;
-        case '%': type = OP_REMAINDER; break;
+        case '%': type = OP_MOD; break;
         case '^': type = OP_POWER; break;
         case '(': type = OP_LEFT_PARENTHESE; break;
         case ')': type = OP_RIGHT_PARENTHESE; break;
@@ -246,7 +246,7 @@ namespace lua
             if (c == '.')
                 return LexOperatorAndNext("...", OP_PARAM_LIST);
             else
-                return lex_table_->InsertNewToken("..", OP_MERGE);
+                return lex_table_->InsertNewToken("..", OP_CONCAT);
         }
         else
         {
