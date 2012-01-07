@@ -8,9 +8,9 @@ namespace lua
     {
     }
 
-    std::unique_ptr<ParseTreeNode> Parser::Parse()
+    ParseTreeNodePtr Parser::Parse()
     {
-        std::unique_ptr<ParseTreeNode> root(new ChunkStatement);
+        ParseTreeNodePtr root(new ChunkStatement);
         root->ParseNode(&lexer_);
         return root;
     }

@@ -122,7 +122,7 @@ namespace lua
                 {
                     // Next is ".." operator, so we back
                     source_->Back();
-                    num_str.pop_back();
+                    num_str.erase(num_str.size() - 1);
                     break;
                 }
                 has_decimal_point = true;
@@ -181,13 +181,24 @@ namespace lua
         source_->Next();
 
         int c = source_->Peek();
-        while (c != Source::EOS && c != '[' && c != ']')
+        while (c != Source::EOS)
         {
-            long_str.push_back(source_->Next());
-            c = source_->Peek();
+            if (c == ']')
+            {
+                int oc = source_->Next();
+                c = source_->Peek();
+                if (c == ']')
+                    break;
+                long_str.push_back(oc);
+            }
+            else
+            {
+                long_str.push_back(source_->Next());
+                c = source_->Peek();
+            }
         }
 
-        if (c == Source::EOS || c == '[')
+        if (c == Source::EOS)
         {
             LexError::ThrowError(LexError::NO_LONG_STRING_ENDER,
                 source_->GetLineNum(), source_->GetColumnNum(), "]]");
@@ -195,16 +206,7 @@ namespace lua
         }
 
         source_->Next(); // this character must be ']'
-        if (source_->Peek() == ']')
-        {
-            // complete long string
-            source_->Next();
-            return lex_table_->InsertNewToken(long_str, STRING);
-        }
-
-        LexError::ThrowError(LexError::NO_LONG_STRING_ENDER,
-            source_->GetLineNum(), source_->GetColumnNum(), "]]");
-        return -1;
+        return lex_table_->InsertNewToken(long_str, STRING);
     }
 
     int Lexer::LexUniqueOperator()

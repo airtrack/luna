@@ -46,6 +46,7 @@ namespace lua
         }
 
         static void ThrowError(int line, int column, const std::string& desc);
+        static std::string ConvertToReadable(const ParserError& error);
     };
 } // namespace lua
 

@@ -31,7 +31,7 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
-        while (index != -1 && return_stat_ != 0)
+        while (index != -1 && return_stat_ == 0)
         {
             ParseTreeNodePtr stat;
             switch (lex_table[index]->type)
@@ -76,7 +76,9 @@ namespace lua
                 lexer->UngetToken(index);
                 return true;
             default:
+                lexer->UngetToken(index);
                 stat = ParseFuncCallOrAssignExpression(lexer);
+                statements_.push_back(std::move(stat));
                 break;
             }
 
@@ -101,7 +103,7 @@ namespace lua
 
         int index = lexer->GetToken();
         if (index != -1)
-            THROW_PARSER_ERROR("expect '<eof>' here");
+            THROW_PARSER_ERROR("expect 'eof' here");
 
         return true;
     }
@@ -236,8 +238,7 @@ namespace lua
         std::unique_ptr<NameListExpression> name_list = ParseNameListExpression(lexer);
 
         index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_ASSIGN ||
-            lex_table[index]->type != KW_IN)
+        if (index < 0 || lex_table[index]->type != OP_ASSIGN && lex_table[index]->type != KW_IN)
             THROW_PARSER_ERROR("expect '=' or 'in' here");
 
         if (lex_table[index]->type == KW_IN)
@@ -248,14 +249,16 @@ namespace lua
             THROW_PARSER_ERROR("expect only one 'name' here");
 
         std::unique_ptr<ExpListExpression> exp_list = ParseExpListExpression(lexer);
+        if (!exp_list)
+            THROW_PARSER_ERROR("expect expression here");
 
         // '=' mode, then 'exp' must less equal than three.
         if (!in_mode_ && exp_list->GetCount() > 3)
             THROW_PARSER_ERROR("expect three 'exp' here at most");
 
         ParseDoBlockEnd(block_stmt_, lexer);
-        name_list_ = name_list;
-        exp_list_ = exp_list;
+        name_list_ = std::move(name_list);
+        exp_list_ = std::move(exp_list);
         return true;
     }
 
@@ -341,6 +344,8 @@ namespace lua
             if (index >= 0 && lex_table[index]->type == OP_ASSIGN)
             {
                 exp_list_ = ParseExpListExpression(lexer);
+                if (!exp_list_)
+                    THROW_PARSER_ERROR("expect expression here");
             }
             else
             {

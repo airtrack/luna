@@ -129,15 +129,8 @@ namespace lua
     class NameListExpression : public Expression
     {
     public:
-        int GetCount() const
-        {
-            return name_list_.size();
-        }
-
-        void AddName(ExpressionPtr name)
-        {
-            name_list_.push_back(std::move(name));
-        }
+        std::size_t GetCount() const;
+        void AddName(ExpressionPtr name);
 
     private:
         std::vector<ExpressionPtr> name_list_;
@@ -146,15 +139,8 @@ namespace lua
     class ExpListExpression : public Expression
     {
     public:
-        std::size_t GetCount() const
-        {
-            return exp_list_.size();
-        }
-
-        void AddExp(ExpressionPtr exp)
-        {
-            exp_list_.push_back(std::move(exp));
-        }
+        std::size_t GetCount() const;
+        void AddExp(ExpressionPtr exp);
 
     private:
         std::vector<ExpressionPtr> exp_list_;
@@ -163,15 +149,8 @@ namespace lua
     class VarListExpression : public Expression
     {
     public:
-        std::size_t GetCount() const
-        {
-            return var_list_.size();
-        }
-
-        void AddVar(ExpressionPtr var)
-        {
-            var_list_.push_back(std::move(var));
-        }
+        std::size_t GetCount() const;
+        void AddVar(ExpressionPtr var);
 
     private:
         std::vector<ExpressionPtr> var_list_;

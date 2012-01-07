@@ -12,7 +12,8 @@ namespace lua
     std::string LexError::ConvertToReadable(const LexError& error)
     {
         std::ostringstream es;
-        es << "Error [" << error.error_line << "]: ";
+        es << "Error [line:" << error.error_line
+            << "][column:" << error.error_column << "]:";
         switch (error.type)
         {
         case NO_MULTILINE_COMMENT_ENDER:
@@ -38,13 +39,19 @@ namespace lua
             break;
         }
 
-        es << " at column " << error.error_column << ".";
-
         return es.str();
     }
 
     void ParserError::ThrowError(int line, int column, const std::string& desc)
     {
         throw ParserError(line, column, desc);
+    }
+
+    std::string ParserError::ConvertToReadable(const ParserError& error)
+    {
+        std::ostringstream es;
+        es << "Error [line:" << error.error_line
+            << "][column:" << error.error_column << "]:" << error.desc_helper;
+        return es.str();
     }
 } // namespace lua

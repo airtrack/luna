@@ -14,7 +14,7 @@ namespace lua
     public:
         explicit Parser(Source *source);
 
-        std::unique_ptr<ParseTreeNode> Parse();
+        ParseTreeNodePtr Parse();
 
     private:
         LexTable lex_table_;

@@ -80,6 +80,36 @@ namespace lua
     {
     }
 
+    std::size_t NameListExpression::GetCount() const
+    {
+        return name_list_.size();
+    }
+
+    void NameListExpression::AddName(ExpressionPtr name)
+    {
+        name_list_.push_back(std::move(name));
+    }
+
+    std::size_t ExpListExpression::GetCount() const
+    {
+        return exp_list_.size();
+    }
+
+    void ExpListExpression::AddExp(ExpressionPtr exp)
+    {
+        exp_list_.push_back(std::move(exp));
+    }
+
+    std::size_t VarListExpression::GetCount() const
+    {
+        return var_list_.size();
+    }
+
+    void VarListExpression::AddVar(ExpressionPtr var)
+    {
+        var_list_.push_back(std::move(var));
+    }
+
     FuncNameExpression::FuncNameExpression(ExpressionPtr pre_name, ExpressionPtr member)
         : pre_name_(std::move(pre_name)),
           member_(std::move(member))
@@ -141,8 +171,7 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
-        if (index < 0 || lex_table[index]->type != OP_DOT ||
-            lex_table[index]->type != OP_LEFT_BRACKET)
+        if (index < 0 || lex_table[index]->type != OP_DOT && lex_table[index]->type != OP_LEFT_BRACKET)
         {
             lexer->UngetToken(index);
             return std::move(table);
@@ -197,7 +226,7 @@ namespace lua
                 THROW_PARSER_ERROR("expect 'name' here");
         }
 
-        return name_list;
+        return std::move(name_list);
     }
 
     ExpressionPtr ParseTermExpression(Lexer *lexer)
@@ -422,7 +451,7 @@ namespace lua
         std::unique_ptr<ExpListExpression> exp_list;
         ExpressionPtr exp = ParseExpression(lexer);
         if (!exp)
-            return exp_list;
+            return std::move(exp_list);
 
         exp_list.reset(new ExpListExpression);
         LexTable &lex_table = lexer->GetLexTable();
@@ -443,7 +472,7 @@ namespace lua
                 THROW_PARSER_ERROR("expect expression here");
         }
 
-        return exp_list;
+        return std::move(exp_list);
     }
 
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer)
@@ -510,8 +539,7 @@ namespace lua
         ExpressionPtr dot3;
 
         int index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_COMMA ||
-            lex_table[index]->type != OP_PARAM_LIST)
+        if (index < 0 || lex_table[index]->type != OP_COMMA && lex_table[index]->type != OP_PARAM_LIST)
         {
             lexer->UngetToken(index);
             return dot3;
@@ -535,7 +563,7 @@ namespace lua
     ExpressionPtr ParseParamListExpression(Lexer *lexer)
     {
         ExpressionPtr name_list = ParseParamNameListExpression(lexer);
-        ExpressionPtr dot3 = ParseParamDot3Expression(name_list, lexer);
+        ExpressionPtr dot3 = ParseParamDot3Expression(static_cast<bool>(name_list), lexer);
         ExpressionPtr param_list;
 
         if (name_list || dot3)
@@ -550,7 +578,10 @@ namespace lua
         int index = lexer->GetToken();
 
         if (index < 0)
-            THROW_PARSER_ERROR("unexpect 'eof' here");
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
 
         ExpressionPtr member;
         if (lex_table[index]->type == OP_COLON)
@@ -573,8 +604,7 @@ namespace lua
         int index = lexer->GetToken();
 
         ExpressionPtr key;
-        if (index < 0 || lex_table[index]->type != OP_LEFT_BRACKET ||
-            lex_table[index]->type != IDENTIFIER)
+        if (index < 0 || lex_table[index]->type != OP_LEFT_BRACKET && lex_table[index]->type != IDENTIFIER)
         {
             lexer->UngetToken(index);
             return key;
@@ -630,11 +660,8 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
-        if (index < 0)
-            THROW_PARSER_ERROR("unexpect 'eof' here");
-
-        if (lex_table[index]->type == OP_COMMA ||
-            lex_table[index]->type == OP_SEMICOLON)
+        if (index >= 0 &&
+            (lex_table[index]->type == OP_COMMA || lex_table[index]->type == OP_SEMICOLON))
         {
             return true;
         }
@@ -652,7 +679,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_LEFT_BRACE)
             THROW_PARSER_ERROR("expect '{' here");
 
-        std::unique_ptr<TableExpression> table;
+        std::unique_ptr<TableExpression> table(new TableExpression);
         ExpressionPtr field = ParseTableFieldExpression(lexer);
         while (field)
         {
@@ -672,7 +699,10 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
         if (index < 0)
-            THROW_PARSER_ERROR("unexpect 'eof' here");
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
 
         ExpressionPtr result;
         if (lex_table[index]->type == STRING)
@@ -687,10 +717,16 @@ namespace lua
         else if (lex_table[index]->type == OP_LEFT_PARENTHESE)
         {
             result = ParseExpListExpression(lexer);
+            if (!result)
+                result.reset(new ExpListExpression);
 
             index = lexer->GetToken();
             if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
                 THROW_PARSER_ERROR("expect ')' here");
+        }
+        else
+        {
+            lexer->UngetToken(index);
         }
 
         return result;
@@ -753,7 +789,10 @@ namespace lua
         int index = lexer->GetToken();
 
         if (index < 0)
-            THROW_PARSER_ERROR("unexpect 'eof' here");
+        {
+            lexer->UngetToken(index);
+            return ExpressionPtr();
+        }
 
         ExpressionPtr result;
         lexer->UngetToken(index);

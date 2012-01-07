@@ -75,8 +75,6 @@ namespace lua
     class ElseIfStatement : public Statement
     {
     public:
-        ElseIfStatement();
-        virtual ~ElseIfStatement();
         virtual bool ParseNode(Lexer *lexer);
 
     private:
