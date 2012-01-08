@@ -9,8 +9,12 @@ int main(int argc, char **argv)
         printf("Usage: %s file\n", argv[0]);
         return 0;
     }
-
+#ifdef _MSC_VER
+    FILE *file = 0;
+    fopen_s(&file, argv[1], "r");
+#else
     FILE *file = fopen(argv[1], "r");
+#endif
     if (!file)
     {
         printf("Can not open file %s.\n", argv[1]);
