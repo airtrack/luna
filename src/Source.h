@@ -31,7 +31,7 @@ namespace lua
         }
 
     private:
-        std::vector<char> source_buf_;
+        std::vector<unsigned char> source_buf_;
         int cur_pos_;
         int cur_line_number_;
         int cur_column_number_;
