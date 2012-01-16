@@ -104,40 +104,107 @@ namespace lua
         return -1;
     }
 
+    void LexHexBaseNumber(Source *source, std::string& num_str)
+    {
+        if (num_str.size() != 1 || num_str[0] != '0')
+            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+
+        // Push 'x' or 'X'
+        num_str.push_back(source->Next());
+        int c = source->Peek();
+        while (c != -1)
+        {
+            if (isdigit(c))
+                num_str.push_back(source->Next());
+            else if (isalpha(c))
+                LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+            else
+                break;
+            c = source->Peek();
+        }
+
+        // If num_str value is '0x'
+        if (num_str.size() <= 2)
+            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+    }
+
+    bool LexFractionalPart(Source *source, std::string& num_str)
+    {
+        // Push '.'
+        num_str.push_back(source->Next());
+
+        int c = source->Peek();
+        while (c != -1)
+        {
+            if (isdigit(c))
+                num_str.push_back(source->Next());
+            else
+                break;
+            c = source->Peek();
+        }
+
+        return true;
+    }
+
+    bool LexDecimalPart(Source *source, std::string& num_str)
+    {
+        num_str.push_back(source->Next());
+
+        int c = source->Peek();
+        if (c == '-' || c == '+')
+            num_str.push_back(source->Next());
+
+        c = source->Peek();
+        while (c != -1)
+        {
+            if (isdigit(c))
+                num_str.push_back(source->Next());
+            else
+                break;
+            c = source->Peek();
+        }
+
+        // If the last char is not digit, then it can not construct a number.
+        if (!isdigit(num_str.back()))
+            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+        return true;
+    }
+
+    void LexDecimalBaseNumber(Source *source, std::string& num_str, bool has_fractional)
+    {
+        bool has_decimal = false;
+        int c = source->Peek();
+
+        while (c != -1)
+        {
+            if (isdigit(c))
+                num_str.push_back(source->Next());
+            else if (c == '.' && !has_fractional && !has_decimal)
+            {
+                has_fractional = LexFractionalPart(source, num_str);
+            }
+            else if (!has_decimal && (c == 'e' || c == 'E'))
+            {
+                has_decimal = LexDecimalPart(source, num_str);
+            }
+            else if (isalpha(c) || c == '.')
+                LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+            else
+                break;
+            c = source->Peek();
+        }
+    }
+
     int Lexer::LexNumber()
     {
         std::string num_str;
-        bool has_decimal_point = false;
-        while (true)
-        {
-            int c = source_->Peek();
-            if (isdigit(c))
-                num_str.push_back(c);
-            else if (!has_decimal_point && c == '.')
-            {
-                num_str.push_back(c);
-                source_->Next();
-                c = source_->Peek();
-                if (c == '.')
-                {
-                    // Next is ".." operator, so we back
-                    source_->Back();
-                    num_str.erase(num_str.size() - 1);
-                    break;
-                }
-                has_decimal_point = true;
-            }
-            else if (isalpha(c))
-            {
-                LexError::ThrowError(LexError::INVALIDATE_NUMBER,
-                    source_->GetLineNum(), source_->GetColumnNum(), num_str);
-                return -1;
-            }
-            else
-                break;
+        num_str.push_back(source_->Next());
 
-            source_->Next();
-        }
+        int c = source_->Peek();
+        if (c == 'x' || c == 'X')
+            LexHexBaseNumber(source_, num_str);
+        else
+            LexDecimalBaseNumber(source_, num_str, false);
 
         return lex_table_->InsertNewToken(num_str, NUMBER);
     }
@@ -249,6 +316,13 @@ namespace lua
                 return LexOperatorAndNext("...", OP_PARAM_LIST);
             else
                 return lex_table_->InsertNewToken("..", OP_CONCAT);
+        }
+        else if (isdigit(c))
+        {
+            std::string str_num;
+            str_num.push_back('.');
+            LexDecimalBaseNumber(source_, str_num, true);
+            return lex_table_->InsertNewToken(str_num, NUMBER);
         }
         else
         {
