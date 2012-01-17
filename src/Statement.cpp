@@ -375,6 +375,11 @@ namespace lua
             THROW_PARSER_ERROR("expect 'return' here");
 
         exp_list_ = ParseExpListExpression(lexer);
+
+        // Parse "[;]"
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != OP_SEMICOLON)
+            lexer->UngetToken(index);
         return true;
     }
 } // namespace lua

@@ -141,7 +141,14 @@ namespace lua
     {
     }
 
-    ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, bool *is_func_call);
+    enum PreExpType
+    {
+        VARIABLE,
+        FUNC_CALL,
+        PARENTHESE_EXP,
+    };
+
+    ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, PreExpType *type);
     ExpressionPtr ParseTableExpression(Lexer *lexer);
 
     ExpressionPtr ParseDotMemberExpression(Lexer *lexer)
@@ -277,30 +284,7 @@ namespace lua
 
     ExpressionPtr ParsePreexpExpression(Lexer *lexer)
     {
-        LexTable &lex_table = lexer->GetLexTable();
-        int index = lexer->GetToken();
-        if (index < 0)
-        {
-            lexer->UngetToken(index);
-            return ExpressionPtr();
-        }
-
-        if (lex_table[index]->type == OP_LEFT_PARENTHESE)
-        {
-            ExpressionPtr exp = ParseExpression(lexer);
-            if (!exp)
-                THROW_PARSER_ERROR("expect expression here");
-            index = lexer->GetToken();
-            if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
-                THROW_PARSER_ERROR("expect ')' here");
-            return exp;
-        }
-        else
-        {
-            lexer->UngetToken(index);
-            ExpressionPtr exp = ParseFuncCallOrVarExpression(lexer, 0);
-            return exp;
-        }
+        return ParseFuncCallOrVarExpression(lexer, 0);
     }
 
     ExpressionPtr ParseFactorExpression(Lexer *lexer)
@@ -753,14 +737,19 @@ namespace lua
         return ParseFuncCallExpression(std::move(caller), lexer, is_func_call, call_level + 1);
     }
 
-    ExpressionPtr ParseIdStarterExpression(Lexer *lexer, bool *is_func_call)
+    ExpressionPtr ParseIdStarterExpression(Lexer *lexer, PreExpType *type)
     {
         ExpressionPtr result = ParseNameExpression(lexer);
-        result = ParseFuncCallExpression(std::move(result), lexer, is_func_call);
+
+        bool is_func_call = false;
+        result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call);
+
+        if (type)
+            *type = is_func_call ? FUNC_CALL : VARIABLE;
         return result;
     }
 
-    ExpressionPtr ParseLeftParentheseExpression(Lexer *lexer, bool *is_func_call)
+    ExpressionPtr ParseLeftParentheseExpression(Lexer *lexer, PreExpType *type)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -777,14 +766,21 @@ namespace lua
             THROW_PARSER_ERROR("expect ')' here");
 
         Expression *old = result.get();
-        result = ParseFuncCallExpression(std::move(result), lexer, is_func_call);
-        if (result.get() == old)
-            THROW_PARSER_ERROR("expect '.', '[]', 'string', 'table' or '()' here");
+        bool is_func_call = false;
+        result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call);
 
+        PreExpType t;
+        if (result.get() == old)
+            t = PARENTHESE_EXP;
+        else
+            t = is_func_call ? FUNC_CALL : VARIABLE;
+
+        if (type)
+            *type = t;
         return result;
     }
 
-    ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, bool *is_func_call)
+    ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, PreExpType *type)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -801,11 +797,11 @@ namespace lua
         switch (lex_table[index]->type)
         {
         case IDENTIFIER:
-            result = ParseIdStarterExpression(lexer, is_func_call);
+            result = ParseIdStarterExpression(lexer, type);
             break;
 
         case OP_LEFT_PARENTHESE:
-            result = ParseLeftParentheseExpression(lexer, is_func_call);
+            result = ParseLeftParentheseExpression(lexer, type);
             break;
         }
 
@@ -828,9 +824,9 @@ namespace lua
                 break;
             }
 
-            bool is_func_call = false;
-            var = ParseFuncCallOrVarExpression(lexer, &is_func_call);
-            if (is_func_call || !var)
+            PreExpType type;
+            var = ParseFuncCallOrVarExpression(lexer, &type);
+            if (type != VARIABLE)
                 THROW_PARSER_ERROR("expect 'var' here");
         }
 
@@ -856,20 +852,22 @@ namespace lua
 
     ExpressionPtr ParseFuncCallOrAssignExpression(Lexer *lexer)
     {
-        bool is_func_call = false;
-        ExpressionPtr result = ParseFuncCallOrVarExpression(lexer, &is_func_call);
+        PreExpType type;
+        ExpressionPtr result = ParseFuncCallOrVarExpression(lexer, &type);
 
         // If the result is function call expression, then it construct a
         // statement, so we return it.
-        if (is_func_call)
+        if (type == FUNC_CALL)
             return result;
+
+        // Can not be "(exp)"
+        if (type == PARENTHESE_EXP)
+            THROW_PARSER_ERROR("expect 'var' here");
 
         // If not a function call expression, it must construct assign expression.
         if (!result)
             THROW_PARSER_ERROR("unexpect symbol here");
 
-        result = ParseAssignExpression(std::move(result), lexer);
-
-        return result;
+        return ParseAssignExpression(std::move(result), lexer);
     }
 } // namespace lua
