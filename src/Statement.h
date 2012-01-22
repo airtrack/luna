@@ -6,154 +6,187 @@
 
 namespace lua
 {
-    class Statement : public ParseTreeNode
-    {
-    public:
-    };
-
-    typedef std::unique_ptr<Statement> StatementPtr;
-
     class BlockStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        void Add(StatementPtr &&statement)
+        {
+            statements_.push_back(std::move(statement));
+        }
 
     private:
-        std::vector<ParseTreeNodePtr> statements_;
-        StatementPtr return_stat_;
+        std::vector<StatementPtr> statements_;
     };
+
+    StatementPtr ParseBlockStatement(Lexer *lexer);
 
     class ChunkStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        explicit ChunkStatement(StatementPtr &&block_stmt);
 
     private:
         StatementPtr block_stmt_;
     };
+
+    StatementPtr ParseChunkStatement(Lexer *lexer);
+
+    class NormalStatement : public Statement
+    {
+    public:
+        explicit NormalStatement(ExpressionPtr &&exp);
+
+    private:
+        ExpressionPtr exp_;
+    };
+
+    StatementPtr ParseNormalStatement(Lexer *lexer);
 
     class DoStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        explicit DoStatement(StatementPtr &&block_stmt);
 
     private:
         StatementPtr block_stmt_;
     };
+
+    StatementPtr ParseDoStatement(Lexer *lexer);
 
     class WhileStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        WhileStatement(ExpressionPtr &&exp, StatementPtr &&stmt);
 
     private:
-        ParseTreeNodePtr exp_;
+        ExpressionPtr exp_;
         StatementPtr block_stmt_;
     };
+
+    StatementPtr ParseWhileStatement(Lexer *lexer);
 
     class RepeatStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        RepeatStatement(StatementPtr &&stmt, ExpressionPtr &&exp);
 
     private:
         StatementPtr block_stmt_;
-        ParseTreeNodePtr exp_;
+        ExpressionPtr exp_;
     };
+
+    StatementPtr ParseRepeatStatement(Lexer *lexer);
 
     class IfStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        IfStatement(ExpressionPtr &&exp,
+                    StatementPtr &&block_stmt,
+                    StatementPtr &&else_stmt);
 
     private:
-        ParseTreeNodePtr exp_;
+        ExpressionPtr exp_;
         StatementPtr block_stmt_;
         StatementPtr else_stmt_;
     };
+
+    StatementPtr ParseIfStatement(Lexer *lexer);
 
     class ElseIfStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        ElseIfStatement(ExpressionPtr &&exp,
+                        StatementPtr &&block_stmt,
+                        StatementPtr &&else_stmt);
 
     private:
-        ParseTreeNodePtr exp_;
+        ExpressionPtr exp_;
         StatementPtr block_stmt_;
         StatementPtr else_stmt_;
     };
 
+    StatementPtr ParseElseIfStatement(Lexer *lexer);
+
     class ElseStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        explicit ElseStatement(StatementPtr &&stmt);
 
     private:
         StatementPtr block_stmt_;
     };
 
+    StatementPtr ParseElseStatement(Lexer *lexer);
+
     class ForStatement : public Statement
     {
     public:
-        ForStatement();
-        virtual bool ParseNode(Lexer *lexer);
+        ForStatement(bool in_mode, ExpressionPtr &&name_list,
+                ExpressionPtr &&exp_list, StatementPtr &&block_stmt);
 
     private:
         bool in_mode_;
-        ParseTreeNodePtr name_list_;
-        ParseTreeNodePtr exp_list_;
+        ExpressionPtr name_list_;
+        ExpressionPtr exp_list_;
         StatementPtr block_stmt_;
+    };
+
+    StatementPtr ParseForStatement(Lexer *lexer);
+
+    enum FuncNameType
+    {
+        NORMAL_FUNC_NAME,
+        LOCAL_FUNC_NAME,
+        NO_FUNC_NAME,
     };
 
     class FunctionStatement : public Statement
     {
     public:
-        enum FuncNameType
-        {
-            NORMAL_FUNC_NAME,
-            LOCAL_FUNC_NAME,
-            NO_FUNC_NAME,
-        };
-
-        explicit FunctionStatement(FuncNameType name_type = NORMAL_FUNC_NAME);
-        virtual bool ParseNode(Lexer *lexer);
+        FunctionStatement(FuncNameType name_type,
+                          ExpressionPtr &&func_name,
+                          ExpressionPtr &&param_list,
+                          StatementPtr &&block_stmt);
 
     private:
-        void ParseFuncName(Lexer *lexer);
-
         FuncNameType name_type_;
-        ParseTreeNodePtr func_name_;
-        ParseTreeNodePtr param_list_;
+        ExpressionPtr func_name_;
+        ExpressionPtr param_list_;
         StatementPtr block_stmt_;
     };
+
+    StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);
 
     class LocalStatement : public Statement
     {
     public:
-        LocalStatement();
-        virtual bool ParseNode(Lexer *lexer);
+        LocalStatement(ExpressionPtr &&name_list,
+                       ExpressionPtr &&exp_list);
 
     private:
-        bool is_func_;
-        StatementPtr func_stmt_;
-        ParseTreeNodePtr name_list_;
-        ParseTreeNodePtr exp_list_;
+        ExpressionPtr name_list_;
+        ExpressionPtr exp_list_;
     };
+
+    StatementPtr ParseLocalStatement(Lexer *lexer);
 
     class BreakStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
     };
+
+    StatementPtr ParseBreakStatement(Lexer *lexer);
 
     class ReturnStatement : public Statement
     {
     public:
-        virtual bool ParseNode(Lexer *lexer);
+        explicit ReturnStatement(ExpressionPtr &&return_exp_list);
 
     private:
-        ParseTreeNodePtr exp_list_;
+        ExpressionPtr return_exp_list_;
     };
+
+    StatementPtr ParseReturnStatement(Lexer *lexer);
 } // namespace lua
 
 #endif // STATEMENT_H

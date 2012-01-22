@@ -3,6 +3,7 @@
 *.suo
 *.swp
 *.opensdf
+*.DS_Store
 ipch/
 Debug/
 Release/

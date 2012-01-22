@@ -11,7 +11,7 @@ namespace lua
     {
     }
 
-    BinaryExpression::BinaryExpression(BinaryType type, ExpressionPtr left_exp, ExpressionPtr right_exp)
+    BinaryExpression::BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp)
         : type_(type),
           left_exp_(std::move(left_exp)),
           right_exp_(std::move(right_exp))
@@ -57,19 +57,19 @@ namespace lua
         }
     }
 
-    UnaryExpression::UnaryExpression(UnaryType type, ExpressionPtr exp)
+    UnaryExpression::UnaryExpression(UnaryType type, ExpressionPtr &&exp)
         : type_(type),
           exp_(std::move(exp))
     {
     }
 
-    TableFieldExpression::TableFieldExpression(ExpressionPtr key, ExpressionPtr value)
+    TableFieldExpression::TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value)
         : key_(std::move(key)),
           value_(std::move(value))
     {
     }
 
-    MemberExpression::MemberExpression(ExpressionPtr table, ExpressionPtr member)
+    MemberExpression::MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member)
         : table_exp_(std::move(table)),
           member_exp_(std::move(member))
     {
@@ -85,7 +85,7 @@ namespace lua
         return name_list_.size();
     }
 
-    void NameListExpression::AddName(ExpressionPtr name)
+    void NameListExpression::AddName(ExpressionPtr &&name)
     {
         name_list_.push_back(std::move(name));
     }
@@ -95,7 +95,7 @@ namespace lua
         return exp_list_.size();
     }
 
-    void ExpListExpression::AddExp(ExpressionPtr exp)
+    void ExpListExpression::AddExp(ExpressionPtr &&exp)
     {
         exp_list_.push_back(std::move(exp));
     }
@@ -105,38 +105,38 @@ namespace lua
         return var_list_.size();
     }
 
-    void VarListExpression::AddVar(ExpressionPtr var)
+    void VarListExpression::AddVar(ExpressionPtr &&var)
     {
         var_list_.push_back(std::move(var));
     }
 
-    FuncNameExpression::FuncNameExpression(ExpressionPtr pre_name, ExpressionPtr member)
+    FuncNameExpression::FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member)
         : pre_name_(std::move(pre_name)),
           member_(std::move(member))
     {
     }
 
-    ParamListExpression::ParamListExpression(ExpressionPtr name_list, ExpressionPtr dot3)
+    ParamListExpression::ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3)
         : name_list_(std::move(name_list)),
           dot3_(std::move(dot3))
     {
     }
 
-    FuncCallExpression::FuncCallExpression(ExpressionPtr caller,
-        ExpressionPtr member, ExpressionPtr arg_list)
+    FuncCallExpression::FuncCallExpression(ExpressionPtr &&caller,
+        ExpressionPtr &&member, ExpressionPtr &&arg_list)
         : caller_(std::move(caller)),
           member_(std::move(member)),
           arg_list_(std::move(arg_list))
     {
     }
 
-    AssignExpression::AssignExpression(ExpressionPtr var_list, ExpressionPtr exp_list)
+    AssignExpression::AssignExpression(ExpressionPtr &&var_list, ExpressionPtr &&exp_list)
         : var_list_(std::move(var_list)),
           exp_list_(std::move(exp_list))
     {
     }
 
-    FuncDefineExpression::FuncDefineExpression(ParseTreeNodePtr func_def)
+    FuncDefineExpression::FuncDefineExpression(StatementPtr &&func_def)
         : func_def_(std::move(func_def))
     {
     }
@@ -277,8 +277,7 @@ namespace lua
 
     ExpressionPtr ParseFuncDefineExpression(Lexer *lexer)
     {
-        ParseTreeNodePtr func(new FunctionStatement(FunctionStatement::NO_FUNC_NAME));
-        func->ParseNode(lexer);
+        StatementPtr func = ParseFunctionStatement(lexer, NO_FUNC_NAME);
         return ExpressionPtr(new FuncDefineExpression(std::move(func)));
     }
 

@@ -5,7 +5,115 @@
 
 namespace lua
 {
-    bool ParseDoBlockEnd(StatementPtr &block_stmt, Lexer *lexer)
+#define CASE_PARSE_STATEMENT(case_exp, parse_func)      \
+    case case_exp:                                      \
+        lexer->UngetToken(index);                       \
+        return parse_func(lexer)
+
+#define DEFAULT_PARSE_STATEMENT(parse_func)             \
+    default:                                            \
+        lexer->UngetToken(index);                       \
+        return parse_func(lexer)
+
+    StatementPtr ParseNonReturnStatement(Lexer *lexer)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        switch (lex_table[index]->type)
+        {
+        CASE_PARSE_STATEMENT(KW_DO, ParseDoStatement);
+        CASE_PARSE_STATEMENT(KW_WHILE, ParseWhileStatement);
+        CASE_PARSE_STATEMENT(KW_REPEAT, ParseRepeatStatement);
+        CASE_PARSE_STATEMENT(KW_IF, ParseIfStatement);
+        CASE_PARSE_STATEMENT(KW_FOR, ParseForStatement);
+        CASE_PARSE_STATEMENT(KW_FUNCTION, ParseFunctionStatement);
+        CASE_PARSE_STATEMENT(KW_LOCAL, ParseLocalStatement);
+        CASE_PARSE_STATEMENT(KW_BREAK, ParseBreakStatement);
+        DEFAULT_PARSE_STATEMENT(ParseNormalStatement);
+        }
+    }
+
+    StatementPtr ParseStatement(Lexer *lexer, bool *is_return_stmt)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        while (index != -1 &&
+               lex_table[index]->type != KW_END &&
+               lex_table[index]->type != KW_UNTIL &&
+               lex_table[index]->type != KW_ELSE &&
+               lex_table[index]->type != KW_ELSEIF)
+        {
+            if (lex_table[index]->type == OP_SEMICOLON)
+                index = lexer->GetToken();
+            else if (lex_table[index]->type == KW_RETUREN)
+            {
+                lexer->UngetToken(index);
+                if (is_return_stmt)
+                    *is_return_stmt = true;
+                return ParseReturnStatement(lexer);
+            }
+            else
+            {
+                lexer->UngetToken(index);
+                return ParseNonReturnStatement(lexer);
+            }
+        }
+
+        lexer->UngetToken(index);
+        return StatementPtr();
+    }
+
+    StatementPtr ParseBlockStatement(Lexer *lexer)
+    {
+        std::unique_ptr<BlockStatement> block_stmt(new BlockStatement);
+
+        bool is_return_stmt = false;
+        while (!is_return_stmt)
+        {
+            StatementPtr stmt = ParseStatement(lexer, &is_return_stmt);
+            if (!stmt)
+                break;
+            block_stmt->Add(std::move(stmt));
+        }
+
+        return std::move(block_stmt);
+    }
+
+    ChunkStatement::ChunkStatement(StatementPtr &&block_stmt)
+        : block_stmt_(std::move(block_stmt))
+    {
+    }
+
+    StatementPtr ParseChunkStatement(Lexer *lexer)
+    {
+        StatementPtr stmt = ParseBlockStatement(lexer);
+
+        int index = lexer->GetToken();
+        if (index != -1)
+            THROW_PARSER_ERROR("expect 'eof' here");
+
+        return StatementPtr(new ChunkStatement(std::move(stmt)));
+    }
+
+    NormalStatement::NormalStatement(ExpressionPtr &&exp)
+        : exp_(std::move(exp))
+    {
+    }
+
+    StatementPtr ParseNormalStatement(Lexer *lexer)
+    {
+        ExpressionPtr exp = ParseFuncCallOrAssignExpression(lexer);
+        return StatementPtr(new NormalStatement(std::move(exp)));
+    }
+
+    DoStatement::DoStatement(StatementPtr &&block_stmt)
+        : block_stmt_(std::move(block_stmt))
+    {
+    }
+
+    StatementPtr ParseDoBlockEnd(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -15,105 +123,29 @@ namespace lua
             THROW_PARSER_ERROR("expect 'do' here");
 
         // Parse the block statements
-        block_stmt.reset(new BlockStatement);
-        block_stmt->ParseNode(lexer);
+        StatementPtr block_stmt = ParseBlockStatement(lexer);
 
         // Parse "end"
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
 
-        return true;
+        return block_stmt;
     }
 
-    bool BlockStatement::ParseNode(Lexer *lexer)
+    StatementPtr ParseDoStatement(Lexer *lexer)
     {
-        LexTable &lex_table = lexer->GetLexTable();
-        int index = lexer->GetToken();
-
-        while (index != -1 && return_stat_ == 0)
-        {
-            ParseTreeNodePtr stat;
-            switch (lex_table[index]->type)
-            {
-            case OP_SEMICOLON:
-                // Empty statement
-                break;
-            case KW_DO:
-                stat.reset(new DoStatement);
-                break;
-            case KW_WHILE:
-                stat.reset(new WhileStatement);
-                break;
-            case KW_REPEAT:
-                stat.reset(new RepeatStatement);
-                break;
-            case KW_IF:
-                stat.reset(new IfStatement);
-                break;
-            case KW_FOR:
-                stat.reset(new ForStatement);
-                break;
-            case KW_FUNCTION:
-                stat.reset(new FunctionStatement);
-                break;
-            case KW_LOCAL:
-                stat.reset(new LocalStatement);
-                break;
-            case KW_BREAK:
-                stat.reset(new BreakStatement);
-                break;
-            case KW_RETUREN:
-                return_stat_.reset(new ReturnStatement);
-                lexer->UngetToken(index);
-                return_stat_->ParseNode(lexer);
-                break;
-            case KW_END:
-            case KW_UNTIL:
-            case KW_ELSE:
-            case KW_ELSEIF:
-                // End of the block
-                lexer->UngetToken(index);
-                return true;
-            default:
-                lexer->UngetToken(index);
-                stat = ParseFuncCallOrAssignExpression(lexer);
-                statements_.push_back(std::move(stat));
-                break;
-            }
-
-            if (stat)
-            {
-                lexer->UngetToken(index);
-                stat->ParseNode(lexer);
-                statements_.push_back(std::move(stat));
-            }
-
-            index = lexer->GetToken();
-        }
-
-        lexer->UngetToken(index);
-        return true;
+        StatementPtr stmt = ParseDoBlockEnd(lexer);
+        return StatementPtr(new DoStatement(std::move(stmt)));
     }
 
-    bool ChunkStatement::ParseNode(Lexer *lexer)
+    WhileStatement::WhileStatement(ExpressionPtr &&exp, StatementPtr &&stmt)
+        : exp_(std::move(exp)),
+          block_stmt_(std::move(stmt))
     {
-        block_stmt_.reset(new BlockStatement);
-        block_stmt_->ParseNode(lexer);
-
-        int index = lexer->GetToken();
-        if (index != -1)
-            THROW_PARSER_ERROR("expect 'eof' here");
-
-        return true;
     }
 
-    bool DoStatement::ParseNode(Lexer *lexer)
-    {
-        return ParseDoBlockEnd(block_stmt_, lexer);
-    }
-
-    bool WhileStatement::ParseNode(Lexer *lexer)
+    StatementPtr ParseWhileStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -121,12 +153,19 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_WHILE)
             THROW_PARSER_ERROR("expect 'while' here");
 
-        exp_ = ParseExpression(lexer);
+        ExpressionPtr exp = ParseExpression(lexer);
+        StatementPtr stmt = ParseDoBlockEnd(lexer);
 
-        return ParseDoBlockEnd(block_stmt_, lexer);
+        return StatementPtr(new WhileStatement(std::move(exp), std::move(stmt)));
     }
 
-    bool RepeatStatement::ParseNode(Lexer *lexer)
+    RepeatStatement::RepeatStatement(StatementPtr &&stmt, ExpressionPtr &&exp)
+        : block_stmt_(std::move(stmt)),
+          exp_(std::move(exp))
+    {
+    }
+
+    StatementPtr ParseRepeatStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -134,18 +173,18 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_REPEAT)
             THROW_PARSER_ERROR("expect 'repeat' here");
 
-        block_stmt_.reset(new BlockStatement);
-        block_stmt_->ParseNode(lexer);
+        StatementPtr stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_UNTIL)
             THROW_PARSER_ERROR("expect 'until' here");
 
-        exp_ = ParseExpression(lexer);
-        return true;
+        ExpressionPtr exp = ParseExpression(lexer);
+
+        return StatementPtr(new RepeatStatement(std::move(stmt), std::move(exp)));
     }
 
-    bool ParseExpThenElse(ParseTreeNodePtr &exp, StatementPtr &block_stmt, StatementPtr &else_stmt, Lexer *lexer)
+    void ParseExpThenElse(ExpressionPtr &exp, StatementPtr &block_stmt, StatementPtr &else_stmt, Lexer *lexer)
     {
         exp = ParseExpression(lexer);
 
@@ -155,8 +194,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_THEN)
             THROW_PARSER_ERROR("expect 'then' here");
 
-        block_stmt.reset(new BlockStatement);
-        block_stmt->ParseNode(lexer);
+        block_stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
         if (index < 0)
@@ -165,25 +203,29 @@ namespace lua
         switch (lex_table[index]->type)
         {
         case KW_ELSEIF:
-            else_stmt.reset(new ElseIfStatement);
+            lexer->UngetToken(index);
+            else_stmt = ParseElseIfStatement(lexer);
             break;
         case KW_ELSE:
-            else_stmt.reset(new ElseStatement);
+            lexer->UngetToken(index);
+            else_stmt = ParseElseStatement(lexer);
             break;
         case KW_END:
-            // No else statement, so else_stmt_ is 0.
-            return true;
+            // No else statement
+            break;
         }
-
-        if (else_stmt)
-        {
-            lexer->UngetToken(index);
-            else_stmt->ParseNode(lexer);
-        }
-        return true;
     }
 
-    bool IfStatement::ParseNode(Lexer *lexer)
+    IfStatement::IfStatement(ExpressionPtr &&exp,
+                             StatementPtr &&block_stmt,
+                             StatementPtr &&else_stmt)
+        : exp_(std::move(exp)),
+          block_stmt_(std::move(block_stmt)),
+          else_stmt_(std::move(else_stmt))
+    {
+    }
+
+    StatementPtr ParseIfStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -191,10 +233,24 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_IF)
             THROW_PARSER_ERROR("expect 'if' here");
 
-        return ParseExpThenElse(exp_, block_stmt_, else_stmt_, lexer);
+        ExpressionPtr exp;
+        StatementPtr block_stmt;
+        StatementPtr else_stmt;
+        ParseExpThenElse(exp, block_stmt, else_stmt, lexer);
+
+        return StatementPtr(new IfStatement(std::move(exp), std::move(block_stmt), std::move(else_stmt)));
     }
 
-    bool ElseIfStatement::ParseNode(Lexer *lexer)
+    ElseIfStatement::ElseIfStatement(ExpressionPtr &&exp,
+                                     StatementPtr &&block_stmt,
+                                     StatementPtr &&else_stmt)
+        : exp_(std::move(exp)),
+          block_stmt_(std::move(block_stmt)),
+          else_stmt_(std::move(else_stmt))
+    {
+    }
+
+    StatementPtr ParseElseIfStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -202,10 +258,20 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_ELSEIF)
             THROW_PARSER_ERROR("expect 'elseif' here");
 
-        return ParseExpThenElse(exp_, block_stmt_, else_stmt_, lexer);
+        ExpressionPtr exp;
+        StatementPtr block_stmt;
+        StatementPtr else_stmt;
+        ParseExpThenElse(exp, block_stmt, else_stmt, lexer);
+
+        return StatementPtr(new ElseIfStatement(std::move(exp), std::move(block_stmt), std::move(else_stmt)));
     }
 
-    bool ElseStatement::ParseNode(Lexer *lexer)
+    ElseStatement::ElseStatement(StatementPtr &&stmt)
+        : block_stmt_(std::move(stmt))
+    {
+    }
+
+    StatementPtr ParseElseStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -213,21 +279,25 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_ELSE)
             THROW_PARSER_ERROR("expect 'else' here");
 
-        block_stmt_.reset(new BlockStatement);
-        block_stmt_->ParseNode(lexer);
+        StatementPtr stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
-        return true;
+
+        return StatementPtr(new ElseStatement(std::move(stmt)));
     }
 
-    ForStatement::ForStatement()
-        : in_mode_(false)
+    ForStatement::ForStatement(bool in_mode, ExpressionPtr &&name_list,
+            ExpressionPtr &&exp_list, StatementPtr &&block_stmt)
+        : in_mode_(in_mode),
+          name_list_(std::move(name_list)),
+          exp_list_(std::move(exp_list)),
+          block_stmt_(std::move(block_stmt))
     {
     }
 
-    bool ForStatement::ParseNode(Lexer *lexer)
+    StatementPtr ParseForStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -241,11 +311,12 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_ASSIGN && lex_table[index]->type != KW_IN)
             THROW_PARSER_ERROR("expect '=' or 'in' here");
 
+        bool in_mode = false;
         if (lex_table[index]->type == KW_IN)
-            in_mode_ = true;
+            in_mode = true;
 
         // '=' mode, then 'name' must only one.
-        if (!in_mode_ && name_list->GetCount() != 1)
+        if (!in_mode && name_list->GetCount() != 1)
             THROW_PARSER_ERROR("expect only one 'name' here");
 
         std::unique_ptr<ExpListExpression> exp_list = ParseExpListExpression(lexer);
@@ -253,21 +324,43 @@ namespace lua
             THROW_PARSER_ERROR("expect expression here");
 
         // '=' mode, then 'exp' must less equal than three.
-        if (!in_mode_ && exp_list->GetCount() > 3)
+        if (!in_mode && exp_list->GetCount() > 3)
             THROW_PARSER_ERROR("expect three 'exp' here at most");
 
-        ParseDoBlockEnd(block_stmt_, lexer);
-        name_list_ = std::move(name_list);
-        exp_list_ = std::move(exp_list);
-        return true;
+        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
+
+        return StatementPtr(new ForStatement(in_mode, std::move(name_list),
+                    std::move(exp_list), std::move(block_stmt)));
     }
 
-    FunctionStatement::FunctionStatement(FuncNameType name_type)
-        : name_type_(name_type)
+    FunctionStatement::FunctionStatement(FuncNameType name_type,
+                                         ExpressionPtr &&func_name,
+                                         ExpressionPtr &&param_list,
+                                         StatementPtr &&block_stmt)
+        : name_type_(name_type),
+          func_name_(std::move(func_name)),
+          param_list_(std::move(param_list)),
+          block_stmt_(std::move(block_stmt))
     {
     }
 
-    bool FunctionStatement::ParseNode(Lexer *lexer)
+    ExpressionPtr ParseFunctionName(Lexer *lexer, FuncNameType type)
+    {
+        switch (type)
+        {
+        case NORMAL_FUNC_NAME:
+            return ParseFuncNameExpression(lexer);
+        case LOCAL_FUNC_NAME:
+            return ParseNameExpression(lexer);
+        case NO_FUNC_NAME:
+            // No func name, so we don't parse func name.
+            break;
+        }
+
+        return ExpressionPtr();
+    }
+
+    StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -275,49 +368,63 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_FUNCTION)
             THROW_PARSER_ERROR("expect 'function' here");
 
-        ParseFuncName(lexer);
+        ExpressionPtr func_name = ParseFunctionName(lexer, type);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
             THROW_PARSER_ERROR("expect '(' here");
 
-        param_list_ = ParseParamListExpression(lexer);
+        ExpressionPtr param_list = ParseParamListExpression(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
             THROW_PARSER_ERROR("expect ')' here");
 
-        block_stmt_.reset(new BlockStatement);
-        block_stmt_->ParseNode(lexer);
+        StatementPtr block_stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
-        return true;
+
+        return StatementPtr(new FunctionStatement(type, std::move(func_name),
+                    std::move(param_list), std::move(block_stmt)));
     }
 
-    void FunctionStatement::ParseFuncName(Lexer *lexer)
+    LocalStatement::LocalStatement(ExpressionPtr &&name_list,
+                                   ExpressionPtr &&exp_list)
+        : name_list_(std::move(name_list)),
+          exp_list_(std::move(exp_list))
     {
-        switch (name_type_)
+    }
+
+    StatementPtr ParseLocalFunctionStatement(Lexer *lexer)
+    {
+        return ParseFunctionStatement(lexer, LOCAL_FUNC_NAME);
+    }
+
+    StatementPtr ParseLocalNameListStatement(Lexer *lexer)
+    {
+        ExpressionPtr name_list = ParseNameListExpression(lexer);
+        ExpressionPtr exp_list;
+
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index >= 0 && lex_table[index]->type == OP_ASSIGN)
         {
-        case NORMAL_FUNC_NAME:
-            func_name_ = ParseFuncNameExpression(lexer);
-            break;
-        case LOCAL_FUNC_NAME:
-            func_name_ = ParseNameExpression(lexer);
-            break;
-        case NO_FUNC_NAME:
-            // No func name, so we don't parse func name.
-            break;
+            exp_list = ParseExpListExpression(lexer);
+            if (!exp_list)
+                THROW_PARSER_ERROR("expect expression here");
         }
+        else
+        {
+            lexer->UngetToken(index);
+        }
+
+        return StatementPtr(new LocalStatement(std::move(name_list), std::move(exp_list)));
     }
 
-    LocalStatement::LocalStatement()
-        : is_func_(false)
-    {
-    }
-
-    bool LocalStatement::ParseNode(Lexer *lexer)
+    StatementPtr ParseLocalStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -331,42 +438,33 @@ namespace lua
 
         if (lex_table[index]->type == KW_FUNCTION)
         {
-            is_func_ = true;
             lexer->UngetToken(index);
-            func_stmt_.reset(new FunctionStatement(FunctionStatement::LOCAL_FUNC_NAME));
-            func_stmt_->ParseNode(lexer);
+            return ParseLocalFunctionStatement(lexer);
         }
         else
         {
             lexer->UngetToken(index);
-            name_list_ = ParseNameListExpression(lexer);
-            index = lexer->GetToken();
-            if (index >= 0 && lex_table[index]->type == OP_ASSIGN)
-            {
-                exp_list_ = ParseExpListExpression(lexer);
-                if (!exp_list_)
-                    THROW_PARSER_ERROR("expect expression here");
-            }
-            else
-            {
-                lexer->UngetToken(index);
-            }
+            return ParseLocalNameListStatement(lexer);
         }
-
-        return true;
     }
 
-    bool BreakStatement::ParseNode(Lexer *lexer)
+    StatementPtr ParseBreakStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
         if (index < 0 || lex_table[index]->type != KW_BREAK)
             THROW_PARSER_ERROR("expect 'break' here");
-        return true;
+
+        return StatementPtr(new BreakStatement());
     }
 
-    bool ReturnStatement::ParseNode(Lexer *lexer)
+    ReturnStatement::ReturnStatement(ExpressionPtr &&return_exp_list)
+        : return_exp_list_(std::move(return_exp_list))
+    {
+    }
+
+    StatementPtr ParseReturnStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -374,12 +472,13 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_RETUREN)
             THROW_PARSER_ERROR("expect 'return' here");
 
-        exp_list_ = ParseExpListExpression(lexer);
+        ExpressionPtr exp_list = ParseExpListExpression(lexer);
 
         // Parse "[;]"
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_SEMICOLON)
             lexer->UngetToken(index);
-        return true;
+
+        return StatementPtr(new ReturnStatement(std::move(exp_list)));
     }
 } // namespace lua

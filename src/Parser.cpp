@@ -10,8 +10,6 @@ namespace lua
 
     ParseTreeNodePtr Parser::Parse()
     {
-        ParseTreeNodePtr root(new ChunkStatement);
-        root->ParseNode(&lexer_);
-        return root;
+        return ParseChunkStatement(&lexer_);
     }
 } // namespace lua

@@ -5,23 +5,33 @@
 
 namespace lua
 {
-    class Lexer;
+	class Lexer;
 
     class ParseTreeNode
     {
     public:
-        virtual bool ParseNode(Lexer *lexer) = 0;
         virtual ~ParseTreeNode() {}
     };
 
+    class Statement : public ParseTreeNode
+    {
+    public:
+    };
+
+    class Expression : public ParseTreeNode
+    {
+    public:
+    };
+
     typedef std::unique_ptr<ParseTreeNode> ParseTreeNodePtr;
+    typedef std::unique_ptr<Statement> StatementPtr;
+    typedef std::unique_ptr<Expression> ExpressionPtr;
 
 #define THROW_PARSER_ERROR(desc) \
     ParserError::ThrowError(     \
         lexer->GetLineNumber(),  \
         lexer->GetColumnNumber(),\
         desc)
-
 } // namespace lua
 
 #endif // PARSE_TREE_NODE_H

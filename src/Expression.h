@@ -7,14 +7,6 @@
 
 namespace lua
 {
-    class Expression : public ParseTreeNode
-    {
-    public:
-        virtual bool ParseNode(Lexer *lexer) { return true; }
-    };
-
-    typedef std::unique_ptr<Expression> ExpressionPtr;
-
     class TermExpression : public Expression
     {
     public:
@@ -58,7 +50,7 @@ namespace lua
             BINARY_TYPE_OR,
         };
 
-        BinaryExpression(BinaryType type, ExpressionPtr left_exp, ExpressionPtr right_exp);
+        BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp);
 
         static BinaryType GetBinaryType(TokenType type);
 
@@ -78,7 +70,7 @@ namespace lua
             UNARY_TYPE_NEGATIVE,
         };
 
-        UnaryExpression(UnaryType type, ExpressionPtr exp);
+        UnaryExpression(UnaryType type, ExpressionPtr &&exp);
 
     private:
         UnaryType type_;
@@ -88,7 +80,7 @@ namespace lua
     class TableFieldExpression : public Expression
     {
     public:
-        TableFieldExpression(ExpressionPtr key, ExpressionPtr value);
+        TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value);
 
     private:
         ExpressionPtr key_;
@@ -98,7 +90,7 @@ namespace lua
     class TableExpression : public Expression
     {
     public:
-        void AddField(ExpressionPtr field)
+        void AddField(ExpressionPtr &&field)
         {
             fields_.push_back(std::move(field));
         }
@@ -110,7 +102,7 @@ namespace lua
     class MemberExpression : public Expression
     {
     public:
-        MemberExpression(ExpressionPtr table, ExpressionPtr member);
+        MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member);
 
     private:
         ExpressionPtr table_exp_;
@@ -130,7 +122,7 @@ namespace lua
     {
     public:
         std::size_t GetCount() const;
-        void AddName(ExpressionPtr name);
+        void AddName(ExpressionPtr &&name);
 
     private:
         std::vector<ExpressionPtr> name_list_;
@@ -140,7 +132,7 @@ namespace lua
     {
     public:
         std::size_t GetCount() const;
-        void AddExp(ExpressionPtr exp);
+        void AddExp(ExpressionPtr &&exp);
 
     private:
         std::vector<ExpressionPtr> exp_list_;
@@ -150,7 +142,7 @@ namespace lua
     {
     public:
         std::size_t GetCount() const;
-        void AddVar(ExpressionPtr var);
+        void AddVar(ExpressionPtr &&var);
 
     private:
         std::vector<ExpressionPtr> var_list_;
@@ -159,7 +151,7 @@ namespace lua
     class FuncNameExpression : public Expression
     {
     public:
-        FuncNameExpression(ExpressionPtr pre_name, ExpressionPtr member);
+        FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member);
 
     private:
         ExpressionPtr pre_name_;
@@ -169,7 +161,7 @@ namespace lua
     class ParamListExpression : public Expression
     {
     public:
-        ParamListExpression(ExpressionPtr name_list, ExpressionPtr dot3);
+        ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3);
 
     private:
         ExpressionPtr name_list_;
@@ -179,8 +171,8 @@ namespace lua
     class FuncCallExpression : public Expression
     {
     public:
-        FuncCallExpression(ExpressionPtr caller,
-            ExpressionPtr member, ExpressionPtr arg_list);
+        FuncCallExpression(ExpressionPtr &&caller,
+            ExpressionPtr &&member, ExpressionPtr &&arg_list);
 
     private:
         ExpressionPtr caller_;
@@ -191,7 +183,7 @@ namespace lua
     class AssignExpression : public Expression
     {
     public:
-        AssignExpression(ExpressionPtr var_list, ExpressionPtr exp_list);
+        AssignExpression(ExpressionPtr &&var_list, ExpressionPtr &&exp_list);
 
     private:
         ExpressionPtr var_list_;
@@ -201,10 +193,10 @@ namespace lua
     class FuncDefineExpression : public Expression
     {
     public:
-        explicit FuncDefineExpression(ParseTreeNodePtr func_def);
+        explicit FuncDefineExpression(StatementPtr &&func_def);
 
     public:
-        ParseTreeNodePtr func_def_;
+        StatementPtr func_def_;
     };
 
     ExpressionPtr ParseNameExpression(Lexer *lexer);
