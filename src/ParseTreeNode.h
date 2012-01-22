@@ -28,7 +28,7 @@ namespace lua
     typedef std::unique_ptr<Expression> ExpressionPtr;
 
 #define THROW_PARSER_ERROR(desc) \
-    ParserError::ThrowError(     \
+    Error::ThrowError(           \
         lexer->GetLineNumber(),  \
         lexer->GetColumnNumber(),\
         desc)

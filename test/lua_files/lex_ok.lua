@@ -29,28 +29,23 @@ print(tb[1] .. tb[2])
 
 tb.count = #tb
 
-print("hello world")
-
-local is_true = true
-if is_true then
-    is_true = false
-end
-
 tb[3] = {1, 2, 3, { "1", "2", "3" }}
 
-for i = 1, #tb[3] do
-    print(tb[3][i])
-end
+local v = nil
+v = true
+v = false
 
-local i = 1
-while tb[i] do
-    print(tb[i])
-    i = i + 1
-end
+i = 0x1234;
+i = 0X5678;
+i = 0.1
+i = .123e+10
+i = .456E-10
+i = 1.e+10
+i = 1.E+10+1
+i = 1.-1
 
-repeat
-    line = io.read()
-    if line == "break" then
-        break
-    end
-until line ~= ""
+local _, _ = 1, i
+i = i ^ 2 + 1 * (2 - 1 * (1 + 1))
+i = i / 1 % 100
+i = -i
+i = not i

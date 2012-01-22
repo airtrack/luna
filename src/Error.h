@@ -6,39 +6,13 @@
 
 namespace lua
 {
-    struct LexError
-    {
-        enum Type
-        {
-            NO_MULTILINE_COMMENT_ENDER,
-            NO_STRING_ENDER,
-            NO_LONG_STRING_ENDER,
-            NO_COMPLETE_NOT_EQUAL_OP,
-            INVALIDATE_NUMBER,
-            ILLEGAL_CHARACTER,
-        };
-
-        LexError(Type t, int line, int column, const std::string& desc)
-            : type(t), error_line(line), error_column(column), desc_helper(desc)
-        {
-        }
-
-        Type type;
-        int error_line;
-        int error_column;
-        std::string desc_helper;
-
-        static void ThrowError(Type type, int line, int column, const std::string& desc);
-        static std::string ConvertToReadable(const LexError& error);
-    };
-
-    struct ParserError
+    struct Error
     {
         int error_line;
         int error_column;
         std::string desc_helper;
 
-        ParserError(int line, int column, const std::string& desc)
+        Error(int line, int column, const std::string& desc)
             : error_line(line),
               error_column(column),
               desc_helper(desc)
@@ -46,7 +20,7 @@ namespace lua
         }
 
         static void ThrowError(int line, int column, const std::string& desc);
-        static std::string ConvertToReadable(const ParserError& error);
+        static std::string ConvertToReadable(const Error& error);
     };
 } // namespace lua
 

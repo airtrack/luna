@@ -199,13 +199,13 @@ namespace lua
         StatementPtr func_def_;
     };
 
-    ExpressionPtr ParseNameExpression(Lexer *lexer);
-    std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer);
     ExpressionPtr ParseExpression(Lexer *lexer);
-    std::unique_ptr<ExpListExpression> ParseExpListExpression(Lexer *lexer);
+    ExpressionPtr ParseNameExpression(Lexer *lexer);
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer);
     ExpressionPtr ParseParamListExpression(Lexer *lexer);
     ExpressionPtr ParseFuncCallOrAssignExpression(Lexer *lexer);
+    std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer);
+    std::unique_ptr<ExpListExpression> ParseExpListExpression(Lexer *lexer);
 } // namespace lua
 
 #endif // EXPRESSION_H

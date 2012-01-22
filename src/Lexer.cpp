@@ -5,6 +5,12 @@
 
 namespace lua
 {
+#define THROW_LEX_ERROR(src, desc)                                  \
+    Error::ThrowError(                                              \
+            src->GetLineNum(),                                      \
+            src->GetColumnNum(),                                    \
+            desc)
+
     Lexer::Lexer(Source *source, LexTable *lex_table)
         : source_(source),
           lex_table_(lex_table)
@@ -91,11 +97,7 @@ namespace lua
                 if (c == '=')
                     return LexOperatorAndNext("~=", OP_NOTEQUAL);
                 else
-                {
-                    LexError::ThrowError(LexError::NO_COMPLETE_NOT_EQUAL_OP,
-                        source_->GetLineNum(), source_->GetColumnNum(), "~=");
-                    return -1;
-                }
+                    THROW_LEX_ERROR(source_, "expect '=' here to construct '~='");
             default:
                 return LexKeyWordAndIdentifier();
             }
@@ -107,7 +109,7 @@ namespace lua
     void LexHexBaseNumber(Source *source, std::string& num_str)
     {
         if (num_str.size() != 1 || num_str[0] != '0')
-            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+            THROW_LEX_ERROR(source, "expect '0x' or '0X' here to construct hex number");
 
         // Push 'x' or 'X'
         num_str.push_back(source->Next());
@@ -117,7 +119,7 @@ namespace lua
             if (isdigit(c))
                 num_str.push_back(source->Next());
             else if (isalpha(c))
-                LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+                THROW_LEX_ERROR(source, "unexpect character after number");
             else
                 break;
             c = source->Peek();
@@ -125,7 +127,7 @@ namespace lua
 
         // If num_str value is '0x'
         if (num_str.size() <= 2)
-            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+            THROW_LEX_ERROR(source, "incomplete hex number here");
     }
 
     bool LexFractionalPart(Source *source, std::string& num_str)
@@ -166,7 +168,7 @@ namespace lua
 
         // If the last char is not digit, then it can not construct a number.
         if (!isdigit(num_str.back()))
-            LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+            THROW_LEX_ERROR(source, "incomplete decimal part of number");
         return true;
     }
 
@@ -180,15 +182,11 @@ namespace lua
             if (isdigit(c))
                 num_str.push_back(source->Next());
             else if (c == '.' && !has_fractional && !has_decimal)
-            {
                 has_fractional = LexFractionalPart(source, num_str);
-            }
             else if (!has_decimal && (c == 'e' || c == 'E'))
-            {
                 has_decimal = LexDecimalPart(source, num_str);
-            }
             else if (isalpha(c) || c == '.')
-                LexError::ThrowError(LexError::INVALIDATE_NUMBER, source->GetLineNum(), source->GetColumnNum(), num_str);
+                THROW_LEX_ERROR(source, "unexpect character after number");
             else
                 break;
             c = source->Peek();
@@ -223,9 +221,7 @@ namespace lua
             {
                 std::string err_helper;
                 err_helper.push_back(ender);
-                LexError::ThrowError(LexError::NO_STRING_ENDER,
-                    source_->GetLineNum(), source_->GetColumnNum(), err_helper);
-                return -1;
+                THROW_LEX_ERROR(source_, "expect '\"' here to complete string");
             }
             else if (c == ender)
             {
@@ -266,11 +262,7 @@ namespace lua
         }
 
         if (c == Source::EOS)
-        {
-            LexError::ThrowError(LexError::NO_LONG_STRING_ENDER,
-                source_->GetLineNum(), source_->GetColumnNum(), "]]");
-            return -1;
-        }
+            THROW_LEX_ERROR(source_, "expect ']]' here to complete string");
 
         source_->Next(); // this character must be ']'
         return lex_table_->InsertNewToken(long_str, STRING);
@@ -345,11 +337,7 @@ namespace lua
         }
 
         if (identifier.empty())
-        {
-            LexError::ThrowError(LexError::ILLEGAL_CHARACTER,
-                source_->GetLineNum(), source_->GetColumnNum(), "");
-            return -1;
-        }
+            THROW_LEX_ERROR(source_, "unexpect illegal character here");
 
         TokenType type = KeyWordSet::GetTokenType(identifier);
         return lex_table_->InsertNewToken(identifier, type);
@@ -413,7 +401,6 @@ namespace lua
         }
 
         // Not found multi-line comment ender, so there has an error
-        LexError::ThrowError(LexError::NO_MULTILINE_COMMENT_ENDER,
-            source_->GetLineNum(), source_->GetColumnNum(), "--]]");
+        THROW_LEX_ERROR(source_, "unfinished long commment here");
     }
 } // namespace lua

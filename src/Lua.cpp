@@ -27,13 +27,9 @@ int main(int argc, char **argv)
         lua::Parser parser(&source);
         parser.Parse();
         printf("Parse ok, construct a parse tree.\n");
-    } catch (lua::LexError& err)
+    } catch (lua::Error& err)
     {
-        std::string err_str = lua::LexError::ConvertToReadable(err);
-        printf("%s\n", err_str.c_str());
-    } catch (lua::ParserError& err)
-    {
-        std::string err_str = lua::ParserError::ConvertToReadable(err);
+        std::string err_str = lua::Error::ConvertToReadable(err);
         printf("%s\n", err_str.c_str());
     }
 
