@@ -18,7 +18,6 @@ namespace lua
 
         int Peek() const;
         int Next();
-        void Back();
 
         int GetLineNum() const
         {

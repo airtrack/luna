@@ -46,18 +46,4 @@ namespace lua
         }
         return EOS;
     }
-
-    void Source::Back()
-    {
-        if (cur_pos_ < 0)
-            return ;
-
-        int c = source_buf_[cur_pos_];
-        // We do not back if current character is whitespace
-        if (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-            return ;
-
-        --cur_pos_;
-        --cur_column_number_;
-    }
 } // namespace lua
