@@ -1,49 +1,49 @@
 #include "Source.h"
+#include "Error.h"
+#include "io/IFileStream.h"
+#include "io/ICacheStream.h"
+#include "io/ITextStream.h"
+#include "io/ICRLFFilterStream.h"
 
 namespace lua
 {
-    Source::Source(FILE *file)
-        : cur_pos_(-1),
-          cur_line_number_(1),
+    Source::Source(const char *file)
+        : cur_line_number_(1),
           cur_column_number_(0)
     {
-        long cur = ftell(file);
-        fseek(file, 0, SEEK_END);
-        long len = ftell(file) - cur;
-        fseek(file, cur, SEEK_SET);
+        std::unique_ptr<io::IFileStream> src(new io::IFileStream(file));
+        if (!src->IsOpen())
+            throw OpenFileError(file);
 
-        if (len > 0)
-        {
-            source_buf_.resize(len);
-            len = fread(&source_buf_[0], 1, len, file);
-            source_buf_.resize(len);
-        }
+        src_stream_ = io::IStreamPtr(new io::ICacheStream(std::move(src)));
+        src_stream_ = io::IStreamPtr(new io::IMBSTextStream(std::move(src_stream_)));
+        src_stream_ = io::IStreamPtr(new io::ICRLFFilterStream(std::move(src_stream_)));
     }
 
     int Source::Peek() const
     {
-        if (cur_pos_ + 1 < static_cast<int>(source_buf_.size()))
-            return source_buf_[cur_pos_ + 1];
-        return EOS;
+        int c = src_stream_->Peek();
+        if (c == EOF)
+            return EOS;
+        return c;
     }
 
     int Source::Next()
     {
-        if (cur_pos_ + 1 < static_cast<int>(source_buf_.size()))
-        {
-            int c = source_buf_[++cur_pos_];
-            if (c == '\n' || c == '\r')
-            {
-                ++cur_line_number_;
-                cur_column_number_ = 0;
-            }
-            else
-            {
-                ++cur_column_number_;
-            }
+        int c = src_stream_->Get();
+        if (c == EOF)
+            return EOS;
 
-            return c;
+        if (c == '\n' || c == '\r')
+        {
+            ++cur_line_number_;
+            cur_column_number_ = 0;
         }
-        return EOS;
+        else
+        {
+            ++cur_column_number_;
+        }
+
+        return c;
     }
 } // namespace lua

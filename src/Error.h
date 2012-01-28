@@ -6,6 +6,16 @@
 
 namespace lua
 {
+    struct OpenFileError
+    {
+        std::string file;
+
+        explicit OpenFileError(const std::string& f)
+            : file(f)
+        {
+        }
+    };
+
     struct Error
     {
         int error_line;

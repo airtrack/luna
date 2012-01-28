@@ -1,8 +1,7 @@
 #ifndef SOURCE_H
 #define SOURCE_H
 
-#include <vector>
-#include <stdio.h>
+#include "io/IStream.h"
 
 namespace lua
 {
@@ -14,7 +13,7 @@ namespace lua
             EOS = -1,
         };
 
-        explicit Source(FILE *file);
+        explicit Source(const char *file);
 
         int Peek() const;
         int Next();
@@ -30,8 +29,7 @@ namespace lua
         }
 
     private:
-        std::vector<unsigned char> source_buf_;
-        int cur_pos_;
+        io::IStreamPtr src_stream_;
         int cur_line_number_;
         int cur_column_number_;
     };

@@ -9,24 +9,16 @@ int main(int argc, char **argv)
         printf("Usage: %s file\n", argv[0]);
         return 0;
     }
-#ifdef _MSC_VER
-    FILE *file = 0;
-    fopen_s(&file, argv[1], "r");
-#else
-    FILE *file = fopen(argv[1], "r");
-#endif
-    if (!file)
-    {
-        printf("Can not open file %s.\n", argv[1]);
-        return 0;
-    }
 
     try
     {
-        lua::Source source(file);
+        lua::Source source(argv[1]);
         lua::Parser parser(&source);
         parser.Parse();
         printf("Parse ok, construct a parse tree.\n");
+    } catch (lua::OpenFileError& err)
+    {
+        printf("Can not open file %s.\n", err.file.c_str());
     } catch (lua::Error& err)
     {
         std::string err_str = lua::Error::ConvertToReadable(err);
