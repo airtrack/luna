@@ -71,6 +71,11 @@
   <ItemGroup>
     <ClInclude Include="..\src\Error.h" />
     <ClInclude Include="..\src\Expression.h" />
+    <ClInclude Include="..\src\io\ICacheStream.h" />
+    <ClInclude Include="..\src\io\ICRLFFilterStream.h" />
+    <ClInclude Include="..\src\io\IFileStream.h" />
+    <ClInclude Include="..\src\io\IStream.h" />
+    <ClInclude Include="..\src\io\ITextStream.h" />
     <ClInclude Include="..\src\Lexer.h" />
     <ClInclude Include="..\src\LexTable.h" />
     <ClInclude Include="..\src\Parser.h" />
@@ -81,6 +86,10 @@
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp" />
     <ClCompile Include="..\src\Expression.cpp" />
+    <ClCompile Include="..\src\io\ICacheStream.cpp" />
+    <ClCompile Include="..\src\io\ICRLFFilterStream.cpp" />
+    <ClCompile Include="..\src\io\IFileStream.cpp" />
+    <ClCompile Include="..\src\io\ITextStream.cpp" />
     <ClCompile Include="..\src\Lexer.cpp" />
     <ClCompile Include="..\src\LexTable.cpp" />
     <ClCompile Include="..\src\Lua.cpp" />

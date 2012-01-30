@@ -1,65 +1,90 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="src">
+      <UniqueIdentifier>{145ccac6-77bb-4b08-97f9-8ec1b8479bd6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="src\io">
+      <UniqueIdentifier>{9e5a79b3-5633-4234-a185-789cf9d3b263}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\Lexer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\LexTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Source.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\Error.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ParseTreeNode.h">
-      <Filter>Header Files</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Statement.h">
-      <Filter>Header Files</Filter>
+      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Expression.h">
-      <Filter>Header Files</Filter>
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Lexer.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\LexTable.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Parser.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ParseTreeNode.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Source.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\io\ICacheStream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\io\ICRLFFilterStream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\io\IFileStream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\io\IStream.h">
+      <Filter>src\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\io\ITextStream.h">
+      <Filter>src\io</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\Lexer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\LexTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\Error.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Parser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Statement.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Expression.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Lexer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\LexTable.cpp">
+      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Lua.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Parser.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Source.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\io\ICacheStream.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\io\ICRLFFilterStream.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\io\IFileStream.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\io\ITextStream.cpp">
+      <Filter>src\io</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
