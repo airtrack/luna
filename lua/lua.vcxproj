@@ -82,6 +82,13 @@
     <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
     <ClInclude Include="..\src\Statement.h" />
+    <ClInclude Include="..\src\types\Bool.h" />
+    <ClInclude Include="..\src\types\Function.h" />
+    <ClInclude Include="..\src\types\Nil.h" />
+    <ClInclude Include="..\src\types\Number.h" />
+    <ClInclude Include="..\src\types\String.h" />
+    <ClInclude Include="..\src\types\Table.h" />
+    <ClInclude Include="..\src\types\Value.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp" />
@@ -96,6 +103,7 @@
     <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Source.cpp" />
     <ClCompile Include="..\src\Statement.cpp" />
+    <ClCompile Include="..\src\types\Table.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

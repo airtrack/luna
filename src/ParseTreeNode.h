@@ -5,7 +5,7 @@
 
 namespace lua
 {
-	class Lexer;
+    class Lexer;
 
     class ParseTreeNode
     {

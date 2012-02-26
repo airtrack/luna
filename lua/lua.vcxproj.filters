@@ -7,6 +7,9 @@
     <Filter Include="src\io">
       <UniqueIdentifier>{9e5a79b3-5633-4234-a185-789cf9d3b263}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\types">
+      <UniqueIdentifier>{48edc879-9633-4614-bf68-151c65994675}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Error.h">
@@ -48,6 +51,27 @@
     <ClInclude Include="..\src\io\ITextStream.h">
       <Filter>src\io</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\types\Bool.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\Nil.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\Number.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\String.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\Table.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\Function.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\types\Value.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -85,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="..\src\io\ITextStream.cpp">
       <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\types\Table.cpp">
+      <Filter>src\types</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
