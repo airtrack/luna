@@ -1,6 +1,7 @@
 #ifndef PARSE_TREE_NODE_H
 #define PARSE_TREE_NODE_H
 
+#include "CodeWriter.h"
 #include <memory>
 
 namespace lua
@@ -11,6 +12,7 @@ namespace lua
     {
     public:
         virtual ~ParseTreeNode() {}
+        virtual void GenerateCode(CodeWriter *writer) = 0;
     };
 
     class Statement : public ParseTreeNode

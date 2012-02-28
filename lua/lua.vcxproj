@@ -69,8 +69,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\CodeWriter.h" />
+    <ClInclude Include="..\src\DataPool.h" />
     <ClInclude Include="..\src\Error.h" />
     <ClInclude Include="..\src\Expression.h" />
+    <ClInclude Include="..\src\FunctionWriterAdaptor.h" />
+    <ClInclude Include="..\src\Instruction.h" />
     <ClInclude Include="..\src\io\ICacheStream.h" />
     <ClInclude Include="..\src\io\ICRLFFilterStream.h" />
     <ClInclude Include="..\src\io\IFileStream.h" />
@@ -78,9 +82,11 @@
     <ClInclude Include="..\src\io\ITextStream.h" />
     <ClInclude Include="..\src\Lexer.h" />
     <ClInclude Include="..\src\LexTable.h" />
+    <ClInclude Include="..\src\ModuleLoader.h" />
     <ClInclude Include="..\src\Parser.h" />
     <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
+    <ClInclude Include="..\src\State.h" />
     <ClInclude Include="..\src\Statement.h" />
     <ClInclude Include="..\src\types\Bool.h" />
     <ClInclude Include="..\src\types\Function.h" />
@@ -91,8 +97,10 @@
     <ClInclude Include="..\src\types\Value.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\DataPool.cpp" />
     <ClCompile Include="..\src\Error.cpp" />
     <ClCompile Include="..\src\Expression.cpp" />
+    <ClCompile Include="..\src\FunctionWriterAdaptor.cpp" />
     <ClCompile Include="..\src\io\ICacheStream.cpp" />
     <ClCompile Include="..\src\io\ICRLFFilterStream.cpp" />
     <ClCompile Include="..\src\io\IFileStream.cpp" />
@@ -100,9 +108,14 @@
     <ClCompile Include="..\src\Lexer.cpp" />
     <ClCompile Include="..\src\LexTable.cpp" />
     <ClCompile Include="..\src\Lua.cpp" />
+    <ClCompile Include="..\src\ModuleLoader.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Source.cpp" />
+    <ClCompile Include="..\src\State.cpp" />
     <ClCompile Include="..\src\Statement.cpp" />
+    <ClCompile Include="..\src\types\Function.cpp" />
+    <ClCompile Include="..\src\types\Number.cpp" />
+    <ClCompile Include="..\src\types\String.cpp" />
     <ClCompile Include="..\src\types\Table.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

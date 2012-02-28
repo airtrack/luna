@@ -14,6 +14,8 @@ namespace lua
             statements_.push_back(std::move(statement));
         }
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         std::vector<StatementPtr> statements_;
     };
@@ -24,6 +26,8 @@ namespace lua
     {
     public:
         explicit ChunkStatement(StatementPtr &&block_stmt);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         StatementPtr block_stmt_;
@@ -36,6 +40,8 @@ namespace lua
     public:
         explicit NormalStatement(ExpressionPtr &&exp);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr exp_;
     };
@@ -46,6 +52,8 @@ namespace lua
     {
     public:
         explicit DoStatement(StatementPtr &&block_stmt);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         StatementPtr block_stmt_;
@@ -58,6 +66,8 @@ namespace lua
     public:
         WhileStatement(ExpressionPtr &&exp, StatementPtr &&stmt);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr exp_;
         StatementPtr block_stmt_;
@@ -69,6 +79,8 @@ namespace lua
     {
     public:
         RepeatStatement(StatementPtr &&stmt, ExpressionPtr &&exp);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         StatementPtr block_stmt_;
@@ -83,6 +95,8 @@ namespace lua
         IfStatement(ExpressionPtr &&exp,
                     StatementPtr &&block_stmt,
                     StatementPtr &&else_stmt);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr exp_;
@@ -99,6 +113,8 @@ namespace lua
                         StatementPtr &&block_stmt,
                         StatementPtr &&else_stmt);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr exp_;
         StatementPtr block_stmt_;
@@ -112,6 +128,8 @@ namespace lua
     public:
         explicit ElseStatement(StatementPtr &&stmt);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         StatementPtr block_stmt_;
     };
@@ -123,6 +141,8 @@ namespace lua
     public:
         ForStatement(bool in_mode, ExpressionPtr &&name_list,
                 ExpressionPtr &&exp_list, StatementPtr &&block_stmt);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         bool in_mode_;
@@ -148,6 +168,8 @@ namespace lua
                           ExpressionPtr &&param_list,
                           StatementPtr &&block_stmt);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         FuncNameType name_type_;
         ExpressionPtr func_name_;
@@ -163,6 +185,8 @@ namespace lua
         LocalStatement(ExpressionPtr &&name_list,
                        ExpressionPtr &&exp_list);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr name_list_;
         ExpressionPtr exp_list_;
@@ -173,6 +197,7 @@ namespace lua
     class BreakStatement : public Statement
     {
     public:
+        void GenerateCode(CodeWriter *writer) {}
     };
 
     StatementPtr ParseBreakStatement(Lexer *lexer);
@@ -181,6 +206,8 @@ namespace lua
     {
     public:
         explicit ReturnStatement(ExpressionPtr &&return_exp_list);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr return_exp_list_;

@@ -22,6 +22,8 @@ namespace lua
 
         TermExpression(TermType type, int index);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         TermType type_;
         int index_;
@@ -52,6 +54,8 @@ namespace lua
 
         BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp);
 
+        void GenerateCode(CodeWriter *writer) {}
+
         static BinaryType GetBinaryType(TokenType type);
 
     private:
@@ -72,6 +76,8 @@ namespace lua
 
         UnaryExpression(UnaryType type, ExpressionPtr &&exp);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         UnaryType type_;
         ExpressionPtr exp_;
@@ -81,6 +87,8 @@ namespace lua
     {
     public:
         TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr key_;
@@ -95,6 +103,8 @@ namespace lua
             fields_.push_back(std::move(field));
         }
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         std::vector<ExpressionPtr> fields_;
     };
@@ -103,6 +113,8 @@ namespace lua
     {
     public:
         MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr table_exp_;
@@ -114,6 +126,8 @@ namespace lua
     public:
         NameExpression(int index);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         int index_;
     };
@@ -123,6 +137,8 @@ namespace lua
     public:
         std::size_t GetCount() const;
         void AddName(ExpressionPtr &&name);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         std::vector<ExpressionPtr> name_list_;
@@ -134,6 +150,8 @@ namespace lua
         std::size_t GetCount() const;
         void AddExp(ExpressionPtr &&exp);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         std::vector<ExpressionPtr> exp_list_;
     };
@@ -144,6 +162,8 @@ namespace lua
         std::size_t GetCount() const;
         void AddVar(ExpressionPtr &&var);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         std::vector<ExpressionPtr> var_list_;
     };
@@ -152,6 +172,8 @@ namespace lua
     {
     public:
         FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr pre_name_;
@@ -162,6 +184,8 @@ namespace lua
     {
     public:
         ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr name_list_;
@@ -174,6 +198,8 @@ namespace lua
         FuncCallExpression(ExpressionPtr &&caller,
             ExpressionPtr &&member, ExpressionPtr &&arg_list);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr caller_;
         ExpressionPtr member_;
@@ -185,6 +211,8 @@ namespace lua
     public:
         AssignExpression(ExpressionPtr &&var_list, ExpressionPtr &&exp_list);
 
+        void GenerateCode(CodeWriter *writer) {}
+
     private:
         ExpressionPtr var_list_;
         ExpressionPtr exp_list_;
@@ -194,6 +222,8 @@ namespace lua
     {
     public:
         explicit FuncDefineExpression(StatementPtr &&func_def);
+
+        void GenerateCode(CodeWriter *writer) {}
 
     public:
         StatementPtr func_def_;

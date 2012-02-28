@@ -72,6 +72,24 @@
     <ClInclude Include="..\src\types\Value.h">
       <Filter>src\types</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\State.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Instruction.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DataPool.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ModuleLoader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CodeWriter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\FunctionWriterAdaptor.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -111,6 +129,27 @@
       <Filter>src\io</Filter>
     </ClCompile>
     <ClCompile Include="..\src\types\Table.cpp">
+      <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ModuleLoader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\FunctionWriterAdaptor.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\State.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DataPool.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\types\Function.cpp">
+      <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\types\String.cpp">
+      <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\types\Number.cpp">
       <Filter>src\types</Filter>
     </ClCompile>
   </ItemGroup>
