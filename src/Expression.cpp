@@ -2,13 +2,42 @@
 #include "Statement.h"
 #include "Error.h"
 #include "Lexer.h"
+#include "State.h"
+#include <assert.h>
+#include <stdlib.h>
 
 namespace lua
 {
-    TermExpression::TermExpression(TermType type, int index)
+#define GET_STRING_FROM_POOL(index)                 \
+    lexer->GetState()->GetDataPool()->GetString(lex_table[index]->value)
+#define GET_NUMBER_FROM_POOL(index)                 \
+    lexer->GetState()->GetDataPool()->GetNumber(strtod(lex_table[index]->value.c_str(), 0))
+#define GET_NIL_FROM_POOL()                         \
+    lexer->GetState()->GetDataPool()->GetNil()
+#define GET_TRUE_FROM_POOL()                        \
+    lexer->GetState()->GetDataPool()->GetTrue()
+#define GET_FALSE_FROM_POOL()                       \
+    lexer->GetState()->GetDataPool()->GetFalse()
+
+    TermExpression::TermExpression(TermType type, Value *value)
         : type_(type),
-          index_(index)
+          value_(value)
     {
+    }
+
+    void TermExpression::GenerateCode(CodeWriter *writer)
+    {
+        if (type_ == TERM_PARAM_LIST)
+        {
+            // TODO: generate code from param list
+        }
+        else
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Push;
+            ins->param_a.type = InstructionParamType_Value;
+            ins->param_a.param.value = value_;
+        }
     }
 
     BinaryExpression::BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp)
@@ -75,9 +104,22 @@ namespace lua
     {
     }
 
-    NameExpression::NameExpression(int index)
-        : index_(index)
+    NameExpression::NameExpression(String *name)
+        : name_(name)
     {
+    }
+
+    void NameExpression::GenerateCode(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GetTable;
+        ins->param_a.type = InstructionParamType_Name;
+        ins->param_a.param.name = name_;
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Name;
+        ins->param_a.param.name = name_;
     }
 
     std::size_t NameListExpression::GetCount() const
@@ -100,6 +142,12 @@ namespace lua
         exp_list_.push_back(std::move(exp));
     }
 
+    void ExpListExpression::GenerateCodeExp(std::size_t index, CodeWriter *writer)
+    {
+        assert(index < GetCount());
+        exp_list_[index]->GenerateCode(writer);
+    }
+
     std::size_t VarListExpression::GetCount() const
     {
         return var_list_.size();
@@ -108,6 +156,12 @@ namespace lua
     void VarListExpression::AddVar(ExpressionPtr &&var)
     {
         var_list_.push_back(std::move(var));
+    }
+
+    void VarListExpression::GenerateCodeVar(std::size_t index, CodeWriter *writer)
+    {
+        assert(index < GetCount());
+        var_list_[index]->GenerateCode(writer);
     }
 
     FuncNameExpression::FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member)
@@ -130,10 +184,55 @@ namespace lua
     {
     }
 
-    AssignExpression::AssignExpression(ExpressionPtr &&var_list, ExpressionPtr &&exp_list)
+    AssignExpression::AssignExpression(std::unique_ptr<VarListExpression> &&var_list,
+                                       std::unique_ptr<ExpListExpression> &&exp_list)
         : var_list_(std::move(var_list)),
           exp_list_(std::move(exp_list))
     {
+    }
+
+    void AssignExpression::GenerateCode(CodeWriter *writer)
+    {
+        std::size_t exp_count = exp_list_->GetCount();
+        std::size_t var_count = var_list_->GetCount();
+        std::size_t index = 0;
+
+        for (; index < exp_count && index < var_count; ++index)
+        {
+            CalculateExp(index, writer);
+            AssignVar(index, writer);
+        }
+
+        for (; index < var_count; ++index)
+            AssignVar(index, writer);
+
+        for (; index < exp_count; ++index)
+            CalculateExp(index, writer);
+
+        // Clear lastest exp result
+        ClearStack(writer);
+    }
+
+    void AssignExpression::ClearStack(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ClearResult;
+    }
+
+    void AssignExpression::CalculateExp(std::size_t index, CodeWriter *writer)
+    {
+        // If there are more then one var and exp,
+        // we clear last exp result from top of stack
+        if (index > 0)
+            ClearStack(writer);
+        exp_list_->GenerateCodeExp(index, writer);
+    }
+
+    void AssignExpression::AssignVar(std::size_t index, CodeWriter *writer)
+    {
+        var_list_->GenerateCodeVar(index, writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
     }
 
     FuncDefineExpression::FuncDefineExpression(StatementPtr &&func_def)
@@ -205,7 +304,7 @@ namespace lua
             return ExpressionPtr();
         }
 
-        return ExpressionPtr(new NameExpression(index));
+        return ExpressionPtr(new NameExpression(GET_STRING_FROM_POOL(index)));
     }
 
     std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer)
@@ -247,22 +346,28 @@ namespace lua
         }
 
         TermExpression::TermType type;
+        Value *value = 0;
         switch (lex_table[index]->type)
         {
         case KW_NIL:
             type = TermExpression::TERM_NIL;
+            value = GET_NIL_FROM_POOL();
             break;
         case KW_FALSE:
             type = TermExpression::TERM_FALSE;
+            value = GET_FALSE_FROM_POOL();
             break;
         case KW_TRUE:
             type = TermExpression::TERM_TRUE;
+            value = GET_TRUE_FROM_POOL();
             break;
         case NUMBER:
             type = TermExpression::TERM_NUMBER;
+            value = GET_NUMBER_FROM_POOL(index);
             break;
         case STRING:
             type = TermExpression::TERM_STRING;
+            value = GET_STRING_FROM_POOL(index);
             break;
         case OP_PARAM_LIST:
             type = TermExpression::TERM_PARAM_LIST;
@@ -272,7 +377,7 @@ namespace lua
             return ExpressionPtr();
         }
 
-        return ExpressionPtr(new TermExpression(type, index));
+        return ExpressionPtr(new TermExpression(type, value));
     }
 
     ExpressionPtr ParseFuncDefineExpression(Lexer *lexer)
@@ -540,7 +645,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_PARAM_LIST)
             THROW_PARSER_ERROR("expect 'name' or '...' here");
 
-        dot3.reset(new TermExpression(TermExpression::TERM_PARAM_LIST, index));
+        dot3.reset(new TermExpression(TermExpression::TERM_PARAM_LIST, 0));
         return dot3;
     }
 
@@ -616,7 +721,7 @@ namespace lua
             }
             else
             {
-                key.reset(new NameExpression(index));
+                key.reset(new NameExpression(GET_STRING_FROM_POOL(index)));
             }
         }
 
@@ -691,7 +796,8 @@ namespace lua
         ExpressionPtr result;
         if (lex_table[index]->type == STRING)
         {
-            result = ExpressionPtr(new TermExpression(TermExpression::TERM_STRING, index));
+            result = ExpressionPtr(new TermExpression(
+                TermExpression::TERM_STRING, GET_STRING_FROM_POOL(index)));
         }
         else if (lex_table[index]->type == OP_LEFT_BRACE)
         {
@@ -807,7 +913,7 @@ namespace lua
         return result;
     }
 
-    ExpressionPtr ParseVarListExpression(ExpressionPtr var, Lexer *lexer)
+    std::unique_ptr<VarListExpression> ParseVarListExpression(ExpressionPtr var, Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
         std::unique_ptr<VarListExpression> var_list(new VarListExpression);
@@ -834,7 +940,7 @@ namespace lua
 
     ExpressionPtr ParseAssignExpression(ExpressionPtr var, Lexer *lexer)
     {
-        ExpressionPtr var_list = ParseVarListExpression(std::move(var), lexer);
+        auto var_list = ParseVarListExpression(std::move(var), lexer);
 
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -842,7 +948,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_ASSIGN)
             THROW_PARSER_ERROR("expect '=' here");
 
-        ExpressionPtr exp_list = ParseExpListExpression(lexer);
+        auto exp_list = ParseExpListExpression(lexer);
         if (!exp_list)
             THROW_PARSER_ERROR("expect expression here");
 

@@ -2,31 +2,44 @@
 #define INSTRUCTION_H
 
 #include "types/Value.h"
+#include "types/String.h"
 
 namespace lua
 {
     enum OpCode
     {
-        OpCode_Move,
+        OpCode_Assign,
+        OpCode_ClearResult,
+        OpCode_GetTable,
+        OpCode_Push,
     };
 
     enum InstructionParamType
     {
         InstructionParamType_Value,
+        InstructionParamType_Name,
         InstructionParamType_Number,
+        InstructionParamType_Bool,
+        InstructionParamType_Nil,
+        InstructionParamType_StackIndex,
     };
 
-    union InstructionParam
+    struct InstructionParam
     {
-        Value *value;
-        double number;
+        InstructionParamType type;
+        union
+        {
+            Value *value;
+            String *name;
+            double number;
+            bool b;
+            int stack_index;
+        } param;
     };
 
     struct Instruction
     {
         OpCode op_code;
-        InstructionParamType param_a_type;
-        InstructionParamType param_b_type;
         InstructionParam param_a;
         InstructionParam param_b;
     };

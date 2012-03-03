@@ -17,14 +17,14 @@ namespace lua
         return 0;
     }
 
-    Number * DataPool::GetNumber()
+    Number * DataPool::GetNumber(double number)
     {
-        return 0;
+        return new Number(number);
     }
 
-    String * DataPool::GetString()
+    String * DataPool::GetString(const std::string& str)
     {
-        return 0;
+        return new String(str);
     }
 
     Table * DataPool::GetTable()

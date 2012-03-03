@@ -7,10 +7,17 @@
 
 namespace lua
 {
+    class State;
+
     class Lexer
     {
     public:
-        Lexer(Source *source, LexTable *lex_table);
+        Lexer(Source *source, LexTable *lex_table, State *state);
+
+        State * GetState() const
+        {
+            return state_;
+        }
 
         // Return token storing LexTable
         LexTable& GetLexTable() const
@@ -52,6 +59,7 @@ namespace lua
         void LexMultiLineComment();
 
         std::stack<int> unget_;
+        State *state_;
         Source *source_;
         LexTable *lex_table_;
     };

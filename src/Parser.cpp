@@ -3,8 +3,8 @@
 
 namespace lua
 {
-    Parser::Parser(Source *source)
-        : lexer_(source, &lex_table_)
+    Parser::Parser(Source *source, State *state)
+        : lexer_(source, &lex_table_, state)
     {
     }
 

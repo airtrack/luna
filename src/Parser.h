@@ -9,10 +9,12 @@
 
 namespace lua
 {
+    class State;
+
     class Parser
     {
     public:
-        explicit Parser(Source *source);
+        Parser(Source *source, State *state);
 
         ParseTreeNodePtr Parse();
 

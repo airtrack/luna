@@ -11,6 +11,7 @@ namespace lua
     {
     public:
         explicit FunctionWriterAdaptor(Function *f);
+        virtual Instruction * NewInstruction();
 
     private:
         Function *fun_;

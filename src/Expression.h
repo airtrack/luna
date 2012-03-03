@@ -20,13 +20,13 @@ namespace lua
             TERM_PARAM_LIST,
         };
 
-        TermExpression(TermType type, int index);
+        TermExpression(TermType type, Value *value);
 
-        void GenerateCode(CodeWriter *writer) {}
+        void GenerateCode(CodeWriter *writer);
 
     private:
         TermType type_;
-        int index_;
+        Value *value_;
     };
 
     class BinaryExpression : public Expression
@@ -124,12 +124,12 @@ namespace lua
     class NameExpression : public Expression
     {
     public:
-        NameExpression(int index);
+        explicit NameExpression(String *name);
 
-        void GenerateCode(CodeWriter *writer) {}
+        void GenerateCode(CodeWriter *writer);
 
     private:
-        int index_;
+        String *name_;
     };
 
     class NameListExpression : public Expression
@@ -151,6 +151,7 @@ namespace lua
         void AddExp(ExpressionPtr &&exp);
 
         void GenerateCode(CodeWriter *writer) {}
+        void GenerateCodeExp(std::size_t index, CodeWriter *writer);
 
     private:
         std::vector<ExpressionPtr> exp_list_;
@@ -163,6 +164,7 @@ namespace lua
         void AddVar(ExpressionPtr &&var);
 
         void GenerateCode(CodeWriter *writer) {}
+        void GenerateCodeVar(std::size_t index, CodeWriter *writer);
 
     private:
         std::vector<ExpressionPtr> var_list_;
@@ -209,13 +211,18 @@ namespace lua
     class AssignExpression : public Expression
     {
     public:
-        AssignExpression(ExpressionPtr &&var_list, ExpressionPtr &&exp_list);
+        AssignExpression(std::unique_ptr<VarListExpression> &&var_list,
+                         std::unique_ptr<ExpListExpression> &&exp_list);
 
-        void GenerateCode(CodeWriter *writer) {}
+        void GenerateCode(CodeWriter *writer);
 
     private:
-        ExpressionPtr var_list_;
-        ExpressionPtr exp_list_;
+        void ClearStack(CodeWriter *writer);
+        void CalculateExp(std::size_t index, CodeWriter *writer);
+        void AssignVar(std::size_t index, CodeWriter *writer);
+
+        std::unique_ptr<VarListExpression> var_list_;
+        std::unique_ptr<ExpListExpression> exp_list_;
     };
 
     class FuncDefineExpression : public Expression

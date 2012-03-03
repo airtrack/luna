@@ -8,7 +8,7 @@ namespace lua
 {
     ModuleLoader::ModuleInfo::ModuleInfo(const std::string& module_name, State *state)
         : source_(new Source(module_name.c_str())),
-          parser_(new Parser(source_.get())),
+          parser_(new Parser(source_.get(), state)),
           chunk_(0)
     {
         ParseTreeNodePtr root = parser_->Parse();

@@ -6,4 +6,9 @@ namespace lua
         : fun_(f)
     {
     }
+
+    Instruction * FunctionWriterAdaptor::NewInstruction()
+    {
+        return 0;
+    }
 } // namespace lua

@@ -13,12 +13,18 @@ namespace lua
         {
         }
 
-        virtual int Type() const;
+        virtual int Type() const
+        {
+            return TYPE_STRING;
+        }
 
         virtual std::string Name() const
         {
             return "string";
         }
+
+        virtual std::size_t GetHash() const;
+        virtual bool IsEqual(Value *other) const;
 
     private:
         std::string value_;

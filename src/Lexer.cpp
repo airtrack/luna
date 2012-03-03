@@ -11,8 +11,9 @@ namespace lua
             src->GetColumnNum(),                                    \
             desc)
 
-    Lexer::Lexer(Source *source, LexTable *lex_table)
-        : source_(source),
+    Lexer::Lexer(Source *source, LexTable *lex_table, State *state)
+        : state_(state),
+          source_(source),
           lex_table_(lex_table)
     {
         KeyWordSet::InitKeyWordSet();

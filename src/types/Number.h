@@ -23,6 +23,9 @@ namespace lua
             return "number";
         }
 
+        virtual std::size_t GetHash() const;
+        virtual bool IsEqual(Value *other) const;
+
         bool IsInteger() const
         {
             return false;

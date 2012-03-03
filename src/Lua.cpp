@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "Error.h"
+#include "State.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
@@ -12,8 +13,9 @@ int main(int argc, char **argv)
 
     try
     {
+        lua::State state;
         lua::Source source(argv[1]);
-        lua::Parser parser(&source);
+        lua::Parser parser(&source, &state);
         parser.Parse();
         printf("Parse ok, construct a parse tree.\n");
     } catch (lua::OpenFileError& err)
