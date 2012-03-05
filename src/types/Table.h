@@ -11,10 +11,18 @@ namespace lua
     class Table : public Value
     {
     public:
-        virtual int Type() const;
-        virtual std::string Name() const;
+        virtual int Type() const
+        {
+            return TYPE_TABLE;
+        }
+
+        virtual std::string Name() const
+        {
+            return "table";
+        }
+
         virtual std::size_t GetHash() const;
-        virtual bool IsEqual(Value *other) const;
+        virtual bool IsEqual(const Value *other) const;
 
         int GetArraySize() const;
         void Set(int key, Value *value);

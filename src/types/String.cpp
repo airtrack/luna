@@ -7,8 +7,14 @@ namespace lua
         return 0;
     }
 
-    bool String::IsEqual(Value *other) const
+    bool String::IsEqual(const Value *other) const
     {
-        return false;
+        if (this == other)
+            return true;
+
+        if (Type() != other->Type())
+            return false;
+
+        return value_ == static_cast<const String *>(other)->value_;
     }
 } // namespace lua

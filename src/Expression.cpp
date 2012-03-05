@@ -29,7 +29,7 @@ namespace lua
     {
         if (type_ == TERM_PARAM_LIST)
         {
-            // TODO: generate code from param list
+            // TODO: generate code for param list
         }
         else
         {

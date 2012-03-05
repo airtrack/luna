@@ -24,7 +24,7 @@ namespace lua
         }
 
         virtual std::size_t GetHash() const;
-        virtual bool IsEqual(Value *other) const;
+        virtual bool IsEqual(const Value *other) const;
 
         bool IsInteger() const
         {

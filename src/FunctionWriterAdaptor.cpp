@@ -1,4 +1,5 @@
 #include "FunctionWriterAdaptor.h"
+#include "types/Function.h"
 
 namespace lua
 {
@@ -9,6 +10,6 @@ namespace lua
 
     Instruction * FunctionWriterAdaptor::NewInstruction()
     {
-        return 0;
+        return fun_->NewInstruction();
     }
 } // namespace lua

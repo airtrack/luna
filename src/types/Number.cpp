@@ -1,14 +1,21 @@
 #include "Number.h"
+#include <functional>
 
 namespace lua
 {
     std::size_t Number::GetHash() const
     {
-        return 0;
+        return std::hash<double>()(value_);
     }
 
-    bool Number::IsEqual(Value *other) const
+    bool Number::IsEqual(const Value *other) const
     {
-        return false;
+        if (this == other)
+            return true;
+
+        if (Type() != other->Type())
+            return false;
+
+        return value_ == static_cast<const Number *>(other)->value_;
     }
 } // namespace lua

@@ -5,17 +5,12 @@
 
 namespace lua
 {
-    std::string Table::Name() const
-    {
-        return "table";
-    }
-
     std::size_t Table::GetHash() const
     {
         return std::hash<const Table *>()(this);
     }
 
-    bool Table::IsEqual(Value *other) const
+    bool Table::IsEqual(const Value *other) const
     {
         return this == other;
     }

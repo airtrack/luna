@@ -90,6 +90,9 @@
     <ClInclude Include="..\src\FunctionWriterAdaptor.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\VirtualMachine.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="..\src\types\Number.cpp">
       <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\VirtualMachine.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 #ifndef MODULE_LOADER_H
 #define MODULE_LOADER_H
 
+#include "Source.h"
+#include "Parser.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -8,8 +10,6 @@
 namespace lua
 {
     class State;
-    class Source;
-    class Parser;
     class Function;
 
     class ModuleLoader

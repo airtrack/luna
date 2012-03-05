@@ -1,7 +1,5 @@
 #include "ModuleLoader.h"
 #include "State.h"
-#include "Source.h"
-#include "Parser.h"
 #include "FunctionWriterAdaptor.h"
 
 namespace lua

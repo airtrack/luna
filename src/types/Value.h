@@ -24,7 +24,7 @@ namespace lua
         virtual int Type() const = 0;
         virtual std::string Name() const = 0;
         virtual std::size_t GetHash() const = 0;
-        virtual bool IsEqual(Value *other) const = 0;
+        virtual bool IsEqual(const Value *other) const = 0;
 
     private:
         DataPool *owner_pool_;
