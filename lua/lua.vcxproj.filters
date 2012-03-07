@@ -93,6 +93,9 @@
     <ClInclude Include="..\src\VirtualMachine.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Stack.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -156,6 +159,9 @@
       <Filter>src\types</Filter>
     </ClCompile>
     <ClCompile Include="..\src\VirtualMachine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Stack.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

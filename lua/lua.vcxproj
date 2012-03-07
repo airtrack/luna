@@ -92,6 +92,7 @@
     <ClInclude Include="..\src\Parser.h" />
     <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
+    <ClInclude Include="..\src\Stack.h" />
     <ClInclude Include="..\src\State.h" />
     <ClInclude Include="..\src\Statement.h" />
     <ClInclude Include="..\src\types\Bool.h" />
@@ -118,6 +119,7 @@
     <ClCompile Include="..\src\ModuleLoader.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Source.cpp" />
+    <ClCompile Include="..\src\Stack.cpp" />
     <ClCompile Include="..\src\State.cpp" />
     <ClCompile Include="..\src\Statement.cpp" />
     <ClCompile Include="..\src\types\Function.cpp" />
