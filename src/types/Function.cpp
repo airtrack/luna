@@ -18,4 +18,14 @@ namespace lua
         instructions_.resize(instructions_.size() + 1);
         return &instructions_.back();
     }
+
+    Instruction * Function::GetInstructions()
+    {
+        return &instructions_[0];
+    }
+
+    std::size_t Function::GetInstructionCount()
+    {
+        return instructions_.size();
+    }
 } // namespace lua
