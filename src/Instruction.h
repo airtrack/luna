@@ -9,7 +9,7 @@ namespace lua
     enum OpCode
     {
         OpCode_Assign,
-        OpCode_ClearResult,
+        OpCode_CleanStack,
         OpCode_GetTable,
         OpCode_Push,
     };
@@ -21,7 +21,7 @@ namespace lua
         InstructionParamType_Number,
         InstructionParamType_Bool,
         InstructionParamType_Nil,
-        InstructionParamType_StackIndex,
+        InstructionParamType_Counter,
     };
 
     struct InstructionParam
@@ -33,7 +33,7 @@ namespace lua
             String *name;
             double number;
             bool b;
-            int stack_index;
+            int counter;
         } param;
     };
 

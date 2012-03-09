@@ -35,8 +35,10 @@ namespace lua
             switch (ins->op_code)
             {
             case OpCode_Assign:
+                Assign();
                 break;
-            case OpCode_ClearResult:
+            case OpCode_CleanStack:
+                CleanStack();
                 break;
             case OpCode_GetTable:
                 assert(ins->param_a.type == InstructionParamType_Name);
@@ -45,10 +47,52 @@ namespace lua
             case OpCode_Push:
                 if (ins->param_a.type == InstructionParamType_Name)
                     stack_->Push(ins->param_a.param.name);
+                else if (ins->param_a.type == InstructionParamType_Value)
+                    stack_->Push(ins->param_a.param.value);
+                else if (ins->param_a.type == InstructionParamType_Counter)
+                    stack_->Push(ins->param_a.param.counter, 0);
                 break;
             }
             ++current;
         }
+    }
+
+    void VirtualMachine::Assign()
+    {
+        StackValue *key = stack_->Top();
+        assert(key->type == StackValueType_Value);
+        stack_->Pop();
+
+        StackValue *table = stack_->Top();
+        assert(table->type == StackValueType_Value &&
+            table->param.value->Type() == TYPE_TABLE);
+        stack_->Pop();
+
+        StackValue *counter = stack_->Top();
+        assert(counter->type == StackValueType_Counter);
+        Value *value = 0;
+
+        if (counter->param.counter.current < counter->param.counter.total)
+        {
+            int index = counter->param.counter.current - counter->param.counter.total - 1;
+            counter->param.counter.current++;
+            value = stack_->GetStackValue(index)->param.value;
+        }
+
+        Table *t = static_cast<Table *>(table->param.value);
+        t->Assign(key->param.value, value);
+    }
+
+    void VirtualMachine::CleanStack()
+    {
+        StackValue *counter = stack_->Top();
+        assert(counter && counter->type == StackValueType_Counter);
+
+        // Pop the counter
+        stack_->Pop();
+
+        // Pop values bottom of the counter
+        stack_->Pop(counter->param.counter.total);
     }
 
     void VirtualMachine::GetTable(String *name)

@@ -3,6 +3,7 @@
 
 #include "Value.h"
 #include <vector>
+#include <memory>
 #include <unordered_map>
 #include <functional>
 
@@ -26,6 +27,8 @@ namespace lua
 
         bool HaveKey(const Value *key) const;
 
+        void Assign(const Value *key, Value *value);
+
     private:
         struct TypeHash : public std::unary_function<Value *, std::size_t>
         {
@@ -46,8 +49,8 @@ namespace lua
         typedef std::vector<Value *> ArrayType;
         typedef std::unordered_map<const Value *, Value *, TypeHash, TypeEqual> HashTableType;
 
-        ArrayType *array_;
-        HashTableType *hash_table_;
+        std::unique_ptr<ArrayType> array_;
+        std::unique_ptr<HashTableType> hash_table_;
     };
 } // namespace lua
 

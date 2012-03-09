@@ -20,6 +20,8 @@ namespace lua
         void Run(Function *f);
 
     private:
+        void Assign();
+        void CleanStack();
         void GetTable(String *name);
 
         State *state_;

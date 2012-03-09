@@ -37,6 +37,11 @@ namespace lua
             ins->op_code = OpCode_Push;
             ins->param_a.type = InstructionParamType_Value;
             ins->param_a.param.value = value_;
+
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Push;
+            ins->param_a.type = InstructionParamType_Counter;
+            ins->param_a.param.counter = 1;
         }
     }
 
@@ -216,7 +221,7 @@ namespace lua
     void AssignExpression::ClearStack(CodeWriter *writer)
     {
         Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_ClearResult;
+        ins->op_code = OpCode_CleanStack;
     }
 
     void AssignExpression::CalculateExp(std::size_t index, CodeWriter *writer)
