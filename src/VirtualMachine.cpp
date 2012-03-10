@@ -70,7 +70,7 @@ namespace lua
 
         StackValue *counter = stack_->Top();
         assert(counter->type == StackValueType_Counter);
-        Value *value = 0;
+        Value *value = data_pool_->GetNil();
 
         if (counter->param.counter.current < counter->param.counter.total)
         {
