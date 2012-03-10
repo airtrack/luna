@@ -23,6 +23,20 @@ namespace lua
             return value_ ? "true" : "false";
         }
 
+        virtual std::size_t GetHash() const
+        {
+            return value_ ? 1 : 0;
+        }
+
+        virtual bool IsEqual(const Value *other) const
+        {
+            if (this == other)
+                return true;
+            if (Type() != other->Type())
+                return false;
+            return value_ == static_cast<const Bool *>(other)->value_;
+        }
+
     private:
         bool value_;
     };

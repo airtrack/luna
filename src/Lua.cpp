@@ -13,11 +13,11 @@ int main(int argc, char **argv)
 
     try
     {
+        const char *file = argv[1];
         lua::State state;
-        lua::Source source(argv[1]);
-        lua::Parser parser(&source, &state);
-        parser.Parse();
-        printf("Parse ok, construct a parse tree.\n");
+        lua::Function *f = state.GetModuleLoader()->LoadModule(file);
+        state.GetVM()->Run(f);
+        printf("Run %s ok.\n", file);
     } catch (lua::OpenFileError& err)
     {
         printf("Can not open file %s.\n", err.file.c_str());

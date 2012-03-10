@@ -2,19 +2,25 @@
 
 namespace lua
 {
+    DataPool::DataPool()
+        : true_(true),
+          false_(false)
+    {
+    }
+
     Nil * DataPool::GetNil()
     {
-        return 0;
+        return &nil_;
     }
 
     Bool * DataPool::GetTrue()
     {
-        return 0;
+        return &true_;
     }
 
     Bool * DataPool::GetFalse()
     {
-        return 0;
+        return &false_;
     }
 
     Number * DataPool::GetNumber(double number)
@@ -29,11 +35,11 @@ namespace lua
 
     Table * DataPool::GetTable()
     {
-        return 0;
+        return new Table;
     }
 
     Function * DataPool::GetFunction()
     {
-        return 0;
+        return new Function;
     }
 } // namespace lua

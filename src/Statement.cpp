@@ -65,6 +65,12 @@ namespace lua
         return StatementPtr();
     }
 
+    void BlockStatement::GenerateCode(CodeWriter *writer)
+    {
+        for (auto it = statements_.begin(); it != statements_.end(); ++it)
+            (*it)->GenerateCode(writer);
+    }
+
     StatementPtr ParseBlockStatement(Lexer *lexer)
     {
         std::unique_ptr<BlockStatement> block_stmt(new BlockStatement);
@@ -86,6 +92,11 @@ namespace lua
     {
     }
 
+    void ChunkStatement::GenerateCode(CodeWriter *writer)
+    {
+        block_stmt_->GenerateCode(writer);
+    }
+
     StatementPtr ParseChunkStatement(Lexer *lexer)
     {
         StatementPtr stmt = ParseBlockStatement(lexer);
@@ -100,6 +111,11 @@ namespace lua
     NormalStatement::NormalStatement(ExpressionPtr &&exp)
         : exp_(std::move(exp))
     {
+    }
+
+    void NormalStatement::GenerateCode(CodeWriter *writer)
+    {
+        exp_->GenerateCode(writer);
     }
 
     StatementPtr ParseNormalStatement(Lexer *lexer)

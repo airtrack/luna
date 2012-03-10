@@ -22,7 +22,7 @@ namespace lua
 
         TermExpression(TermType type, Value *value);
 
-        void GenerateCode(CodeWriter *writer);
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         TermType type_;
@@ -54,7 +54,7 @@ namespace lua
 
         BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
         static BinaryType GetBinaryType(TokenType type);
 
@@ -76,7 +76,7 @@ namespace lua
 
         UnaryExpression(UnaryType type, ExpressionPtr &&exp);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         UnaryType type_;
@@ -88,7 +88,7 @@ namespace lua
     public:
         TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr key_;
@@ -103,7 +103,7 @@ namespace lua
             fields_.push_back(std::move(field));
         }
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         std::vector<ExpressionPtr> fields_;
@@ -114,7 +114,7 @@ namespace lua
     public:
         MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr table_exp_;
@@ -126,7 +126,7 @@ namespace lua
     public:
         explicit NameExpression(String *name);
 
-        void GenerateCode(CodeWriter *writer);
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         String *name_;
@@ -138,7 +138,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddName(ExpressionPtr &&name);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         std::vector<ExpressionPtr> name_list_;
@@ -150,7 +150,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddExp(ExpressionPtr &&exp);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
         void GenerateCodeExp(std::size_t index, CodeWriter *writer);
 
     private:
@@ -163,7 +163,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddVar(ExpressionPtr &&var);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
         void GenerateCodeVar(std::size_t index, CodeWriter *writer);
 
     private:
@@ -175,7 +175,7 @@ namespace lua
     public:
         FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr pre_name_;
@@ -187,7 +187,7 @@ namespace lua
     public:
         ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr name_list_;
@@ -200,7 +200,7 @@ namespace lua
         FuncCallExpression(ExpressionPtr &&caller,
             ExpressionPtr &&member, ExpressionPtr &&arg_list);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     private:
         ExpressionPtr caller_;
@@ -214,7 +214,7 @@ namespace lua
         AssignExpression(std::unique_ptr<VarListExpression> &&var_list,
                          std::unique_ptr<ExpListExpression> &&exp_list);
 
-        void GenerateCode(CodeWriter *writer);
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         void ClearStack(CodeWriter *writer);
@@ -230,7 +230,7 @@ namespace lua
     public:
         explicit FuncDefineExpression(StatementPtr &&func_def);
 
-        void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer) {}
 
     public:
         StatementPtr func_def_;

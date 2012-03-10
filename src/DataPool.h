@@ -15,6 +15,8 @@ namespace lua
     class DataPool
     {
     public:
+        DataPool();
+
         Nil * GetNil();
         Bool * GetTrue();
         Bool * GetFalse();
@@ -24,6 +26,9 @@ namespace lua
         Function * GetFunction();
 
     private:
+        Nil nil_;
+        Bool true_;
+        Bool false_;
     };
 } // namespace lua
 

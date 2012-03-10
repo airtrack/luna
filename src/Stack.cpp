@@ -48,7 +48,7 @@ namespace lua
 
     StackValue * Stack::Push()
     {
-        stack_.resize(stack_.size());
+        stack_.resize(stack_.size() + 1);
         return Top();
     }
 
