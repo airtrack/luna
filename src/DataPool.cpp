@@ -42,4 +42,9 @@ namespace lua
     {
         return new Function;
     }
+
+    NativeFunction * DataPool::GetNativeFunction(const NativeFunction::FuncType& func)
+    {
+        return new NativeFunction(func);
+    }
 } // namespace lua

@@ -89,6 +89,8 @@
     <ClInclude Include="..\src\Lexer.h" />
     <ClInclude Include="..\src\LexTable.h" />
     <ClInclude Include="..\src\ModuleLoader.h" />
+    <ClInclude Include="..\src\NativeFunctionRegister.h" />
+    <ClInclude Include="..\src\NativeFunctionStackOperator.h" />
     <ClInclude Include="..\src\Parser.h" />
     <ClInclude Include="..\src\ParseTreeNode.h" />
     <ClInclude Include="..\src\Source.h" />
@@ -97,6 +99,7 @@
     <ClInclude Include="..\src\Statement.h" />
     <ClInclude Include="..\src\types\Bool.h" />
     <ClInclude Include="..\src\types\Function.h" />
+    <ClInclude Include="..\src\types\NativeFunction.h" />
     <ClInclude Include="..\src\types\Nil.h" />
     <ClInclude Include="..\src\types\Number.h" />
     <ClInclude Include="..\src\types\String.h" />
@@ -117,12 +120,15 @@
     <ClCompile Include="..\src\LexTable.cpp" />
     <ClCompile Include="..\src\Lua.cpp" />
     <ClCompile Include="..\src\ModuleLoader.cpp" />
+    <ClCompile Include="..\src\NativeFunctionRegister.cpp" />
+    <ClCompile Include="..\src\NativeFunctionStackOperator.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Source.cpp" />
     <ClCompile Include="..\src\Stack.cpp" />
     <ClCompile Include="..\src\State.cpp" />
     <ClCompile Include="..\src\Statement.cpp" />
     <ClCompile Include="..\src\types\Function.cpp" />
+    <ClCompile Include="..\src\types\NativeFunction.cpp" />
     <ClCompile Include="..\src\types\Number.cpp" />
     <ClCompile Include="..\src\types\String.cpp" />
     <ClCompile Include="..\src\types\Table.cpp" />

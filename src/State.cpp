@@ -32,4 +32,9 @@ namespace lua
     {
         return vm_.get();
     }
+
+    Table * State::GetGlobalTable()
+    {
+        return global_table_;
+    }
 } // namespace lua

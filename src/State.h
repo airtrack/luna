@@ -18,6 +18,7 @@ namespace lua
         DataPool * GetDataPool();
         ModuleLoader * GetModuleLoader();
         VirtualMachine * GetVM();
+        Table * GetGlobalTable();
 
     private:
         std::unique_ptr<Stack> stack_;

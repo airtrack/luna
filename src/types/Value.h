@@ -13,6 +13,7 @@ namespace lua
         TYPE_STRING,
         TYPE_TABLE,
         TYPE_FUNCTION,
+        TYPE_NATIVE_FUNCTION,
     };
 
     class DataPool;

@@ -8,6 +8,7 @@
 #include "types/String.h"
 #include "types/Table.h"
 #include "types/Function.h"
+#include "types/NativeFunction.h"
 #include <string>
 
 namespace lua
@@ -24,6 +25,7 @@ namespace lua
         String * GetString(const std::string& str);
         Table * GetTable();
         Function * GetFunction();
+        NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 
     private:
         Nil nil_;
