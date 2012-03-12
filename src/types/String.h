@@ -26,6 +26,11 @@ namespace lua
         virtual std::size_t GetHash() const;
         virtual bool IsEqual(const Value *other) const;
 
+        std::string Get() const
+        {
+            return value_;
+        }
+
     private:
         std::string value_;
     };

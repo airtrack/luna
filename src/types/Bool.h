@@ -37,6 +37,11 @@ namespace lua
             return value_ == static_cast<const Bool *>(other)->value_;
         }
 
+        bool Get() const
+        {
+            return value_;
+        }
+
     private:
         bool value_;
     };

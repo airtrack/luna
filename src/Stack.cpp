@@ -3,9 +3,14 @@
 
 namespace lua
 {
-    Stack::Stack()
+    Stack::Stack(int base_stack_size)
     {
-        stack_.reserve(kBaseStackSize);
+        stack_.reserve(base_stack_size);
+    }
+
+    std::size_t Stack::Size() const
+    {
+        return stack_.size();
     }
 
     StackValue * Stack::GetStackValue(int index)
@@ -26,7 +31,32 @@ namespace lua
         return 0;
     }
 
+    const StackValue * Stack::GetStackValue(int index) const
+    {
+        int size = stack_.size();
+        if (index >= 0)
+        {
+            if (index < size)
+                return &stack_[index];
+        }
+        else
+        {
+            index += size;
+            if (index >= 0)
+                return &stack_[index];
+        }
+
+        return 0;
+    }
+
     StackValue * Stack::Top()
+    {
+        if (stack_.empty())
+            return 0;
+        return &stack_.back();
+    }
+
+    const StackValue * Stack::Top() const
     {
         if (stack_.empty())
             return 0;

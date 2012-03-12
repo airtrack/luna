@@ -30,15 +30,21 @@ namespace lua
     class Stack
     {
     public:
-        Stack();
+        static const int kBaseStackSize = 1000;
 
-        // If index >= 0, then return the stack value of index from bottom to top,
-        // else return the stack value of (-index) from top to bottom.
+        explicit Stack(int base_stack_size = kBaseStackSize);
+
+        std::size_t Size() const;
+
+        // If index >= 0, then return the stack value of index which from bottom to top,
+        // else return the stack value of (-index) which from top to bottom.
         // If index is out of bound, then return 0.
         StackValue * GetStackValue(int index);
+        const StackValue * GetStackValue(int index) const;
 
         // Get stack top value
         StackValue * Top();
+        const StackValue * Top() const;
 
         // Pop count values from stack top
         void Pop(int count = 1);
@@ -56,8 +62,6 @@ namespace lua
         void Push(int total, int current);
 
     private:
-        static const int kBaseStackSize = 1000;
-
         std::vector<StackValue> stack_;
     };
 } // namespace lua
