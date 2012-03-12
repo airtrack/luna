@@ -22,6 +22,11 @@ namespace lua
         return input_.Size();
     }
 
+    const StackValue * NativeFunctionStackOperator::GetStackValue(int index) const
+    {
+        return input_.GetStackValue(index);
+    }
+
     bool NativeFunctionStackOperator::IsNil(int index) const
     {
         return IsType(index, TYPE_NIL);

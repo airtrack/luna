@@ -105,6 +105,9 @@
     <ClInclude Include="..\src\NativeFunctionStackOperator.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\BuildinFunctions.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -180,6 +183,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\NativeFunctionStackOperator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BuildinFunctions.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

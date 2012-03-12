@@ -15,6 +15,7 @@ namespace lua
 
         // Get input stack size.
         std::size_t GetSize() const;
+        const StackValue * GetStackValue(int index) const;
 
         // Check the value of index is some type.
         // If index >= 0, then index is from bottom to top,
