@@ -11,18 +11,20 @@ namespace lua
     class DataPool;
     class String;
     class Function;
+    struct Instruction;
 
     class VirtualMachine
     {
     public:
         VirtualMachine();
-        void Init(State *state, Table *global_table);
+        void Init(State *state);
         void Run(Function *f);
 
     private:
         void Assign();
         void CleanStack();
         void GetTable(String *name);
+        void DoPush(Instruction *ins);
 
         State *state_;
         Stack *stack_;

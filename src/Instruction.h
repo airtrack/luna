@@ -12,6 +12,7 @@ namespace lua
         OpCode_CleanStack,
         OpCode_GetTable,
         OpCode_Push,
+        OpCode_Call,
     };
 
     enum InstructionParamType

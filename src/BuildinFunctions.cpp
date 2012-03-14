@@ -7,17 +7,10 @@
 
 namespace buildin
 {
-    void Print(lua::NativeFunctionStackOperator *so)
+    namespace internal
     {
-        int params = so->GetSize();
-        for (int index = 0; index < params; ++index)
+        void PrintValue(const lua::StackValue *sv)
         {
-            if (index > 0)
-                std::cout << '\t';
-
-            const lua::StackValue *sv = so->GetStackValue(index);
-            assert(sv && sv->type == lua::StackValueType_Value);
-
             switch (sv->param.value->Type())
             {
             case lua::TYPE_NIL:
@@ -38,12 +31,26 @@ namespace buildin
             }
         }
 
-        std::cout << '\n';
-    }
+        void Print(lua::NativeFunctionStackOperator *so)
+        {
+            int params = so->GetSize();
+            for (int index = 0; index < params; ++index)
+            {
+                if (index > 0)
+                    std::cout << '\t';
+
+                const lua::StackValue *sv = so->GetStackValue(index);
+                assert(sv && sv->type == lua::StackValueType_Value);
+                PrintValue(sv);
+            }
+
+            std::cout << '\n';
+        }
+    } // namespace internal
 
     void RegisterBuildin(lua::State *state)
     {
         lua::NativeFunctionRegister nf_register(state);
-        nf_register.RegisterGlobal("print", Print);
+        nf_register.RegisterGlobal("print", internal::Print);
     }
 } // namespace buildin

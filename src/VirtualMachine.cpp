@@ -14,12 +14,12 @@ namespace lua
     {
     }
 
-    void VirtualMachine::Init(State *state, Table *global_table)
+    void VirtualMachine::Init(State *state)
     {
         state_ = state;
         stack_ = state->GetStack();
         data_pool_ = state->GetDataPool();
-        nest_tables_.push_back(global_table);
+        nest_tables_.push_back(state->GetGlobalTable());
     }
 
     void VirtualMachine::Run(Function *f)
@@ -45,12 +45,7 @@ namespace lua
                 GetTable(ins->param_a.param.name);
                 break;
             case OpCode_Push:
-                if (ins->param_a.type == InstructionParamType_Name)
-                    stack_->Push(ins->param_a.param.name);
-                else if (ins->param_a.type == InstructionParamType_Value)
-                    stack_->Push(ins->param_a.param.value);
-                else if (ins->param_a.type == InstructionParamType_Counter)
-                    stack_->Push(ins->param_a.param.counter, 0);
+                DoPush(ins);
                 break;
             }
             ++current;
@@ -110,5 +105,15 @@ namespace lua
 
         // If can not find key name from all tables, then we use global table.
         stack_->Push(nest_tables_.front());
+    }
+
+    void VirtualMachine::DoPush(Instruction *ins)
+    {
+        if (ins->param_a.type == InstructionParamType_Name)
+            stack_->Push(ins->param_a.param.name);
+        else if (ins->param_a.type == InstructionParamType_Value)
+            stack_->Push(ins->param_a.param.value);
+        else if (ins->param_a.type == InstructionParamType_Counter)
+            stack_->Push(ins->param_a.param.counter, 0);
     }
 } // namespace lua

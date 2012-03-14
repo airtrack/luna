@@ -200,7 +200,7 @@ namespace lua
         FuncCallExpression(ExpressionPtr &&caller,
             ExpressionPtr &&member, ExpressionPtr &&arg_list);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr caller_;

@@ -189,6 +189,10 @@ namespace lua
     {
     }
 
+    void FuncCallExpression::GenerateCode(CodeWriter *writer)
+    {
+    }
+
     AssignExpression::AssignExpression(std::unique_ptr<VarListExpression> &&var_list,
                                        std::unique_ptr<ExpListExpression> &&exp_list)
         : var_list_(std::move(var_list)),
@@ -840,7 +844,7 @@ namespace lua
         {
             if (is_func_call)
                 *is_func_call = (call_level != 1) && (caller.get() == old_caller);
-            return caller;
+            return std::move(caller);
         }
 
         caller.reset(new FuncCallExpression(std::move(caller), std::move(member), std::move(args)));

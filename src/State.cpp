@@ -10,7 +10,7 @@ namespace lua
           global_table_(data_pool_->GetTable())
     {
         module_loader_->Init(this);
-        vm_->Init(this, global_table_);
+        vm_->Init(this);
     }
 
     Stack * State::GetStack()

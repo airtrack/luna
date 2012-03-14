@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "Error.h"
 #include "State.h"
+#include "BuildinFunctions.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
@@ -13,10 +14,13 @@ int main(int argc, char **argv)
 
     try
     {
-        const char *file = argv[1];
         lua::State state;
+        buildin::RegisterBuildin(&state);
+
+        const char *file = argv[1];
         lua::Function *f = state.GetModuleLoader()->LoadModule(file);
         state.GetVM()->Run(f);
+
         printf("Run %s ok.\n", file);
     } catch (lua::OpenFileError& err)
     {
