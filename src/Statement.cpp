@@ -87,27 +87,6 @@ namespace lua
         return std::move(block_stmt);
     }
 
-    ChunkStatement::ChunkStatement(StatementPtr &&block_stmt)
-        : block_stmt_(std::move(block_stmt))
-    {
-    }
-
-    void ChunkStatement::GenerateCode(CodeWriter *writer)
-    {
-        block_stmt_->GenerateCode(writer);
-    }
-
-    StatementPtr ParseChunkStatement(Lexer *lexer)
-    {
-        StatementPtr stmt = ParseBlockStatement(lexer);
-
-        int index = lexer->GetToken();
-        if (index != -1)
-            THROW_PARSER_ERROR("expect 'eof' here");
-
-        return StatementPtr(new ChunkStatement(std::move(stmt)));
-    }
-
     NormalStatement::NormalStatement(ExpressionPtr &&exp)
         : exp_(std::move(exp))
     {
@@ -137,6 +116,8 @@ namespace lua
         // Parse "do"
         if (index < 0 || lex_table[index]->type != KW_DO)
             THROW_PARSER_ERROR("expect 'do' here");
+
+        NameSetLevelPusher level_pusher(lexer->GetLocalNameSet());
 
         // Parse the block statements
         StatementPtr block_stmt = ParseBlockStatement(lexer);
@@ -189,6 +170,10 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_REPEAT)
             THROW_PARSER_ERROR("expect 'repeat' here");
 
+        // Block statements in "repeat-until" and expression after "until"
+        // has same name set level.
+        NameSetLevelPusher level_pusher(lexer->GetLocalNameSet());
+
         StatementPtr stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
@@ -210,7 +195,10 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_THEN)
             THROW_PARSER_ERROR("expect 'then' here");
 
-        block_stmt = ParseBlockStatement(lexer);
+        {
+            NameSetLevelPusher level_pusher(lexer->GetLocalNameSet());
+            block_stmt = ParseBlockStatement(lexer);
+        }
 
         index = lexer->GetToken();
         if (index < 0)
@@ -295,6 +283,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_ELSE)
             THROW_PARSER_ERROR("expect 'else' here");
 
+        NameSetLevelPusher level_pusher(lexer->GetLocalNameSet());
         StatementPtr stmt = ParseBlockStatement(lexer);
 
         index = lexer->GetToken();
@@ -321,6 +310,7 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_FOR)
             THROW_PARSER_ERROR("expect 'for' here");
 
+        NameSetLevelPusher level_pusher(lexer->GetLocalNameSet());
         std::unique_ptr<NameListExpression> name_list = ParseNameListExpression(lexer);
 
         index = lexer->GetToken();
@@ -352,11 +342,13 @@ namespace lua
     FunctionStatement::FunctionStatement(FuncNameType name_type,
                                          ExpressionPtr &&func_name,
                                          ExpressionPtr &&param_list,
-                                         StatementPtr &&block_stmt)
+                                         StatementPtr &&block_stmt,
+                                         std::unique_ptr<NameSet>&& up_value_set)
         : name_type_(name_type),
           func_name_(std::move(func_name)),
           param_list_(std::move(param_list)),
-          block_stmt_(std::move(block_stmt))
+          block_stmt_(std::move(block_stmt)),
+          up_value_set_(std::move(up_value_set))
     {
     }
 
@@ -367,7 +359,7 @@ namespace lua
         case NORMAL_FUNC_NAME:
             return ParseFuncNameExpression(lexer);
         case LOCAL_FUNC_NAME:
-            return ParseNameExpression(lexer);
+            return ParseNameExpression(lexer, ParseNameType_DefineLocalName);
         case NO_FUNC_NAME:
             // No func name, so we don't parse func name.
             break;
@@ -386,6 +378,12 @@ namespace lua
 
         ExpressionPtr func_name = ParseFunctionName(lexer, type);
 
+        // Record local name, we use local name set to search all upvalue names.
+        NameSet local_name_set;
+        std::unique_ptr<NameSet> up_value_set(new NameSet);
+        LocalNameSetter local_setter(lexer, &local_name_set);
+        UpValueNameSetter up_value_setter(lexer, up_value_set.get());
+
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
             THROW_PARSER_ERROR("expect '(' here");
@@ -403,7 +401,7 @@ namespace lua
             THROW_PARSER_ERROR("expect 'end' here");
 
         return StatementPtr(new FunctionStatement(type, std::move(func_name),
-                    std::move(param_list), std::move(block_stmt)));
+            std::move(param_list), std::move(block_stmt), std::move(up_value_set)));
     }
 
     LocalStatement::LocalStatement(ExpressionPtr &&name_list,
@@ -496,5 +494,16 @@ namespace lua
             lexer->UngetToken(index);
 
         return StatementPtr(new ReturnStatement(std::move(exp_list)));
+    }
+
+    StatementPtr ParseChunkStatement(Lexer *lexer)
+    {
+        StatementPtr block_stmt = ParseBlockStatement(lexer);
+
+        int index = lexer->GetToken();
+        if (index != -1)
+            THROW_PARSER_ERROR("expect 'eof' here");
+
+        return std::move(block_stmt);
     }
 } // namespace lua

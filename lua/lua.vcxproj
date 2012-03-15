@@ -90,6 +90,7 @@
     <ClInclude Include="..\src\Lexer.h" />
     <ClInclude Include="..\src\LexTable.h" />
     <ClInclude Include="..\src\ModuleLoader.h" />
+    <ClInclude Include="..\src\NameSet.h" />
     <ClInclude Include="..\src\NativeFunctionRegister.h" />
     <ClInclude Include="..\src\NativeFunctionStackOperator.h" />
     <ClInclude Include="..\src\Parser.h" />

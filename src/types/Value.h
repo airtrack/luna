@@ -2,6 +2,7 @@
 #define VALUE_H
 
 #include <string>
+#include <functional>
 
 namespace lua
 {
@@ -29,6 +30,22 @@ namespace lua
 
     private:
         DataPool *owner_pool_;
+    };
+
+    struct ValueHasher : public std::unary_function<Value *, std::size_t>
+    {
+        std::size_t operator() (const Value *value) const
+        {
+            return value->GetHash();
+        }
+    };
+
+    struct ValueEqualer : public std::binary_function<Value *, Value *, bool>
+    {
+        bool operator() (const Value *left, const Value *right) const
+        {
+            return left->IsEqual(right);
+        }
     };
 } // namespace lua
 

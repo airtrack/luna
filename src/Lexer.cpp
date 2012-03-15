@@ -13,6 +13,8 @@ namespace lua
 
     Lexer::Lexer(Source *source, LexTable *lex_table, State *state)
         : state_(state),
+          local_set_(0),
+          up_value_set_(0),
           source_(source),
           lex_table_(lex_table)
     {

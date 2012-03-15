@@ -2,6 +2,7 @@
 #define STATEMENT_H
 
 #include "ParseTreeNode.h"
+#include "NameSet.h"
 #include <vector>
 
 namespace lua
@@ -21,19 +22,6 @@ namespace lua
     };
 
     StatementPtr ParseBlockStatement(Lexer *lexer);
-
-    class ChunkStatement : public Statement
-    {
-    public:
-        explicit ChunkStatement(StatementPtr &&block_stmt);
-
-        virtual void GenerateCode(CodeWriter *writer);
-
-    private:
-        StatementPtr block_stmt_;
-    };
-
-    StatementPtr ParseChunkStatement(Lexer *lexer);
 
     class NormalStatement : public Statement
     {
@@ -166,7 +154,8 @@ namespace lua
         FunctionStatement(FuncNameType name_type,
                           ExpressionPtr &&func_name,
                           ExpressionPtr &&param_list,
-                          StatementPtr &&block_stmt);
+                          StatementPtr &&block_stmt,
+                          std::unique_ptr<NameSet>&& up_value_set);
 
         virtual void GenerateCode(CodeWriter *writer) {}
 
@@ -175,6 +164,7 @@ namespace lua
         ExpressionPtr func_name_;
         ExpressionPtr param_list_;
         StatementPtr block_stmt_;
+        std::unique_ptr<NameSet> up_value_set_;
     };
 
     StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);
@@ -214,6 +204,8 @@ namespace lua
     };
 
     StatementPtr ParseReturnStatement(Lexer *lexer);
+
+    StatementPtr ParseChunkStatement(Lexer *lexer);
 } // namespace lua
 
 #endif // STATEMENT_H

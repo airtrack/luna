@@ -236,8 +236,15 @@ namespace lua
         StatementPtr func_def_;
     };
 
+    enum ParseNameType
+    {
+        ParseNameType_DefineLocalName,
+        ParseNameType_GetName,
+        ParseNameType_GetMemberName,
+    };
+
     ExpressionPtr ParseExpression(Lexer *lexer);
-    ExpressionPtr ParseNameExpression(Lexer *lexer);
+    ExpressionPtr ParseNameExpression(Lexer *lexer, ParseNameType type);
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer);
     ExpressionPtr ParseParamListExpression(Lexer *lexer);
     ExpressionPtr ParseFuncCallOrAssignExpression(Lexer *lexer);

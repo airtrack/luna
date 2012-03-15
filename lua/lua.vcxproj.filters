@@ -108,6 +108,9 @@
     <ClInclude Include="..\src\BuildinFunctions.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\NameSet.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">

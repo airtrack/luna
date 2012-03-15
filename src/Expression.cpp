@@ -3,6 +3,7 @@
 #include "Error.h"
 #include "Lexer.h"
 #include "State.h"
+#include "NameSet.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -261,7 +262,7 @@ namespace lua
 
     ExpressionPtr ParseDotMemberExpression(Lexer *lexer)
     {
-        ExpressionPtr member = ParseNameExpression(lexer);
+        ExpressionPtr member = ParseNameExpression(lexer, ParseNameType_GetMemberName);
         if (!member)
             THROW_PARSER_ERROR("expect 'id' here");
         return member;
@@ -302,7 +303,7 @@ namespace lua
         return ParseMemberExpression(std::move(table), lexer);
     }
 
-    ExpressionPtr ParseNameExpression(Lexer *lexer)
+    ExpressionPtr ParseNameExpression(Lexer *lexer, ParseNameType type)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -313,12 +314,21 @@ namespace lua
             return ExpressionPtr();
         }
 
-        return ExpressionPtr(new NameExpression(GET_STRING_FROM_POOL(index)));
+        String *name = GET_STRING_FROM_POOL(index);
+        if (type == ParseNameType_DefineLocalName)
+            lexer->GetLocalNameSet()->Insert(name);
+        else if(type == ParseNameType_GetName)
+        {
+            if (!lexer->GetLocalNameSet()->Has(name))
+                lexer->GetUpValueNameSet()->Insert(name);
+        }
+
+        return ExpressionPtr(new NameExpression(name));
     }
 
     std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer)
     {
-        ExpressionPtr name = ParseNameExpression(lexer);
+        ExpressionPtr name = ParseNameExpression(lexer, ParseNameType_DefineLocalName);
         if (!name)
             THROW_PARSER_ERROR("expect 'name' here");
 
@@ -336,7 +346,7 @@ namespace lua
                 break;
             }
 
-            name = ParseNameExpression(lexer);
+            name = ParseNameExpression(lexer, ParseNameType_DefineLocalName);
             if (!name)
                 THROW_PARSER_ERROR("expect 'name' here");
         }
@@ -575,7 +585,7 @@ namespace lua
 
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer)
     {
-        ExpressionPtr name = ParseNameExpression(lexer);
+        ExpressionPtr name = ParseNameExpression(lexer, ParseNameType_GetName);
         if (!name)
             THROW_PARSER_ERROR("expect 'name' here");
 
@@ -587,7 +597,7 @@ namespace lua
         int index = lexer->GetToken();
         if (index >= 0 && lex_table[index]->type == OP_COLON)
         {
-            member = ParseNameExpression(lexer);
+            member = ParseNameExpression(lexer, ParseNameType_GetMemberName);
             if (!member)
                 THROW_PARSER_ERROR("expect 'name' here");
         }
@@ -602,7 +612,7 @@ namespace lua
     ExpressionPtr ParseParamNameListExpression(Lexer *lexer)
     {
         std::unique_ptr<NameListExpression> name_list;
-        ExpressionPtr name = ParseNameExpression(lexer);
+        ExpressionPtr name = ParseNameExpression(lexer, ParseNameType_DefineLocalName);
         if (!name)
             return std::move(name_list);
 
@@ -620,7 +630,7 @@ namespace lua
                 break;
             }
 
-            name = ParseNameExpression(lexer);
+            name = ParseNameExpression(lexer, ParseNameType_DefineLocalName);
             if (!name)
             {
                 lexer->UngetToken(index);
@@ -654,7 +664,11 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_PARAM_LIST)
             THROW_PARSER_ERROR("expect 'name' or '...' here");
 
-        dot3.reset(new TermExpression(TermExpression::TERM_PARAM_LIST, 0));
+        // Define "arg" local name for "...".
+        String *arg = lexer->GetState()->GetDataPool()->GetString("arg");
+        lexer->GetLocalNameSet()->Insert(arg);
+
+        dot3.reset(new TermExpression(TermExpression::TERM_PARAM_LIST, arg));
         return dot3;
     }
 
@@ -684,7 +698,7 @@ namespace lua
         ExpressionPtr member;
         if (lex_table[index]->type == OP_COLON)
         {
-            member = ParseNameExpression(lexer);
+            member = ParseNameExpression(lexer, ParseNameType_GetMemberName);
             if (!member)
                 THROW_PARSER_ERROR("expect 'id' here");
         }
@@ -853,7 +867,7 @@ namespace lua
 
     ExpressionPtr ParseIdStarterExpression(Lexer *lexer, PreExpType *type)
     {
-        ExpressionPtr result = ParseNameExpression(lexer);
+        ExpressionPtr result = ParseNameExpression(lexer, ParseNameType_GetName);
 
         bool is_func_call = false;
         result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call);
