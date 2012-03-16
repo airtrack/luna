@@ -1,5 +1,4 @@
 #include "Number.h"
-#include <functional>
 
 namespace lua
 {

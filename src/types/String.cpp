@@ -4,7 +4,7 @@ namespace lua
 {
     std::size_t String::GetHash() const
     {
-        return 0;
+        return std::hash<std::string>()(value_);
     }
 
     bool String::IsEqual(const Value *other) const

@@ -1,5 +1,4 @@
 #include "Function.h"
-#include <functional>
 
 namespace lua
 {
