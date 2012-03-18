@@ -2,11 +2,12 @@
 #define STATEMENT_H
 
 #include "ParseTreeNode.h"
-#include "NameSet.h"
 #include <vector>
 
 namespace lua
 {
+    class Function;
+
     class BlockStatement : public Statement
     {
     public:
@@ -155,16 +156,20 @@ namespace lua
                           ExpressionPtr &&func_name,
                           ExpressionPtr &&param_list,
                           StatementPtr &&block_stmt,
-                          std::unique_ptr<NameSet>&& up_value_set);
+                          Function *func);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        void GenerateFunctionCode(CodeWriter *writer);
+        void GenerateClosure(CodeWriter *writer);
+        void GenerateFuncName(CodeWriter *writer);
+
         FuncNameType name_type_;
         ExpressionPtr func_name_;
         ExpressionPtr param_list_;
         StatementPtr block_stmt_;
-        std::unique_ptr<NameSet> up_value_set_;
+        Function *func_;
     };
 
     StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);

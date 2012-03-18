@@ -3,12 +3,15 @@
 
 #include "Value.h"
 #include "../Instruction.h"
+#include "../NameSet.h"
 
 namespace lua
 {
     class Function : public Value, public InstructionSet
     {
     public:
+        explicit Function(std::unique_ptr<NameSet>&& up_value_set);
+
         virtual int Type() const
         {
             return TYPE_FUNCTION;
@@ -21,6 +24,9 @@ namespace lua
 
         virtual std::size_t GetHash() const;
         virtual bool IsEqual(const Value *other) const;
+
+    private:
+        std::unique_ptr<NameSet> up_value_set_;
     };
 } // namespace lua
 

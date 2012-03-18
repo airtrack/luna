@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "Statement.h"
+#include "State.h"
 #include "NameSet.h"
 
 namespace lua
@@ -17,7 +18,9 @@ namespace lua
         UpValueNameSetter up_value_setter(&lexer_, up_value_set.get());
 
         StatementPtr block_stmt = ParseChunkStatement(&lexer_);
+        Function *func = lexer_.GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
+
         return StatementPtr(new FunctionStatement(NO_FUNC_NAME,
-            ExpressionPtr(), ExpressionPtr(), std::move(block_stmt), std::move(up_value_set)));
+            ExpressionPtr(), ExpressionPtr(), std::move(block_stmt), func));
     }
 } // namespace lua

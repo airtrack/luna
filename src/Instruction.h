@@ -13,17 +13,16 @@ namespace lua
         OpCode_CleanStack,
         OpCode_GetTable,
         OpCode_Push,
-        OpCode_Call,
+        OpCode_GenerateClosure,
+        OpCode_Ret,
     };
 
     enum InstructionParamType
     {
         InstructionParamType_Value,
         InstructionParamType_Name,
-        InstructionParamType_Number,
-        InstructionParamType_Bool,
-        InstructionParamType_Nil,
         InstructionParamType_Counter,
+        InstructionParamType_HasRetValue,
     };
 
     struct InstructionParam
@@ -33,9 +32,8 @@ namespace lua
         {
             Value *value;
             String *name;
-            double number;
-            bool b;
             int counter;
+            bool has_ret_value;
         } param;
     };
 

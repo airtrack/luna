@@ -24,7 +24,7 @@ namespace lua
         Number * GetNumber(double number);
         String * GetString(const std::string& str);
         Table * GetTable();
-        Function * GetFunction();
+        Function * GetFunction(std::unique_ptr<NameSet>&& up_value_set);
         NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 
     private:

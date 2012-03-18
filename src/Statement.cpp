@@ -2,6 +2,8 @@
 #include "Expression.h"
 #include "Error.h"
 #include "Lexer.h"
+#include "State.h"
+#include "NameSet.h"
 
 namespace lua
 {
@@ -343,13 +345,70 @@ namespace lua
                                          ExpressionPtr &&func_name,
                                          ExpressionPtr &&param_list,
                                          StatementPtr &&block_stmt,
-                                         std::unique_ptr<NameSet>&& up_value_set)
+                                         Function *func)
         : name_type_(name_type),
           func_name_(std::move(func_name)),
           param_list_(std::move(param_list)),
           block_stmt_(std::move(block_stmt)),
-          up_value_set_(std::move(up_value_set))
+          func_(func)
     {
+    }
+
+    void FunctionStatement::GenerateCode(CodeWriter *writer)
+    {
+        InstructionSetWriter func_writer(func_);
+        GenerateFunctionCode(&func_writer);
+
+        GenerateClosure(writer);
+        GenerateFuncName(writer);
+    }
+
+    void FunctionStatement::GenerateFunctionCode(CodeWriter *writer)
+    {
+        if (param_list_)
+            param_list_->GenerateCode(writer);
+
+        // Clear params which are caller passed to the stack.
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+
+        block_stmt_->GenerateCode(writer);
+
+        // If block statment has no return statement, then this instruction
+        // will be executed, and no return value on stack.
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Ret;
+        ins->param_a.type = InstructionParamType_HasRetValue;
+        ins->param_a.param.has_ret_value = false;
+    }
+
+    void FunctionStatement::GenerateClosure(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GenerateClosure;
+        ins->param_a.type = InstructionParamType_Value;
+        ins->param_a.param.value = func_;
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Counter;
+        ins->param_a.param.counter = 1;
+    }
+
+    void FunctionStatement::GenerateFuncName(CodeWriter *writer)
+    {
+        if (func_name_)
+        {
+            func_name_->GenerateCode(writer);
+
+            // Assign closure to func name.
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Assign;
+
+            // Clear stack closure.
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_CleanStack;
+        }
     }
 
     ExpressionPtr ParseFunctionName(Lexer *lexer, FuncNameType type)
@@ -400,8 +459,9 @@ namespace lua
         if (index < 0 || lex_table[index]->type != KW_END)
             THROW_PARSER_ERROR("expect 'end' here");
 
+        Function *func = lexer->GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
         return StatementPtr(new FunctionStatement(type, std::move(func_name),
-            std::move(param_list), std::move(block_stmt), std::move(up_value_set)));
+            std::move(param_list), std::move(block_stmt), func));
     }
 
     LocalStatement::LocalStatement(ExpressionPtr &&name_list,

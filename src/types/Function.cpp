@@ -2,6 +2,11 @@
 
 namespace lua
 {
+    Function::Function(std::unique_ptr<NameSet>&& up_value_set)
+        : up_value_set_(std::move(up_value_set))
+    {
+    }
+
     std::size_t Function::GetHash() const
     {
         return std::hash<const Function *>()(this);
