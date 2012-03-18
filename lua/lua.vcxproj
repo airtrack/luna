@@ -75,12 +75,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Bootstrap.h" />
     <ClInclude Include="..\src\BuildinFunctions.h" />
     <ClInclude Include="..\src\CodeWriter.h" />
     <ClInclude Include="..\src\DataPool.h" />
     <ClInclude Include="..\src\Error.h" />
     <ClInclude Include="..\src\Expression.h" />
-    <ClInclude Include="..\src\FunctionWriterAdaptor.h" />
     <ClInclude Include="..\src\Instruction.h" />
     <ClInclude Include="..\src\io\ICacheStream.h" />
     <ClInclude Include="..\src\io\ICRLFFilterStream.h" />
@@ -110,11 +110,11 @@
     <ClInclude Include="..\src\VirtualMachine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Bootstrap.cpp" />
     <ClCompile Include="..\src\BuildinFunctions.cpp" />
     <ClCompile Include="..\src\DataPool.cpp" />
     <ClCompile Include="..\src\Error.cpp" />
     <ClCompile Include="..\src\Expression.cpp" />
-    <ClCompile Include="..\src\FunctionWriterAdaptor.cpp" />
     <ClCompile Include="..\src\io\ICacheStream.cpp" />
     <ClCompile Include="..\src\io\ICRLFFilterStream.cpp" />
     <ClCompile Include="..\src\io\IFileStream.cpp" />

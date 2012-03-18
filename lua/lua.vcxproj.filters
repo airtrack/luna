@@ -87,9 +87,6 @@
     <ClInclude Include="..\src\CodeWriter.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\FunctionWriterAdaptor.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\VirtualMachine.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -109,6 +106,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\NameSet.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Bootstrap.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
@@ -155,9 +155,6 @@
     <ClCompile Include="..\src\ModuleLoader.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\FunctionWriterAdaptor.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\State.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -189,6 +186,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\BuildinFunctions.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Bootstrap.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

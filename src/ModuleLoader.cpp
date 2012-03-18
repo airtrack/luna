@@ -1,18 +1,15 @@
 #include "ModuleLoader.h"
 #include "State.h"
-#include "FunctionWriterAdaptor.h"
 
 namespace lua
 {
     ModuleLoader::ModuleInfo::ModuleInfo(const std::string& module_name, State *state)
         : source_(new Source(module_name.c_str())),
           parser_(new Parser(source_.get(), state)),
-          chunk_(0)
+          boot_(new Bootstrap)
     {
         ParseTreeNodePtr root = parser_->Parse();
-        chunk_ = state->GetDataPool()->GetFunction();
-
-        FunctionWriterAdaptor writer(chunk_);
+        InstructionSetWriter writer(boot_.get());
         root->GenerateCode(&writer);
     }
 
@@ -31,7 +28,7 @@ namespace lua
         return modules_.find(module_name) != modules_.end();
     }
 
-    Function * ModuleLoader::LoadModule(const std::string& module_name)
+    Bootstrap * ModuleLoader::LoadModule(const std::string& module_name)
     {
         Modules::iterator it = modules_.find(module_name);
         if (it == modules_.end())
@@ -41,6 +38,6 @@ namespace lua
                 std::make_pair(module_name, std::move(module)));
         }
 
-        return it->second->chunk_;
+        return it->second->boot_.get();
     }
 } // namespace lua

@@ -3,6 +3,7 @@
 
 #include "types/Value.h"
 #include "types/String.h"
+#include <vector>
 
 namespace lua
 {
@@ -43,6 +44,34 @@ namespace lua
         OpCode op_code;
         InstructionParam param_a;
         InstructionParam param_b;
+    };
+
+    class InstructionSet
+    {
+    public:
+        // New one instruction and return it.
+        Instruction * NewInstruction()
+        {
+            instructions_.resize(instructions_.size() + 1);
+            return &instructions_.back();
+        }
+
+        // Get instructions array base pointer.
+        Instruction * GetInstructions()
+        {
+            if (instructions_.empty())
+                return 0;
+            return &instructions_[0];
+        }
+
+        // Get total instructions count.
+        std::size_t GetInstructionCount() const
+        {
+            return instructions_.size();
+        }
+
+    private:
+        std::vector<Instruction> instructions_;
     };
 } // namespace lua
 

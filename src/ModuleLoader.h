@@ -3,6 +3,7 @@
 
 #include "Source.h"
 #include "Parser.h"
+#include "Bootstrap.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -10,7 +11,6 @@
 namespace lua
 {
     class State;
-    class Function;
 
     class ModuleLoader
     {
@@ -18,14 +18,14 @@ namespace lua
         ModuleLoader();
         void Init(State *state);
         bool IsModuleLoaded(const std::string& module_name) const;
-        Function* LoadModule(const std::string& module_name);
+        Bootstrap* LoadModule(const std::string& module_name);
 
     private:
         struct ModuleInfo
         {
             std::unique_ptr<Source> source_;
             std::unique_ptr<Parser> parser_;
-            Function *chunk_;                   // Construct from DataPool
+            std::unique_ptr<Bootstrap> boot_;
 
             ModuleInfo(const std::string& module_name, State *state);
         };

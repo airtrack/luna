@@ -1,5 +1,6 @@
 #include "VirtualMachine.h"
 #include "State.h"
+#include "Bootstrap.h"
 #include "Instruction.h"
 #include "types/Table.h"
 #include "types/Function.h"
@@ -22,11 +23,11 @@ namespace lua
         nest_tables_.push_back(state->GetGlobalTable());
     }
 
-    void VirtualMachine::Run(Function *f)
+    void VirtualMachine::Run(Bootstrap *boot)
     {
         nest_tables_.push_back(data_pool_->GetTable());
-        Instruction *instructions = f->GetInstructions();
-        std::size_t ins_count = f->GetInstructionCount();
+        Instruction *instructions = boot->GetInstructions();
+        std::size_t ins_count = boot->GetInstructionCount();
         std::size_t current = 0;
 
         while (current < ins_count)

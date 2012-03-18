@@ -10,7 +10,7 @@ namespace lua
     class Table;
     class DataPool;
     class String;
-    class Function;
+    class Bootstrap;
     struct Instruction;
 
     class VirtualMachine
@@ -18,7 +18,7 @@ namespace lua
     public:
         VirtualMachine();
         void Init(State *state);
-        void Run(Function *f);
+        void Run(Bootstrap *boot);
 
     private:
         void Assign();

@@ -18,8 +18,8 @@ int main(int argc, char **argv)
         buildin::RegisterBuildin(&state);
 
         const char *file = argv[1];
-        lua::Function *f = state.GetModuleLoader()->LoadModule(file);
-        state.GetVM()->Run(f);
+        lua::Bootstrap *boot = state.GetModuleLoader()->LoadModule(file);
+        state.GetVM()->Run(boot);
 
         printf("Run %s ok.\n", file);
     } catch (lua::OpenFileError& err)
