@@ -138,6 +138,17 @@ namespace lua
         name_list_.push_back(std::move(name));
     }
 
+    void NameListExpression::GenerateCode(CodeWriter *writer)
+    {
+        for (auto it = name_list_.begin(); it != name_list_.end(); ++it)
+        {
+            (*it)->GenerateCode(writer);
+
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Assign;
+        }
+    }
+
     std::size_t ExpListExpression::GetCount() const
     {
         return exp_list_.size();
@@ -176,10 +187,22 @@ namespace lua
     {
     }
 
-    ParamListExpression::ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3)
+    ParamListExpression::ParamListExpression(ExpressionPtr &&name_list, bool has_dot3)
         : name_list_(std::move(name_list)),
-          dot3_(std::move(dot3))
+          has_dot3_(has_dot3)
     {
+    }
+
+    void ParamListExpression::GenerateCode(CodeWriter *writer)
+    {
+        if (name_list_)
+            name_list_->GenerateCode(writer);
+
+        if (has_dot3_)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_GenerateArgTable;
+        }
     }
 
     FuncCallExpression::FuncCallExpression(ExpressionPtr &&caller,
@@ -641,16 +664,15 @@ namespace lua
         return std::move(name_list);
     }
 
-    ExpressionPtr ParseParamDot3Expression(bool need_comma, Lexer *lexer)
+    bool ParseParamDot3Expression(bool need_comma, Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
-        ExpressionPtr dot3;
 
         int index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_COMMA && lex_table[index]->type != OP_PARAM_LIST)
         {
             lexer->UngetToken(index);
-            return dot3;
+            return false;
         }
 
         if (need_comma)
@@ -667,19 +689,17 @@ namespace lua
         // Define "arg" local name for "...".
         String *arg = lexer->GetState()->GetDataPool()->GetString("arg");
         lexer->GetLocalNameSet()->Insert(arg);
-
-        dot3.reset(new TermExpression(TermExpression::TERM_PARAM_LIST, arg));
-        return dot3;
+        return true;
     }
 
     ExpressionPtr ParseParamListExpression(Lexer *lexer)
     {
         ExpressionPtr name_list = ParseParamNameListExpression(lexer);
-        ExpressionPtr dot3 = ParseParamDot3Expression(static_cast<bool>(name_list), lexer);
+        bool has_dot3 = ParseParamDot3Expression(static_cast<bool>(name_list), lexer);
         ExpressionPtr param_list;
 
-        if (name_list || dot3)
-            param_list.reset(new ParamListExpression(std::move(name_list), std::move(dot3)));
+        if (name_list || has_dot3)
+            param_list.reset(new ParamListExpression(std::move(name_list), has_dot3));
 
         return param_list;
     }

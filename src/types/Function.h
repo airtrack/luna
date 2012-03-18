@@ -10,7 +10,7 @@ namespace lua
     class Function : public Value, public InstructionSet
     {
     public:
-        explicit Function(std::unique_ptr<NameSet>&& up_value_set);
+        explicit Function(std::unique_ptr<NameSet> &&up_value_set);
 
         virtual int Type() const
         {

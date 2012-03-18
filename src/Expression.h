@@ -138,7 +138,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddName(ExpressionPtr &&name);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         std::vector<ExpressionPtr> name_list_;
@@ -185,13 +185,13 @@ namespace lua
     class ParamListExpression : public Expression
     {
     public:
-        ParamListExpression(ExpressionPtr &&name_list, ExpressionPtr &&dot3);
+        ParamListExpression(ExpressionPtr &&name_list, bool has_dot3);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr name_list_;
-        ExpressionPtr dot3_;
+        bool has_dot3_;
     };
 
     class FuncCallExpression : public Expression

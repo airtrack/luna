@@ -38,7 +38,7 @@ namespace lua
         return new Table;
     }
 
-    Function * DataPool::GetFunction(std::unique_ptr<NameSet>&& up_value_set)
+    Function * DataPool::GetFunction(std::unique_ptr<NameSet> &&up_value_set)
     {
         return new Function(std::move(up_value_set));
     }

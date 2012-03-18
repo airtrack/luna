@@ -15,6 +15,7 @@ namespace lua
         OpCode_Push,
         OpCode_GenerateClosure,
         OpCode_Ret,
+        OpCode_GenerateArgTable,
     };
 
     enum InstructionParamType
