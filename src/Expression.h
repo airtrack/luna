@@ -121,15 +121,25 @@ namespace lua
         ExpressionPtr member_exp_;
     };
 
+    enum ParseNameType
+    {
+        ParseNameType_DefineLocalName,
+        ParseNameType_GetName,
+        ParseNameType_GetMemberName,
+    };
+
     class NameExpression : public Expression
     {
     public:
-        explicit NameExpression(String *name);
+        NameExpression(String *name, ParseNameType parse_name_type);
 
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        void GenerateNameTypeCode(CodeWriter *writer);
+
         String *name_;
+        ParseNameType parse_name_type_;
     };
 
     class NameListExpression : public Expression
@@ -234,13 +244,6 @@ namespace lua
 
     public:
         StatementPtr func_def_;
-    };
-
-    enum ParseNameType
-    {
-        ParseNameType_DefineLocalName,
-        ParseNameType_GetName,
-        ParseNameType_GetMemberName,
     };
 
     enum FuncNameType;

@@ -110,22 +110,41 @@ namespace lua
     {
     }
 
-    NameExpression::NameExpression(String *name)
-        : name_(name)
+    NameExpression::NameExpression(String *name, ParseNameType parse_name_type)
+        : name_(name),
+          parse_name_type_(parse_name_type)
     {
     }
 
     void NameExpression::GenerateCode(CodeWriter *writer)
     {
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_GetTable;
-        ins->param_a.type = InstructionParamType_Name;
-        ins->param_a.param.name = name_;
+        GenerateNameTypeCode(writer);
 
-        ins = writer->NewInstruction();
+        Instruction *ins = writer->NewInstruction();
         ins->op_code = OpCode_Push;
         ins->param_a.type = InstructionParamType_Name;
         ins->param_a.param.name = name_;
+    }
+
+    void NameExpression::GenerateNameTypeCode(CodeWriter *writer)
+    {
+        Instruction *ins = 0;
+        switch (parse_name_type_)
+        {
+        case ParseNameType_DefineLocalName:
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetLocalTable;
+            break;
+        case ParseNameType_GetName:
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetTable;
+            ins->param_a.type = InstructionParamType_Name;
+            ins->param_a.param.name = name_;
+            break;
+        case ParseNameType_GetMemberName:
+            // Do nothing.
+            break;
+        }
     }
 
     std::size_t NameListExpression::GetCount() const
@@ -359,7 +378,7 @@ namespace lua
                 lexer->GetUpValueNameSet()->Insert(name);
         }
 
-        return ExpressionPtr(new NameExpression(name));
+        return ExpressionPtr(new NameExpression(name, type));
     }
 
     std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer)
@@ -795,7 +814,7 @@ namespace lua
             }
             else
             {
-                key.reset(new NameExpression(GET_STRING_FROM_POOL(index)));
+                key.reset(new NameExpression(GET_STRING_FROM_POOL(index), ParseNameType_GetMemberName));
             }
         }
 
