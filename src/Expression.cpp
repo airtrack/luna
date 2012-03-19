@@ -110,6 +110,16 @@ namespace lua
     {
     }
 
+    void MemberExpression::GenerateCode(CodeWriter *writer)
+    {
+        table_exp_->GenerateCode(writer);
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GetTableValue;
+
+        member_exp_->GenerateCode(writer);
+    }
+
     NameExpression::NameExpression(String *name, ParseNameType parse_name_type)
         : name_(name),
           parse_name_type_(parse_name_type)

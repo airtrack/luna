@@ -114,7 +114,7 @@ namespace lua
     public:
         MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr table_exp_;
