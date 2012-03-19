@@ -175,7 +175,7 @@ namespace lua
     public:
         FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr pre_name_;
@@ -243,9 +243,11 @@ namespace lua
         ParseNameType_GetMemberName,
     };
 
+    enum FuncNameType;
+
     ExpressionPtr ParseExpression(Lexer *lexer);
     ExpressionPtr ParseNameExpression(Lexer *lexer, ParseNameType type);
-    ExpressionPtr ParseFuncNameExpression(Lexer *lexer);
+    ExpressionPtr ParseFuncNameExpression(Lexer *lexer, FuncNameType& type);
     ExpressionPtr ParseParamListExpression(Lexer *lexer);
     ExpressionPtr ParseFuncCallOrAssignExpression(Lexer *lexer);
     std::unique_ptr<NameListExpression> ParseNameListExpression(Lexer *lexer);

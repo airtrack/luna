@@ -342,11 +342,13 @@ namespace lua
     }
 
     FunctionStatement::FunctionStatement(FuncNameType name_type,
+                                         String *self_name,
                                          ExpressionPtr &&func_name,
                                          ExpressionPtr &&param_list,
                                          StatementPtr &&block_stmt,
                                          Function *func)
         : name_type_(name_type),
+          self_name_(self_name),
           func_name_(std::move(func_name)),
           param_list_(std::move(param_list)),
           block_stmt_(std::move(block_stmt)),
@@ -365,6 +367,8 @@ namespace lua
 
     void FunctionStatement::GenerateFunctionCode(CodeWriter *writer)
     {
+        GenerateSelfParam(writer);
+
         if (param_list_)
             param_list_->GenerateCode(writer);
 
@@ -380,6 +384,23 @@ namespace lua
         ins->op_code = OpCode_Ret;
         ins->param_a.type = InstructionParamType_HasRetValue;
         ins->param_a.param.has_ret_value = false;
+    }
+
+    void FunctionStatement::GenerateSelfParam(CodeWriter *writer)
+    {
+        if (name_type_ == NORMAL_FUNC_NAME_WITH_SELF)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetLocalTable;
+
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Push;
+            ins->param_a.type = InstructionParamType_Name;
+            ins->param_a.param.name = self_name_;
+
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Assign;
+        }
     }
 
     void FunctionStatement::GenerateClosure(CodeWriter *writer)
@@ -411,12 +432,12 @@ namespace lua
         }
     }
 
-    ExpressionPtr ParseFunctionName(Lexer *lexer, FuncNameType type)
+    ExpressionPtr ParseFunctionName(Lexer *lexer, FuncNameType& type)
     {
         switch (type)
         {
         case NORMAL_FUNC_NAME:
-            return ParseFuncNameExpression(lexer);
+            return ParseFuncNameExpression(lexer, type);
         case LOCAL_FUNC_NAME:
             return ParseNameExpression(lexer, ParseNameType_DefineLocalName);
         case NO_FUNC_NAME:
@@ -460,7 +481,9 @@ namespace lua
             THROW_PARSER_ERROR("expect 'end' here");
 
         Function *func = lexer->GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
-        return StatementPtr(new FunctionStatement(type, std::move(func_name),
+        String *self_name = type == NORMAL_FUNC_NAME_WITH_SELF
+            ? lexer->GetState()->GetDataPool()->GetString("self") : 0;
+        return StatementPtr(new FunctionStatement(type, self_name, std::move(func_name),
             std::move(param_list), std::move(block_stmt), func));
     }
 

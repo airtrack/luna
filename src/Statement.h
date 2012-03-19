@@ -145,6 +145,7 @@ namespace lua
     enum FuncNameType
     {
         NORMAL_FUNC_NAME,
+        NORMAL_FUNC_NAME_WITH_SELF,
         LOCAL_FUNC_NAME,
         NO_FUNC_NAME,
     };
@@ -153,6 +154,7 @@ namespace lua
     {
     public:
         FunctionStatement(FuncNameType name_type,
+                          String *self_name,
                           ExpressionPtr &&func_name,
                           ExpressionPtr &&param_list,
                           StatementPtr &&block_stmt,
@@ -162,10 +164,12 @@ namespace lua
 
     private:
         void GenerateFunctionCode(CodeWriter *writer);
+        void GenerateSelfParam(CodeWriter *writer);
         void GenerateClosure(CodeWriter *writer);
         void GenerateFuncName(CodeWriter *writer);
 
         FuncNameType name_type_;
+        String *self_name_;
         ExpressionPtr func_name_;
         ExpressionPtr param_list_;
         StatementPtr block_stmt_;

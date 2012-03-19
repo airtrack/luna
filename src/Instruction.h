@@ -11,7 +11,9 @@ namespace lua
     {
         OpCode_Assign,
         OpCode_CleanStack,
+        OpCode_GetLocalTable,
         OpCode_GetTable,
+        OpCode_GetTableValue,
         OpCode_Push,
         OpCode_GenerateClosure,
         OpCode_Ret,

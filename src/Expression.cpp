@@ -187,6 +187,19 @@ namespace lua
     {
     }
 
+    void FuncNameExpression::GenerateCode(CodeWriter *writer)
+    {
+        pre_name_->GenerateCode(writer);
+
+        if (member_)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetTableValue;
+
+            member_->GenerateCode(writer);
+        }
+    }
+
     ParamListExpression::ParamListExpression(ExpressionPtr &&name_list, bool has_dot3)
         : name_list_(std::move(name_list)),
           has_dot3_(has_dot3)
@@ -606,13 +619,30 @@ namespace lua
         return std::move(exp_list);
     }
 
-    ExpressionPtr ParseFuncNameExpression(Lexer *lexer)
+    ExpressionPtr ParseFuncMemberNameExpression(ExpressionPtr table, Lexer *lexer)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != OP_DOT)
+        {
+            lexer->UngetToken(index);
+            return std::move(table);
+        }
+
+        ExpressionPtr member = ParseDotMemberExpression(lexer);
+        table.reset(new MemberExpression(std::move(table), std::move(member)));
+
+        return ParseFuncMemberNameExpression(std::move(table), lexer);
+    }
+
+    ExpressionPtr ParseFuncNameExpression(Lexer *lexer, FuncNameType& type)
     {
         ExpressionPtr name = ParseNameExpression(lexer, ParseNameType_GetName);
         if (!name)
             THROW_PARSER_ERROR("expect 'name' here");
 
-        name = ParseMemberExpression(std::move(name), lexer);
+        name = ParseFuncMemberNameExpression(std::move(name), lexer);
 
         ExpressionPtr member;
         LexTable &lex_table = lexer->GetLexTable();
@@ -623,6 +653,7 @@ namespace lua
             member = ParseNameExpression(lexer, ParseNameType_GetMemberName);
             if (!member)
                 THROW_PARSER_ERROR("expect 'name' here");
+            type = NORMAL_FUNC_NAME_WITH_SELF;
         }
         else
         {

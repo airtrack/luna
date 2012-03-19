@@ -20,7 +20,7 @@ namespace lua
         StatementPtr block_stmt = ParseChunkStatement(&lexer_);
         Function *func = lexer_.GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
 
-        return StatementPtr(new FunctionStatement(NO_FUNC_NAME,
+        return StatementPtr(new FunctionStatement(NO_FUNC_NAME, 0,
             ExpressionPtr(), ExpressionPtr(), std::move(block_stmt), func));
     }
 } // namespace lua
