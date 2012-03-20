@@ -378,12 +378,15 @@ namespace lua
 
         block_stmt_->GenerateCode(writer);
 
-        // If block statment has no return statement, then this instruction
-        // will be executed, and no return value on stack.
+        // If there has no return statement in block statements, we push a
+        // zero counter on stack as return value.
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Counter;
+        ins->param_a.param.counter = 0;
+
         ins = writer->NewInstruction();
         ins->op_code = OpCode_Ret;
-        ins->param_a.type = InstructionParamType_HasRetValue;
-        ins->param_a.param.has_ret_value = false;
     }
 
     void FunctionStatement::GenerateSelfParam(CodeWriter *writer)

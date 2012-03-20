@@ -257,6 +257,31 @@ namespace lua
 
     void FuncCallExpression::GenerateCode(CodeWriter *writer)
     {
+        if (member_)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_ReserveStack;
+        }
+
+        arg_list_->GenerateCode(writer);
+        caller_->GenerateCode(writer);
+
+        if (member_)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetTableValue;
+
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_ExtendCounter;
+
+            member_->GenerateCode(writer);
+        }
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GetTableValue;
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Call;
     }
 
     AssignExpression::AssignExpression(std::unique_ptr<VarListExpression> &&var_list,

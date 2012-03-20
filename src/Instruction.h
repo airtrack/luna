@@ -18,6 +18,9 @@ namespace lua
         OpCode_GenerateClosure,
         OpCode_Ret,
         OpCode_GenerateArgTable,
+        OpCode_ReserveStack,
+        OpCode_ExtendCounter,
+        OpCode_Call,
     };
 
     enum InstructionParamType
@@ -25,7 +28,6 @@ namespace lua
         InstructionParamType_Value,
         InstructionParamType_Name,
         InstructionParamType_Counter,
-        InstructionParamType_HasRetValue,
     };
 
     struct InstructionParam
@@ -36,7 +38,6 @@ namespace lua
             Value *value;
             String *name;
             int counter;
-            bool has_ret_value;
         } param;
     };
 
