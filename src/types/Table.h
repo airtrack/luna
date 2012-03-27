@@ -26,6 +26,8 @@ namespace lua
 
         bool HaveKey(const Value *key) const;
 
+        Value * GetValue(const Value *key) { return 0; }
+
         void Assign(const Value *key, Value *value);
 
     private:

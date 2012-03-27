@@ -24,7 +24,16 @@ namespace lua
         void Assign();
         void CleanStack();
         void GetTable(String *name);
+        void GetLocalTable();
+        void GetTableValue();
         void DoPush(Instruction *ins);
+        void GenerateClosure(Instruction *ins);
+        void Return();
+        void GenerateArgTable();
+        void ReserveStack();
+        void ExtendCounter();
+        void MergeCounter();
+        void Call();
 
         State *state_;
         Stack *stack_;
