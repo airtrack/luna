@@ -20,6 +20,7 @@ namespace lua
         OpCode_GenerateArgTable,
         OpCode_ReserveStack,
         OpCode_ExtendCounter,
+        OpCode_MergeCounter,
         OpCode_Call,
     };
 

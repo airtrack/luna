@@ -160,8 +160,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddExp(ExpressionPtr &&exp);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
-        void GenerateCodeExp(std::size_t index, CodeWriter *writer);
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         std::vector<ExpressionPtr> exp_list_;
@@ -173,8 +172,7 @@ namespace lua
         std::size_t GetCount() const;
         void AddVar(ExpressionPtr &&var);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
-        void GenerateCodeVar(std::size_t index, CodeWriter *writer);
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         std::vector<ExpressionPtr> var_list_;
@@ -227,10 +225,6 @@ namespace lua
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
-        void ClearStack(CodeWriter *writer);
-        void CalculateExp(std::size_t index, CodeWriter *writer);
-        void AssignVar(std::size_t index, CodeWriter *writer);
-
         std::unique_ptr<VarListExpression> var_list_;
         std::unique_ptr<ExpListExpression> exp_list_;
     };

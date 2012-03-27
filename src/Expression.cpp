@@ -188,10 +188,20 @@ namespace lua
         exp_list_.push_back(std::move(exp));
     }
 
-    void ExpListExpression::GenerateCodeExp(std::size_t index, CodeWriter *writer)
+    void ExpListExpression::GenerateCode(CodeWriter *writer)
     {
-        assert(index < GetCount());
-        exp_list_[index]->GenerateCode(writer);
+        bool need_merge = false;
+        for (auto it = exp_list_.begin(); it != exp_list_.end(); ++it)
+        {
+            if (need_merge)
+            {
+                Instruction *ins = writer->NewInstruction();
+                ins->op_code = OpCode_MergeCounter;
+            }
+
+            (*it)->GenerateCode(writer);
+            need_merge = true;
+        }
     }
 
     std::size_t VarListExpression::GetCount() const
@@ -204,10 +214,14 @@ namespace lua
         var_list_.push_back(std::move(var));
     }
 
-    void VarListExpression::GenerateCodeVar(std::size_t index, CodeWriter *writer)
+    void VarListExpression::GenerateCode(CodeWriter *writer)
     {
-        assert(index < GetCount());
-        var_list_[index]->GenerateCode(writer);
+        for (auto it = var_list_.begin(); it != var_list_.end(); ++it)
+        {
+            (*it)->GenerateCode(writer);
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Assign;
+        }
     }
 
     FuncNameExpression::FuncNameExpression(ExpressionPtr &&pre_name, ExpressionPtr &&member)
@@ -293,46 +307,11 @@ namespace lua
 
     void AssignExpression::GenerateCode(CodeWriter *writer)
     {
-        std::size_t exp_count = exp_list_->GetCount();
-        std::size_t var_count = var_list_->GetCount();
-        std::size_t index = 0;
+        exp_list_->GenerateCode(writer);
+        var_list_->GenerateCode(writer);
 
-        for (; index < exp_count && index < var_count; ++index)
-        {
-            CalculateExp(index, writer);
-            AssignVar(index, writer);
-        }
-
-        for (; index < var_count; ++index)
-            AssignVar(index, writer);
-
-        for (; index < exp_count; ++index)
-            CalculateExp(index, writer);
-
-        // Clear lastest exp result
-        ClearStack(writer);
-    }
-
-    void AssignExpression::ClearStack(CodeWriter *writer)
-    {
         Instruction *ins = writer->NewInstruction();
         ins->op_code = OpCode_CleanStack;
-    }
-
-    void AssignExpression::CalculateExp(std::size_t index, CodeWriter *writer)
-    {
-        // If there are more then one var and exp,
-        // we clear last exp result from top of stack
-        if (index > 0)
-            ClearStack(writer);
-        exp_list_->GenerateCodeExp(index, writer);
-    }
-
-    void AssignExpression::AssignVar(std::size_t index, CodeWriter *writer)
-    {
-        var_list_->GenerateCodeVar(index, writer);
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_Assign;
     }
 
     FuncDefineExpression::FuncDefineExpression(StatementPtr &&func_def)
