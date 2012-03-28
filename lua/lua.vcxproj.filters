@@ -111,6 +111,9 @@
     <ClInclude Include="..\src\Bootstrap.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\types\Closure.h">
+      <Filter>src\types</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -190,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="..\src\Bootstrap.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\types\Closure.cpp">
+      <Filter>src\types</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -100,6 +100,7 @@
     <ClInclude Include="..\src\State.h" />
     <ClInclude Include="..\src\Statement.h" />
     <ClInclude Include="..\src\types\Bool.h" />
+    <ClInclude Include="..\src\types\Closure.h" />
     <ClInclude Include="..\src\types\Function.h" />
     <ClInclude Include="..\src\types\NativeFunction.h" />
     <ClInclude Include="..\src\types\Nil.h" />
@@ -130,6 +131,7 @@
     <ClCompile Include="..\src\Stack.cpp" />
     <ClCompile Include="..\src\State.cpp" />
     <ClCompile Include="..\src\Statement.cpp" />
+    <ClCompile Include="..\src\types\Closure.cpp" />
     <ClCompile Include="..\src\types\Function.cpp" />
     <ClCompile Include="..\src\types\NativeFunction.cpp" />
     <ClCompile Include="..\src\types\Number.cpp" />

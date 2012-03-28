@@ -35,12 +35,22 @@ namespace lua
 
     Table * DataPool::GetTable()
     {
-        return new Table;
+        return new Table(this);
+    }
+
+    TableValue * DataPool::GetTableValue(Value *value)
+    {
+        return new TableValue(value);
     }
 
     Function * DataPool::GetFunction(std::unique_ptr<NameSet> &&up_value_set)
     {
         return new Function(std::move(up_value_set));
+    }
+
+    Closure * DataPool::GetClosure(Function *func)
+    {
+        return new Closure(func, GetTable());
     }
 
     NativeFunction * DataPool::GetNativeFunction(const NativeFunction::FuncType& func)

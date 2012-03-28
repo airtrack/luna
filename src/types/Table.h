@@ -8,9 +8,50 @@
 
 namespace lua
 {
+    class DataPool;
+
+    class TableValue : public Value
+    {
+    public:
+        explicit TableValue(Value *value)
+            : value_(value)
+        {
+        }
+
+        virtual int Type() const
+        {
+            return value_->Type();
+        }
+
+        virtual std::string Name() const
+        {
+            return value_->Name();
+        }
+
+        virtual std::size_t GetHash() const
+        {
+            return value_->GetHash();
+        }
+
+        virtual bool IsEqual(const Value *other) const
+        {
+            return value_->IsEqual(other);
+        }
+
+        Value * GetValue()
+        {
+            return value_;
+        }
+
+    private:
+        Value *value_;
+    };
+
     class Table : public Value
     {
     public:
+        explicit Table(DataPool *pool);
+
         virtual int Type() const
         {
             return TYPE_TABLE;
@@ -26,14 +67,17 @@ namespace lua
 
         bool HaveKey(const Value *key) const;
 
-        Value * GetValue(const Value *key) { return 0; }
+        Value * GetValue(const Value *key);
+        TableValue * GetTableValue(const Value *key);
 
         void Assign(const Value *key, Value *value);
+        void Assign(const Value *key, TableValue *table_value);
 
     private:
-        typedef std::vector<Value *> ArrayType;
-        typedef std::unordered_map<const Value *, Value *, ValueHasher, ValueEqualer> HashTableType;
+        typedef std::vector<TableValue *> ArrayType;
+        typedef std::unordered_map<const Value *, TableValue *, ValueHasher, ValueEqualer> HashTableType;
 
+        DataPool *data_pool_;
         std::unique_ptr<ArrayType> array_;
         std::unique_ptr<HashTableType> hash_table_;
     };

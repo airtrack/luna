@@ -17,8 +17,6 @@ namespace lua
         TYPE_NATIVE_FUNCTION,
     };
 
-    class DataPool;
-
     class Value
     {
     public:
@@ -27,9 +25,6 @@ namespace lua
         virtual std::string Name() const = 0;
         virtual std::size_t GetHash() const = 0;
         virtual bool IsEqual(const Value *other) const = 0;
-
-    private:
-        DataPool *owner_pool_;
     };
 
     struct ValueHasher : public std::unary_function<Value *, std::size_t>

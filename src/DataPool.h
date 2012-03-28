@@ -8,6 +8,7 @@
 #include "types/String.h"
 #include "types/Table.h"
 #include "types/Function.h"
+#include "types/Closure.h"
 #include "types/NativeFunction.h"
 #include <string>
 
@@ -24,7 +25,9 @@ namespace lua
         Number * GetNumber(double number);
         String * GetString(const std::string& str);
         Table * GetTable();
+        TableValue * GetTableValue(Value *value);
         Function * GetFunction(std::unique_ptr<NameSet> &&up_value_set);
+        Closure * GetClosure(Function *func);
         NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 
     private:

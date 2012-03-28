@@ -172,6 +172,9 @@ namespace lua
 
     void VirtualMachine::GenerateClosure(Instruction *ins)
     {
+        assert(ins->param_a.param.value->Type() == TYPE_FUNCTION);
+        Function *func = static_cast<Function *>(ins->param_a.param.value);
+        Closure *cl = data_pool_->GetClosure(func);
     }
 
     void VirtualMachine::Return()
