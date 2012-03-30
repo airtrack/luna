@@ -16,4 +16,14 @@ namespace lua
     {
         return this == other;
     }
+
+    bool Function::HasUpvalue() const
+    {
+        return !up_value_set_->Empty();
+    }
+
+    const NameSet * Function::GetUpValueSet() const
+    {
+        return up_value_set_.get();
+    }
 } // namespace lua

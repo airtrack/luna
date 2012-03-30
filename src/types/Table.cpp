@@ -52,7 +52,11 @@ namespace lua
 
     void Table::Assign(const Value *key, Value *value)
     {
-        Assign(key, data_pool_->GetTableValue(value));
+        TableValue *tv = GetTableValue(key);
+        if (tv)
+            tv->SetValue(value);
+        else
+            Assign(key, data_pool_->GetTableValue(value));
     }
 
     void Table::Assign(const Value *key, TableValue *table_value)

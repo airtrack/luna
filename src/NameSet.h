@@ -11,9 +11,22 @@ namespace lua
     class NameSet
     {
     public:
-        NameSet()
+        typedef std::unordered_set<const Value *, ValueHasher, ValueEqualer> Set;
+        typedef std::unique_ptr<Set> SetPtr;
+        typedef std::vector<SetPtr> LevelSet;
+
+        class Iterator;
+        friend class Iterator;
+
+        explicit NameSet(bool init_first_level = true)
         {
-            PushLevel();
+            if (init_first_level)
+                PushLevel();
+        }
+
+        bool Empty() const
+        {
+            return level_set_.empty();
         }
 
         bool Has(const Value *name) const
@@ -29,6 +42,9 @@ namespace lua
 
         bool Insert(const Value *name)
         {
+            if (Empty())
+                PushLevel();
+
             auto result = level_set_.back()->insert(name);
             return result.second;
         }
@@ -44,10 +60,114 @@ namespace lua
         }
 
     private:
-        typedef std::unordered_set<const Value *, ValueHasher, ValueEqualer> Set;
-        typedef std::unique_ptr<Set> SetPtr;
-        typedef std::vector<SetPtr> LevelSet;
         LevelSet level_set_;
+    };
+
+    class NameSet::Iterator
+    {
+    public:
+        Iterator()
+            : ns_(0),
+              level_(0)
+        {
+        }
+
+        explicit Iterator(NameSet *ns)
+            : ns_(ns),
+              level_(0)
+        {
+            if (ns_ && !ns_->Empty())
+            {
+                it_ = ns_->level_set_[level_]->begin();
+                if (IsLevelEnd())
+                    ++(*this);
+            }
+        }
+
+        void Reset()
+        {
+            ns_ = 0;
+            level_ = 0;
+            it_ = NameSet::Set::iterator();
+        }
+
+        void IteratorNext()
+        {
+            if (!ns_)
+                return ;
+
+            if (!IsLevelEnd())
+            {
+                ++it_;
+                return ;
+            }
+
+            ++level_;
+            if (level_ >= ns_->level_set_.size())
+                return ;
+
+            it_ = ns_->level_set_[level_]->begin();
+        }
+
+        bool IsLevelEnd()
+        {
+            if (!ns_)
+                return true;
+            return it_ == ns_->level_set_[level_]->end();
+        }
+
+        bool IsEnd()
+        {
+            if (!ns_ || ns_->Empty())
+                return true;
+
+            if (!IsLevelEnd())
+                return false;
+
+            return level_ >= ns_->level_set_.size() - 1;
+        }
+
+        Iterator& operator ++ ()
+        {
+            IteratorNext();
+            while (!IsEnd() && IsLevelEnd())
+                IteratorNext();
+
+            if (IsEnd())
+                Reset();
+            return *this;
+        }
+
+        Iterator operator ++ (int)
+        {
+            Iterator res = *this;
+            ++(*this);
+            return res;
+        }
+
+        const Value * operator * () const
+        {
+            if (ns_)
+                return *it_;
+            return 0;
+        }
+
+        friend bool operator == (const Iterator& left, const Iterator& right)
+        {
+            return left.ns_ == right.ns_ &&
+                   left.level_ == right.level_ &&
+                   left.it_ == right.it_;
+        }
+
+        friend bool operator != (const Iterator& left, const Iterator& right)
+        {
+            return !(left == right);
+        }
+
+    private:
+        NameSet *ns_;
+        std::size_t level_;
+        NameSet::Set::iterator it_;
     };
 
     class NameSetLevelPusher

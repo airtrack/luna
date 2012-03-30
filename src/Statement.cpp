@@ -463,7 +463,7 @@ namespace lua
 
         // Record local name, we use local name set to search all upvalue names.
         NameSet local_name_set;
-        std::unique_ptr<NameSet> up_value_set(new NameSet);
+        std::unique_ptr<NameSet> up_value_set(new NameSet(false));
         LocalNameSetter local_setter(lexer, &local_name_set);
         UpValueNameSetter up_value_setter(lexer, up_value_set.get());
 

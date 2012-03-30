@@ -13,7 +13,7 @@ namespace lua
     ParseTreeNodePtr Parser::Parse()
     {
         NameSet local_name_set;
-        std::unique_ptr<NameSet> up_value_set(new NameSet);
+        std::unique_ptr<NameSet> up_value_set(new NameSet(false));
         LocalNameSetter local_setter(&lexer_, &local_name_set);
         UpValueNameSetter up_value_setter(&lexer_, up_value_set.get());
 

@@ -43,6 +43,11 @@ namespace lua
             return value_;
         }
 
+        void SetValue(Value *value)
+        {
+            value_ = value;
+        }
+
     private:
         Value *value_;
     };

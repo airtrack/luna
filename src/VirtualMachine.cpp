@@ -25,7 +25,6 @@ namespace lua
 
     void VirtualMachine::Run(Bootstrap *boot)
     {
-        nest_tables_.push_back(data_pool_->GetTable());
         Instruction *instructions = boot->GetInstructions();
         std::size_t ins_count = boot->GetInstructionCount();
         std::size_t current = 0;
@@ -175,6 +174,12 @@ namespace lua
         assert(ins->param_a.param.value->Type() == TYPE_FUNCTION);
         Function *func = static_cast<Function *>(ins->param_a.param.value);
         Closure *cl = data_pool_->GetClosure(func);
+
+        Table *upvalue_table = cl->GetUpvalueTable();
+        if (upvalue_table)
+        {
+            const NameSet *upvalue_set = func->GetUpValueSet();
+        }
     }
 
     void VirtualMachine::Return()

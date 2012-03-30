@@ -50,7 +50,8 @@ namespace lua
 
     Closure * DataPool::GetClosure(Function *func)
     {
-        return new Closure(func, GetTable());
+        Table *upvalue_table = func->HasUpvalue() ? GetTable() : 0;
+        return new Closure(func, upvalue_table);
     }
 
     NativeFunction * DataPool::GetNativeFunction(const NativeFunction::FuncType& func)

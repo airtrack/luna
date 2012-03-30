@@ -25,6 +25,9 @@ namespace lua
         virtual std::size_t GetHash() const;
         virtual bool IsEqual(const Value *other) const;
 
+        bool HasUpvalue() const;
+        const NameSet * GetUpValueSet() const;
+
     private:
         std::unique_ptr<NameSet> up_value_set_;
     };
