@@ -412,11 +412,6 @@ namespace lua
         ins->op_code = OpCode_GenerateClosure;
         ins->param_a.type = InstructionParamType_Value;
         ins->param_a.param.value = func_;
-
-        ins = writer->NewInstruction();
-        ins->op_code = OpCode_Push;
-        ins->param_a.type = InstructionParamType_Counter;
-        ins->param_a.param.counter = 1;
     }
 
     void FunctionStatement::GenerateFuncName(CodeWriter *writer)

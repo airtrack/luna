@@ -7,6 +7,7 @@ namespace lua
 {
     class State;
     class Stack;
+    class Value;
     class Table;
     class DataPool;
     class String;
@@ -34,6 +35,8 @@ namespace lua
         void ExtendCounter();
         void MergeCounter();
         void Call();
+
+        Table * GetKeyOwnerTable(const Value *key);
 
         State *state_;
         Stack *stack_;

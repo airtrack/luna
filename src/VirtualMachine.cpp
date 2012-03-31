@@ -174,11 +174,29 @@ namespace lua
         assert(ins->param_a.param.value->Type() == TYPE_FUNCTION);
         Function *func = static_cast<Function *>(ins->param_a.param.value);
         Closure *cl = data_pool_->GetClosure(func);
+        stack_->Push(cl);
+        stack_->Push(1, 0);
 
         Table *upvalue_table = cl->GetUpvalueTable();
         if (upvalue_table)
         {
             const NameSet *upvalue_set = func->GetUpValueSet();
+            NameSet::Iterator it = upvalue_set->Begin();
+            NameSet::Iterator end = upvalue_set->End();
+            while (it != end)
+            {
+                const Value *key = *it;
+                Table *owner = GetKeyOwnerTable(key);
+                if (!owner)
+                {
+                    // If no table has key, so we insert the upvalue as
+                    // global table key, value is nil.
+                    owner = nest_tables_.front();
+                    owner->Assign(key, data_pool_->GetNil());
+                }
+                upvalue_table->Assign(key, owner->GetTableValue(key));
+                ++it;
+            }
         }
     }
 
@@ -204,5 +222,13 @@ namespace lua
 
     void VirtualMachine::Call()
     {
+    }
+
+    Table * VirtualMachine::GetKeyOwnerTable(const Value *key)
+    {
+        for (auto it = nest_tables_.rbegin(); it != nest_tables_.rend(); ++it)
+            if ((*it)->HaveKey(key))
+                return *it;
+        return 0;
     }
 } // namespace lua
