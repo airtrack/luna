@@ -206,18 +206,68 @@ namespace lua
 
     void VirtualMachine::GenerateArgTable()
     {
+        Table *arg = data_pool_->GetTable();
+        StackValue *sv = stack_->Top();
+
+        int current = sv->param.counter.current;
+        int total = sv->param.counter.total;
+        int index = -1 - (total - current);
+        int arg_index = 1;
+
+        while (current < total)
+        {
+            Value *key = data_pool_->GetNumber(arg_index);
+            StackValue *arg_value = stack_->GetStackValue(index);
+            arg->Assign(key, arg_value->param.value);
+
+            ++index;
+            ++arg_index;
+            ++current;
+        }
+
+        sv->param.counter.current = sv->param.counter.total;
+        Table *local = nest_tables_.back();
+        local->Assign(data_pool_->GetString("arg"), arg);
     }
 
     void VirtualMachine::ReserveStack()
     {
+        stack_->Push();
     }
 
     void VirtualMachine::ExtendCounter()
     {
+        // Stack top is counter
+        StackValue *fill_sv = stack_->GetStackValue(-2);
+        StackValue *counter = stack_->GetStackValue(-3);
+
+        // Fill stack value
+        int fill_pos = -3 - counter->param.counter.total - 1;
+        StackValue *filler = stack_->GetStackValue(fill_pos);
+        filler->type = fill_sv->type;
+        filler->param = fill_sv->param;
+
+        // Extend counter
+        ++counter->param.counter.total;
     }
 
     void VirtualMachine::MergeCounter()
     {
+        int counter1 = stack_->GetStackValue(-1)->param.counter.total;
+        int index = -1 - counter1 - 1;
+        int counter2 = stack_->GetStackValue(index)->param.counter.total;
+
+        for (int i = 0; i < counter1; ++i)
+        {
+            StackValue *dst = stack_->GetStackValue(index);
+            StackValue *src = stack_->GetStackValue(index + 1);
+            dst->type = src->type;
+            dst->param = src->param;
+            ++index;
+        }
+
+        stack_->Pop(2);
+        stack_->Push(counter1 + counter2, 0);
     }
 
     void VirtualMachine::Call()
