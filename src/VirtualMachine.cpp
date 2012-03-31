@@ -83,7 +83,8 @@ namespace lua
     {
         StackValue *key = stack_->Top();
         assert(key->type == StackValueType_Value);
-        stack_->Pop();
+        // Pop the key and counter
+        stack_->Pop(2);
 
         StackValue *table = stack_->Top();
         assert(table->type == StackValueType_Value &&
