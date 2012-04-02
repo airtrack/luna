@@ -10,9 +10,15 @@ namespace lua
     {
         ParseTreeNodePtr root = parser_->Parse();
         InstructionSetWriter writer(boot_.get());
-        root->GenerateCode(&writer);
 
         Instruction *ins = writer.NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Counter;
+        ins->param_a.param.counter = 0;
+
+        root->GenerateCode(&writer);
+
+        ins = writer.NewInstruction();
         ins->op_code = OpCode_Call;
     }
 

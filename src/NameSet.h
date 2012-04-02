@@ -64,9 +64,12 @@ namespace lua
 
             friend bool operator == (const Iterator& left, const Iterator& right)
             {
-                return left.ns_ == right.ns_ &&
-                       left.level_ == right.level_ &&
-                       left.it_ == right.it_;
+                if (left.ns_ == 0 && right.ns_ == 0)
+                    return true;
+                else
+                    return left.ns_ == right.ns_ &&
+                           left.level_ == right.level_ &&
+                           left.it_ == right.it_;
             }
 
             friend bool operator != (const Iterator& left, const Iterator& right)

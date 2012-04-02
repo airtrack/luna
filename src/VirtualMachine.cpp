@@ -125,7 +125,8 @@ namespace lua
         stack_->Pop();
 
         // Pop values bottom of the counter
-        stack_->Pop(total);
+        if (total > 0)
+            stack_->Pop(total);
     }
 
     void VirtualMachine::GetLocalTable()

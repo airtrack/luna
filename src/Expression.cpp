@@ -190,17 +190,23 @@ namespace lua
 
     void ExpListExpression::GenerateCode(CodeWriter *writer)
     {
-        bool need_merge = false;
+        int counter_num = 0;
         for (auto it = exp_list_.begin(); it != exp_list_.end(); ++it)
         {
-            if (need_merge)
+            if (counter_num > 1)
             {
                 Instruction *ins = writer->NewInstruction();
                 ins->op_code = OpCode_MergeCounter;
             }
 
             (*it)->GenerateCode(writer);
-            need_merge = true;
+            ++counter_num;
+        }
+
+        if (counter_num > 1)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_MergeCounter;
         }
     }
 
