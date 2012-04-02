@@ -367,13 +367,16 @@ namespace lua
 
     void FunctionStatement::GenerateFunctionCode(CodeWriter *writer)
     {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
         GenerateSelfParam(writer);
 
         if (param_list_)
             param_list_->GenerateCode(writer);
 
         // Clear params which are caller passed to the stack.
-        Instruction *ins = writer->NewInstruction();
+        ins = writer->NewInstruction();
         ins->op_code = OpCode_CleanStack;
 
         block_stmt_->GenerateCode(writer);

@@ -18,4 +18,14 @@ namespace lua
     {
         return this == other;
     }
+
+    Instruction * Closure::GetInstructions()
+    {
+        return func_->GetInstructions();
+    }
+
+    std::size_t Closure::GetInstructionCount() const
+    {
+        return func_->GetInstructionCount();
+    }
 } // namespace lua

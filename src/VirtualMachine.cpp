@@ -11,8 +11,13 @@ namespace lua
     VirtualMachine::VirtualMachine()
         : state_(0),
           stack_(0),
-          data_pool_(0)
+          data_pool_(0),
+          ins_base_(0),
+          ins_count_(0),
+          ins_current_(0),
+          native_func_ret_(new Bootstrap)
     {
+        native_func_ret_->NewInstruction()->op_code = OpCode_Ret;
     }
 
     void VirtualMachine::Init(State *state)
@@ -25,13 +30,13 @@ namespace lua
 
     void VirtualMachine::Run(Bootstrap *boot)
     {
-        Instruction *instructions = boot->GetInstructions();
-        std::size_t ins_count = boot->GetInstructionCount();
-        std::size_t current = 0;
+        ins_base_ = boot->GetInstructions();
+        ins_count_ = boot->GetInstructionCount();
+        ins_current_ = 0;
 
-        while (current < ins_count)
+        while (ins_current_ < ins_count_)
         {
-            Instruction *ins = &instructions[current];
+            Instruction *ins = &ins_base_[ins_current_];
             switch (ins->op_code)
             {
             case OpCode_Assign:
@@ -74,21 +79,26 @@ namespace lua
             case OpCode_Call:
                 Call();
                 break;
+            case OpCode_AddLocalTable:
+                AddLocalTable();
+                break;
+            case OpCode_DelLocalTable:
+                DelLocalTable();
+                break;
             }
-            ++current;
+            ++ins_current_;
         }
     }
 
     void VirtualMachine::Assign()
     {
-        StackValue *key = stack_->Top();
-        assert(key->type == StackValueType_Value);
+        assert(stack_->Top()->type == StackValueType_Value);
+        Value *key = stack_->Top()->param.value;
         // Pop the key and counter
         stack_->Pop(2);
 
-        StackValue *table = stack_->Top();
-        assert(table->type == StackValueType_Value &&
-            table->param.value->Type() == TYPE_TABLE);
+        assert(stack_->Top()->type == StackValueType_Value);
+        Value *table = stack_->Top()->param.value;
         stack_->Pop();
 
         StackValue *counter = stack_->Top();
@@ -102,20 +112,21 @@ namespace lua
             value = stack_->GetStackValue(index)->param.value;
         }
 
-        Table *t = static_cast<Table *>(table->param.value);
-        t->Assign(key->param.value, value);
+        Table *t = static_cast<Table *>(table);
+        t->Assign(key, value);
     }
 
     void VirtualMachine::CleanStack()
     {
         StackValue *counter = stack_->Top();
         assert(counter && counter->type == StackValueType_Counter);
+        int total = counter->param.counter.total;
 
         // Pop the counter
         stack_->Pop();
 
         // Pop values bottom of the counter
-        stack_->Pop(counter->param.counter.total);
+        stack_->Pop(total);
     }
 
     void VirtualMachine::GetLocalTable()
@@ -145,17 +156,17 @@ namespace lua
 
     void VirtualMachine::GetTableValue()
     {
-        StackValue *key = stack_->Top();
+        Value *key = stack_->Top()->param.value;
         stack_->Pop(2);  // Pop key and counter
-        StackValue *table = stack_->Top();
+        Value *table = stack_->Top()->param.value;
         stack_->Pop();   // Pop the table
 
-        if (table->param.value->Type() != TYPE_TABLE)
+        if (table->Type() != TYPE_TABLE)
         {
             // TODO: raise error
         }
 
-        Value *v = static_cast<Table *>(table->param.value)->GetValue(key->param.value);
+        Value *v = static_cast<Table *>(table)->GetValue(key);
         stack_->Push(v);
         stack_->Push(1, 0);
     }
@@ -203,6 +214,13 @@ namespace lua
 
     void VirtualMachine::Return()
     {
+        CallStackInfo& call_info = call_stack_.back();
+        ins_base_ = call_info.caller_base;
+        ins_count_ = call_info.caller_total;
+        ins_current_ = call_info.caller_offset;
+        nest_tables_.resize(nest_tables_.size() - call_info.callee_tables);
+
+        call_stack_.pop_back();
     }
 
     void VirtualMachine::GenerateArgTable()
@@ -273,6 +291,45 @@ namespace lua
 
     void VirtualMachine::Call()
     {
+        // Pop counter
+        stack_->Pop();
+
+        Value *callee = stack_->Top()->param.value;
+        // Pop callee
+        stack_->Pop();
+
+        call_stack_.push_back(CallStackInfo(ins_base_, ins_count_, ins_current_, callee));
+
+        int type = callee->Type();
+        if (type == TYPE_FUNCTION)
+        {
+            ins_base_ = static_cast<Closure *>(callee)->GetInstructions();
+            ins_count_ = static_cast<Closure *>(callee)->GetInstructionCount();
+            ins_current_ = -1;
+        }
+        else if (type == TYPE_NATIVE_FUNCTION)
+        {
+            static_cast<NativeFunction *>(callee)->Call();
+            ins_base_ = native_func_ret_->GetInstructions();
+            ins_count_ = native_func_ret_->GetInstructionCount();
+            ins_current_ = -1;
+        }
+        else
+        {
+            // TODO: raise error
+        }
+    }
+
+    void VirtualMachine::AddLocalTable()
+    {
+        nest_tables_.push_back(data_pool_->GetTable());
+        ++call_stack_.back().callee_tables;
+    }
+
+    void VirtualMachine::DelLocalTable()
+    {
+        nest_tables_.pop_back();
+        --call_stack_.back().callee_tables;
     }
 
     Table * VirtualMachine::GetKeyOwnerTable(const Value *key)

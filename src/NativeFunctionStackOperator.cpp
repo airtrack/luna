@@ -128,17 +128,17 @@ namespace lua
         Stack *stack = state_->GetStack();
         StackValue *sv = stack->Top();
         assert(sv && sv->type == StackValueType_Counter);
+        int total = sv->param.counter.total;
         stack->Pop();
 
-        int index = -(sv->param.counter.total);
-        for (; index < 0; ++index)
+        for (int index = -total; index < 0; ++index)
         {
             StackValue *v = stack->GetStackValue(index);
             assert(v && v->type == StackValueType_Value);
             input_.Push(v->param.value);
         }
 
-        stack->Pop(sv->param.counter.total);
+        stack->Pop(total);
     }
 
     void NativeFunctionStackOperator::PushReturnValueCounter()

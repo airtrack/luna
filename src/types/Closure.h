@@ -7,6 +7,7 @@ namespace lua
 {
     class Table;
     class Function;
+    struct Instruction;
 
     class Closure : public Value
     {
@@ -30,6 +31,9 @@ namespace lua
         {
             return upvalue_table_;
         }
+
+        Instruction * GetInstructions();
+        std::size_t GetInstructionCount() const;
 
     private:
         Function *func_;

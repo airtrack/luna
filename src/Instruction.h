@@ -22,6 +22,8 @@ namespace lua
         OpCode_ExtendCounter,
         OpCode_MergeCounter,
         OpCode_Call,
+        OpCode_AddLocalTable,
+        OpCode_DelLocalTable,
     };
 
     enum InstructionParamType
