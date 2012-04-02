@@ -35,6 +35,7 @@ namespace lua
         void ReserveStack();
         void ExtendCounter();
         void MergeCounter();
+        void ResetCounter();
         void Call();
         void AddLocalTable();
         void DelLocalTable();

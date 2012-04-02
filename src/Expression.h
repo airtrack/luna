@@ -236,8 +236,27 @@ namespace lua
 
         virtual void GenerateCode(CodeWriter *writer) {}
 
-    public:
+    private:
         StatementPtr func_def_;
+    };
+
+    enum PreExpType
+    {
+        PreExp_Variable,
+        PreExp_FuncCall,
+        PreExp_ParentheseExp,
+    };
+
+    class PreExpExpression : public Expression
+    {
+    public:
+        PreExpExpression(ExpressionPtr &&exp, PreExpType type);
+
+        virtual void GenerateCode(CodeWriter *writer);
+
+    private:
+        ExpressionPtr exp_;
+        PreExpType type_;
     };
 
     enum FuncNameType;

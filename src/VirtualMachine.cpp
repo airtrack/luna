@@ -75,6 +75,9 @@ namespace lua
             case OpCode_MergeCounter:
                 MergeCounter();
                 break;
+            case OpCode_ResetCounter:
+                ResetCounter();
+                break;
             case OpCode_Call:
                 Call();
                 break;
@@ -295,6 +298,10 @@ namespace lua
 
         stack_->Pop(2);
         stack_->Push(counter1 + counter2, 0);
+    }
+
+    void VirtualMachine::ResetCounter()
+    {
     }
 
     void VirtualMachine::Call()

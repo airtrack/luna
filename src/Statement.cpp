@@ -97,6 +97,8 @@ namespace lua
     void NormalStatement::GenerateCode(CodeWriter *writer)
     {
         exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
     }
 
     StatementPtr ParseNormalStatement(Lexer *lexer)

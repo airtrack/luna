@@ -21,6 +21,7 @@ namespace lua
         OpCode_ReserveStack,
         OpCode_ExtendCounter,
         OpCode_MergeCounter,
+        OpCode_ResetCounter,
         OpCode_Call,
         OpCode_AddLocalTable,
         OpCode_DelLocalTable,

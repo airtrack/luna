@@ -315,9 +315,6 @@ namespace lua
     {
         exp_list_->GenerateCode(writer);
         var_list_->GenerateCode(writer);
-
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_CleanStack;
     }
 
     FuncDefineExpression::FuncDefineExpression(StatementPtr &&func_def)
@@ -325,12 +322,26 @@ namespace lua
     {
     }
 
-    enum PreExpType
+    PreExpExpression::PreExpExpression(ExpressionPtr &&exp, PreExpType type)
+        : exp_(std::move(exp)),
+          type_(type)
     {
-        VARIABLE,
-        FUNC_CALL,
-        PARENTHESE_EXP,
-    };
+    }
+
+    void PreExpExpression::GenerateCode(CodeWriter *writer)
+    {
+        exp_->GenerateCode(writer);
+        if (type_ == PreExp_Variable)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetTableValue;
+        }
+        else if (type_ == PreExp_ParentheseExp)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_ResetCounter;
+        }
+    }
 
     ExpressionPtr ParseFuncCallOrVarExpression(Lexer *lexer, PreExpType *type);
     ExpressionPtr ParseTableExpression(Lexer *lexer);
@@ -482,7 +493,9 @@ namespace lua
 
     ExpressionPtr ParsePreexpExpression(Lexer *lexer)
     {
-        return ParseFuncCallOrVarExpression(lexer, 0);
+        PreExpType type;
+        ExpressionPtr exp = ParseFuncCallOrVarExpression(lexer, &type);
+        return ExpressionPtr(new PreExpExpression(std::move(exp), type));
     }
 
     ExpressionPtr ParseFactorExpression(Lexer *lexer)
@@ -963,7 +976,7 @@ namespace lua
         result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call);
 
         if (type)
-            *type = is_func_call ? FUNC_CALL : VARIABLE;
+            *type = is_func_call ? PreExp_FuncCall : PreExp_Variable;
         return result;
     }
 
@@ -989,9 +1002,9 @@ namespace lua
 
         PreExpType t;
         if (result.get() == old)
-            t = PARENTHESE_EXP;
+            t = PreExp_ParentheseExp;
         else
-            t = is_func_call ? FUNC_CALL : VARIABLE;
+            t = is_func_call ? PreExp_FuncCall : PreExp_Variable;
 
         if (type)
             *type = t;
@@ -1044,7 +1057,7 @@ namespace lua
 
             PreExpType type;
             var = ParseFuncCallOrVarExpression(lexer, &type);
-            if (type != VARIABLE)
+            if (type != PreExp_Variable)
                 THROW_PARSER_ERROR("expect 'var' here");
         }
 
@@ -1075,11 +1088,11 @@ namespace lua
 
         // If the result is function call expression, then it construct a
         // statement, so we return it.
-        if (type == FUNC_CALL)
+        if (type == PreExp_FuncCall)
             return result;
 
         // Can not be "(exp)"
-        if (type == PARENTHESE_EXP)
+        if (type == PreExp_ParentheseExp)
             THROW_PARSER_ERROR("expect 'var' here");
 
         // If not a function call expression, it must construct assign expression.
