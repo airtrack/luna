@@ -49,8 +49,7 @@ namespace lua
                 GetLocalTable();
                 break;
             case OpCode_GetTable:
-                assert(ins->param_a.type == InstructionParamType_Name);
-                GetTable(ins->param_a.param.name);
+                GetTable(ins);
                 break;
             case OpCode_GetTableValue:
                 GetTableValue();
@@ -135,13 +134,17 @@ namespace lua
         stack_->Push(1, 0);
     }
 
-    void VirtualMachine::GetTable(String *name)
+    void VirtualMachine::GetTable(Instruction *ins)
     {
-        for (NestTables::reverse_iterator it = nest_tables_.rbegin();
-            it != nest_tables_.rend(); ++it)
+        assert(ins->param_a.type == InstructionParamType_Name);
+        Value *key = ins->param_a.param.name;
+
+        std::size_t callee_tables = call_stack_.back().callee_tables;
+
+        for (auto it = nest_tables_.rbegin(); callee_tables > 0; ++it, --callee_tables)
         {
             Table *t = *it;
-            if (t->HaveKey(name))
+            if (t->HaveKey(key))
             {
                 stack_->Push(t);
                 stack_->Push(1, 0);
@@ -149,8 +152,12 @@ namespace lua
             }
         }
 
-        // If can not find key name from all tables, then we use global table.
-        stack_->Push(nest_tables_.front());
+        // If can not find in local tables, we use the upvalue table.
+        Value *callee = call_stack_.back().callee;
+        assert(callee->Type() == TYPE_FUNCTION);
+        Closure *cl = static_cast<Closure *>(callee);
+
+        stack_->Push(cl->GetUpvalueTable());
         stack_->Push(1, 0);
     }
 

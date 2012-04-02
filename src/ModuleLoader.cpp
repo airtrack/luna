@@ -11,6 +11,9 @@ namespace lua
         ParseTreeNodePtr root = parser_->Parse();
         InstructionSetWriter writer(boot_.get());
         root->GenerateCode(&writer);
+
+        Instruction *ins = writer.NewInstruction();
+        ins->op_code = OpCode_Call;
     }
 
     ModuleLoader::ModuleLoader()

@@ -25,7 +25,7 @@ namespace lua
     private:
         void Assign();
         void CleanStack();
-        void GetTable(String *name);
+        void GetTable(Instruction *ins);
         void GetLocalTable();
         void GetTableValue();
         void DoPush(Instruction *ins);
