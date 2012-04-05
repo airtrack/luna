@@ -20,8 +20,6 @@ int main(int argc, char **argv)
         const char *file = argv[1];
         lua::Bootstrap *boot = state.GetModuleLoader()->LoadModule(file);
         state.GetVM()->Run(boot);
-
-        printf("Run %s ok.\n", file);
     } catch (lua::OpenFileError& err)
     {
         printf("Can not open file %s.\n", err.file.c_str());

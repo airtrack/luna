@@ -12,6 +12,9 @@ namespace lua
         InstructionSetWriter writer(boot_.get());
 
         Instruction *ins = writer.NewInstruction();
+        ins->op_code = OpCode_AddGlobalTable;
+
+        ins = writer.NewInstruction();
         ins->op_code = OpCode_Push;
         ins->param_a.type = InstructionParamType_Counter;
         ins->param_a.param.counter = 0;
@@ -20,6 +23,12 @@ namespace lua
 
         ins = writer.NewInstruction();
         ins->op_code = OpCode_Call;
+
+        ins = writer.NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+
+        ins = writer.NewInstruction();
+        ins->op_code = OpCode_DelGlobalTable;
     }
 
     ModuleLoader::ModuleLoader()

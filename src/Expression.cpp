@@ -190,6 +190,22 @@ namespace lua
 
     void ExpListExpression::GenerateCode(CodeWriter *writer)
     {
+        if (exp_list_.empty())
+            PushEmptyCounter(writer);
+        else
+            ExpListGenerateCode(writer);
+    }
+
+    void ExpListExpression::PushEmptyCounter(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Counter;
+        ins->param_a.param.counter = 0;
+    }
+
+    void ExpListExpression::ExpListGenerateCode(CodeWriter *writer)
+    {
         int counter_num = 0;
         for (auto it = exp_list_.begin(); it != exp_list_.end(); ++it)
         {
@@ -405,8 +421,9 @@ namespace lua
             lexer->GetLocalNameSet()->Insert(name);
         else if(type == ParseNameType_GetName)
         {
-            if (!lexer->GetLocalNameSet()->Has(name))
-                lexer->GetUpValueNameSet()->Insert(name);
+            std::size_t level = lexer->GetLocalNameSet()->GetNameLevel(name);
+            if (level < lexer->GetFuncStartLevel())
+                lexer->GetUpValueNameSet()->Insert(name, level);
         }
 
         return ExpressionPtr(new NameExpression(name, type));
@@ -487,14 +504,17 @@ namespace lua
 
     ExpressionPtr ParseFuncDefineExpression(Lexer *lexer)
     {
-        StatementPtr func = ParseFunctionStatement(lexer, NO_FUNC_NAME);
-        return ExpressionPtr(new FuncDefineExpression(std::move(func)));
+        std::unique_ptr<FunctionStatement> func_stmt = ParseFunctionStatement(lexer, NO_FUNC_NAME);
+        CollectUpValueFromFunc(lexer, func_stmt);
+        return ExpressionPtr(new FuncDefineExpression(std::move(func_stmt)));
     }
 
     ExpressionPtr ParsePreexpExpression(Lexer *lexer)
     {
         PreExpType type;
         ExpressionPtr exp = ParseFuncCallOrVarExpression(lexer, &type);
+        if (!exp)
+            return std::move(exp);
         return ExpressionPtr(new PreExpExpression(std::move(exp), type));
     }
 

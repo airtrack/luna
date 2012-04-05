@@ -163,6 +163,9 @@ namespace lua
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        void PushEmptyCounter(CodeWriter *writer);
+        void ExpListGenerateCode(CodeWriter *writer);
+
         std::vector<ExpressionPtr> exp_list_;
     };
 

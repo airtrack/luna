@@ -2,7 +2,7 @@
 
 namespace lua
 {
-    Function::Function(std::unique_ptr<NameSet> &&up_value_set)
+    Function::Function(std::unique_ptr<UpValueNameSet> &&up_value_set)
         : up_value_set_(std::move(up_value_set))
     {
     }
@@ -22,7 +22,7 @@ namespace lua
         return !up_value_set_->Empty();
     }
 
-    const NameSet * Function::GetUpValueSet() const
+    const UpValueNameSet * Function::GetUpValueSet() const
     {
         return up_value_set_.get();
     }

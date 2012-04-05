@@ -7,14 +7,23 @@
 
 namespace lua
 {
-#define CASE_PARSE_STATEMENT(case_exp, parse_func)      \
-    case case_exp:                                      \
-        lexer->UngetToken(index);                       \
+#define CASE_PARSE_STATEMENT(case_exp, parse_func)              \
+    case case_exp:                                              \
+        lexer->UngetToken(index);                               \
         return parse_func(lexer)
 
-#define DEFAULT_PARSE_STATEMENT(parse_func)             \
-    default:                                            \
-        lexer->UngetToken(index);                       \
+#define CASE_PARSE_STATEMENT_DO(case_exp, parse_func, do_func)  \
+    case case_exp:                                              \
+    {                                                           \
+        lexer->UngetToken(index);                               \
+        auto stmt = parse_func(lexer);                          \
+        do_func(lexer, stmt);                                   \
+        return std::move(stmt);                                 \
+    }
+
+#define DEFAULT_PARSE_STATEMENT(parse_func)                     \
+    default:                                                    \
+        lexer->UngetToken(index);                               \
         return parse_func(lexer)
 
     StatementPtr ParseNonReturnStatement(Lexer *lexer)
@@ -29,9 +38,9 @@ namespace lua
         CASE_PARSE_STATEMENT(KW_REPEAT, ParseRepeatStatement);
         CASE_PARSE_STATEMENT(KW_IF, ParseIfStatement);
         CASE_PARSE_STATEMENT(KW_FOR, ParseForStatement);
-        CASE_PARSE_STATEMENT(KW_FUNCTION, ParseFunctionStatement);
         CASE_PARSE_STATEMENT(KW_LOCAL, ParseLocalStatement);
         CASE_PARSE_STATEMENT(KW_BREAK, ParseBreakStatement);
+        CASE_PARSE_STATEMENT_DO(KW_FUNCTION, ParseFunctionStatement, CollectUpValueFromFunc);
         DEFAULT_PARSE_STATEMENT(ParseNormalStatement);
         }
     }
@@ -358,6 +367,11 @@ namespace lua
     {
     }
 
+    Function * FunctionStatement::GetFunction() const
+    {
+        return func_;
+    }
+
     void FunctionStatement::GenerateCode(CodeWriter *writer)
     {
         InstructionSetWriter func_writer(func_);
@@ -451,7 +465,7 @@ namespace lua
         return ExpressionPtr();
     }
 
-    StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type)
+    std::unique_ptr<FunctionStatement> ParseFunctionStatement(Lexer *lexer, FuncNameType type)
     {
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -461,11 +475,19 @@ namespace lua
 
         ExpressionPtr func_name = ParseFunctionName(lexer, type);
 
-        // Record local name, we use local name set to search all upvalue names.
-        NameSet local_name_set;
-        std::unique_ptr<NameSet> up_value_set(new NameSet(false));
-        LocalNameSetter local_setter(lexer, &local_name_set);
+        // New up value set for each function
+        std::unique_ptr<UpValueNameSet> up_value_set(new UpValueNameSet);
         UpValueNameSetter up_value_setter(lexer, up_value_set.get());
+
+        // Push first local name level of function
+        NameSet *name_set = lexer->GetLocalNameSet();
+        NameSetLevelPusher level_pusher(name_set);
+        FuncStartLevelSetter level_setter(lexer, name_set->GetLevelCount());
+
+        String *self_name = type == NORMAL_FUNC_NAME_WITH_SELF
+            ? lexer->GetState()->GetDataPool()->GetString("self") : 0;
+        if (self_name)
+            lexer->GetLocalNameSet()->Insert(self_name);
 
         index = lexer->GetToken();
         if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
@@ -484,10 +506,23 @@ namespace lua
             THROW_PARSER_ERROR("expect 'end' here");
 
         Function *func = lexer->GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
-        String *self_name = type == NORMAL_FUNC_NAME_WITH_SELF
-            ? lexer->GetState()->GetDataPool()->GetString("self") : 0;
-        return StatementPtr(new FunctionStatement(type, self_name, std::move(func_name),
+        return std::unique_ptr<FunctionStatement>(new FunctionStatement(
+            type, self_name, std::move(func_name),
             std::move(param_list), std::move(block_stmt), func));
+    }
+
+    void CollectUpValueFromFunc(Lexer *lexer, const std::unique_ptr<FunctionStatement>& func_stmt)
+    {
+        Function *func = func_stmt->GetFunction();
+        const UpValueNameSet *func_up_value_set = func->GetUpValueSet();
+
+        for (auto it = func_up_value_set->Begin(); it != func_up_value_set->End(); ++it)
+        {
+            // If the level of func's up value less than current function start level,
+            // then this up value is current function's up value also.
+            if (it->second < lexer->GetFuncStartLevel())
+                lexer->GetUpValueNameSet()->Insert(it->first, it->second);
+        }
     }
 
     LocalStatement::LocalStatement(ExpressionPtr &&name_list,
@@ -499,7 +534,9 @@ namespace lua
 
     StatementPtr ParseLocalFunctionStatement(Lexer *lexer)
     {
-        return ParseFunctionStatement(lexer, LOCAL_FUNC_NAME);
+        std::unique_ptr<FunctionStatement> func_stmt = ParseFunctionStatement(lexer, LOCAL_FUNC_NAME);
+        CollectUpValueFromFunc(lexer, func_stmt);
+        return std::move(func_stmt);
     }
 
     StatementPtr ParseLocalNameListStatement(Lexer *lexer)
@@ -584,6 +621,10 @@ namespace lua
 
     StatementPtr ParseChunkStatement(Lexer *lexer)
     {
+        NameSet *name_set = lexer->GetLocalNameSet();
+        NameSetLevelPusher level_pusher(name_set);
+        FuncStartLevelSetter level_setter(lexer, name_set->GetLevelCount());
+
         StatementPtr block_stmt = ParseBlockStatement(lexer);
 
         int index = lexer->GetToken();

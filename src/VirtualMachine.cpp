@@ -25,7 +25,6 @@ namespace lua
         state_ = state;
         stack_ = state->GetStack();
         data_pool_ = state->GetDataPool();
-        nest_tables_.push_back(state->GetGlobalTable());
     }
 
     void VirtualMachine::Run(Bootstrap *boot)
@@ -86,6 +85,12 @@ namespace lua
                 break;
             case OpCode_DelLocalTable:
                 DelLocalTable();
+                break;
+            case OpCode_AddGlobalTable:
+                AddGlobalTable();
+                break;
+            case OpCode_DelGlobalTable:
+                DelGlobalTable();
                 break;
             }
             ++ins_current_;
@@ -203,21 +208,13 @@ namespace lua
         Table *upvalue_table = cl->GetUpvalueTable();
         if (upvalue_table)
         {
-            const NameSet *upvalue_set = func->GetUpValueSet();
-            NameSet::Iterator it = upvalue_set->Begin();
-            NameSet::Iterator end = upvalue_set->End();
+            const UpValueNameSet *up_value_set = func->GetUpValueSet();
+            UpValueNameSet::iterator it = up_value_set->Begin();
+            UpValueNameSet::iterator end = up_value_set->End();
             while (it != end)
             {
-                const Value *key = *it;
-                Table *owner = GetKeyOwnerTable(key);
-                if (!owner)
-                {
-                    // If no table has key, so we insert the upvalue as
-                    // global table key, value is nil.
-                    owner = nest_tables_.front();
-                    owner->Assign(key, data_pool_->GetNil());
-                }
-                upvalue_table->Assign(key, owner->GetTableValue(key));
+                Table *t = GetUpvalueKeyOwnerTable(it->first);
+                upvalue_table->Assign(it->first, t->GetTableValue(it->first));
                 ++it;
             }
         }
@@ -347,11 +344,44 @@ namespace lua
         --call_stack_.back().callee_tables;
     }
 
-    Table * VirtualMachine::GetKeyOwnerTable(const Value *key)
+    void VirtualMachine::AddGlobalTable()
     {
-        for (auto it = nest_tables_.rbegin(); it != nest_tables_.rend(); ++it)
-            if ((*it)->HaveKey(key))
-                return *it;
-        return 0;
+        nest_tables_.push_back(state_->GetGlobalTable());
+        call_stack_.push_back(CallStackInfo(0, 0, 0, 0));
+        call_stack_.back().callee_tables = 1;
+    }
+
+    void VirtualMachine::DelGlobalTable()
+    {
+        nest_tables_.pop_back();
+        call_stack_.pop_back();
+    }
+
+    Table * VirtualMachine::GetUpvalueKeyOwnerTable(const Value *key)
+    {
+        std::size_t callee_tables = call_stack_.back().callee_tables;
+        for (auto it = nest_tables_.rbegin(); callee_tables > 0 && it != nest_tables_.rend(); ++it)
+        {
+            Table *t = *it;
+            if (t->HaveKey(key))
+                return t;
+        }
+
+        Value *callee = call_stack_.back().callee;
+        if (callee)
+        {
+            Closure *cl = static_cast<Closure *>(callee);
+            Table *t = cl->GetUpvalueTable();
+            // Because key can not find in local tables, so upvalue table must exist,
+            // and upvalue table must have key.
+            assert(t && t->HaveKey(key));
+            return t;
+        }
+
+        // We insert the key to the lastest table.
+        assert(callee_tables == 1);
+        Table *t = nest_tables_.back();
+        t->Assign(key, data_pool_->GetNil());
+        return t;
     }
 } // namespace lua

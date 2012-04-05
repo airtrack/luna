@@ -39,8 +39,10 @@ namespace lua
         void Call();
         void AddLocalTable();
         void DelLocalTable();
+        void AddGlobalTable();
+        void DelGlobalTable();
 
-        Table * GetKeyOwnerTable(const Value *key);
+        Table * GetUpvalueKeyOwnerTable(const Value *key);
 
         struct CallStackInfo
         {

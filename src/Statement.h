@@ -160,6 +160,8 @@ namespace lua
                           StatementPtr &&block_stmt,
                           Function *func);
 
+        Function * GetFunction() const;
+
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
@@ -176,7 +178,8 @@ namespace lua
         Function *func_;
     };
 
-    StatementPtr ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);
+    std::unique_ptr<FunctionStatement> ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);
+    void CollectUpValueFromFunc(Lexer *lexer, const std::unique_ptr<FunctionStatement>& func_stmt);
 
     class LocalStatement : public Statement
     {

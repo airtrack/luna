@@ -13,10 +13,11 @@ namespace lua
 
     Lexer::Lexer(Source *source, LexTable *lex_table, State *state)
         : state_(state),
+          source_(source),
+          lex_table_(lex_table),
           local_set_(0),
           up_value_set_(0),
-          source_(source),
-          lex_table_(lex_table)
+          func_start_level_(0)
     {
         KeyWordSet::InitKeyWordSet();
     }

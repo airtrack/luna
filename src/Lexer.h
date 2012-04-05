@@ -9,6 +9,7 @@ namespace lua
 {
     class State;
     class NameSet;
+    class UpValueNameSet;
 
     class Lexer
     {
@@ -18,6 +19,16 @@ namespace lua
         State * GetState() const
         {
             return state_;
+        }
+
+        void SetFuncStartLevel(std::size_t level)
+        {
+            func_start_level_ = level;
+        }
+
+        std::size_t GetFuncStartLevel() const
+        {
+            return func_start_level_;
         }
 
         NameSet * GetLocalNameSet() const
@@ -30,12 +41,12 @@ namespace lua
             local_set_ = set;
         }
 
-        NameSet * GetUpValueNameSet() const
+        UpValueNameSet * GetUpValueNameSet() const
         {
             return up_value_set_;
         }
 
-        void SetUpValueNameSet(NameSet *set)
+        void SetUpValueNameSet(UpValueNameSet *set)
         {
             up_value_set_ = set;
         }
@@ -81,10 +92,13 @@ namespace lua
 
         std::stack<int> unget_;
         State *state_;
-        NameSet *local_set_;
-        NameSet *up_value_set_;
+
         Source *source_;
         LexTable *lex_table_;
+
+        NameSet *local_set_;
+        UpValueNameSet *up_value_set_;
+        std::size_t func_start_level_;
     };
 
     class LocalNameSetter
@@ -110,7 +124,7 @@ namespace lua
     class UpValueNameSetter
     {
     public:
-        UpValueNameSetter(Lexer *lexer, NameSet *new_name_set)
+        UpValueNameSetter(Lexer *lexer, UpValueNameSet *new_name_set)
             : lexer_(lexer),
               old_name_set_(lexer->GetUpValueNameSet())
         {
@@ -124,7 +138,27 @@ namespace lua
 
     private:
         Lexer *lexer_;
-        NameSet *old_name_set_;
+        UpValueNameSet *old_name_set_;
+    };
+
+    class FuncStartLevelSetter
+    {
+    public:
+        FuncStartLevelSetter(Lexer *lexer, std::size_t new_func_start_level)
+            : lexer_(lexer),
+              old_func_start_level_(lexer->GetFuncStartLevel())
+        {
+            lexer_->SetFuncStartLevel(new_func_start_level);
+        }
+
+        ~FuncStartLevelSetter()
+        {
+            lexer_->SetFuncStartLevel(old_func_start_level_);
+        }
+
+    private:
+        Lexer *lexer_;
+        std::size_t old_func_start_level_;
     };
 } // namespace lua
 
