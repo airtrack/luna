@@ -121,6 +121,17 @@ namespace lua
     {
     }
 
+    void DoStatement::GenerateCode(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        block_stmt_->GenerateCode(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+    }
+
     StatementPtr ParseDoBlockEnd(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -541,6 +552,26 @@ namespace lua
     {
     }
 
+    void LocalStatement::GenerateCode(CodeWriter *writer)
+    {
+        if (exp_list_)
+        {
+            exp_list_->GenerateCode(writer);
+        }
+        else
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Push;
+            ins->param_a.type = InstructionParamType_Counter;
+            ins->param_a.param.counter = 0;
+        }
+
+        name_list_->GenerateCode(writer);
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+    }
+
     StatementPtr ParseLocalFunctionStatement(Lexer *lexer)
     {
         std::unique_ptr<FunctionStatement> func_stmt = ParseFunctionStatement(lexer, LOCAL_FUNC_NAME);
@@ -608,6 +639,24 @@ namespace lua
     ReturnStatement::ReturnStatement(ExpressionPtr &&return_exp_list)
         : return_exp_list_(std::move(return_exp_list))
     {
+    }
+
+    void ReturnStatement::GenerateCode(CodeWriter *writer)
+    {
+        if (return_exp_list_)
+        {
+            return_exp_list_->GenerateCode(writer);
+        }
+        else
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_Push;
+            ins->param_a.type = InstructionParamType_Counter;
+            ins->param_a.param.counter = 0;
+        }
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Ret;
     }
 
     StatementPtr ParseReturnStatement(Lexer *lexer)

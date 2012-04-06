@@ -338,6 +338,11 @@ namespace lua
     {
     }
 
+    void FuncDefineExpression::GenerateCode(CodeWriter *writer)
+    {
+        func_def_->GenerateCode(writer);
+    }
+
     PreExpExpression::PreExpExpression(ExpressionPtr &&exp, PreExpType type)
         : exp_(std::move(exp)),
           type_(type)

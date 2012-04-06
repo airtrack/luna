@@ -42,7 +42,7 @@ namespace lua
     public:
         explicit DoStatement(StatementPtr &&block_stmt);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         StatementPtr block_stmt_;
@@ -190,7 +190,7 @@ namespace lua
         LocalStatement(ExpressionPtr &&name_list,
                        ExpressionPtr &&exp_list);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr name_list_;
@@ -212,7 +212,7 @@ namespace lua
     public:
         explicit ReturnStatement(ExpressionPtr &&return_exp_list);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr return_exp_list_;

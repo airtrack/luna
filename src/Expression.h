@@ -237,7 +237,7 @@ namespace lua
     public:
         explicit FuncDefineExpression(StatementPtr &&func_def);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         StatementPtr func_def_;
