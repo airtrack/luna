@@ -208,9 +208,9 @@ namespace lua
         Table *upvalue_table = cl->GetUpvalueTable();
         if (upvalue_table)
         {
-            const UpValueNameSet *up_value_set = func->GetUpValueSet();
-            UpValueNameSet::iterator it = up_value_set->Begin();
-            UpValueNameSet::iterator end = up_value_set->End();
+            const UpvalueNameSet *upvalue_set = func->GetUpvalueSet();
+            UpvalueNameSet::iterator it = upvalue_set->Begin();
+            UpvalueNameSet::iterator end = upvalue_set->End();
             while (it != end)
             {
                 Table *t = GetUpvalueKeyOwnerTable(it->first);

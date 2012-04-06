@@ -26,7 +26,7 @@ namespace lua
         String * GetString(const std::string& str);
         Table * GetTable();
         TableValue * GetTableValue(Value *value);
-        Function * GetFunction(std::unique_ptr<UpValueNameSet> &&up_value_set);
+        Function * GetFunction(std::unique_ptr<UpvalueNameSet> &&upvalue_set);
         Closure * GetClosure(Function *func);
         NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 

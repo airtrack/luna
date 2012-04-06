@@ -73,35 +73,35 @@ namespace lua
         NameSet *name_set_;
     };
 
-    class UpValueNameSet
+    class UpvalueNameSet
     {
     public:
         typedef std::unordered_map<const Value *, std::size_t,
-            ValueHasher, ValueEqualer> UpValueNameLevelMap;
-        typedef UpValueNameLevelMap::const_iterator iterator;
+            ValueHasher, ValueEqualer> UpvalueNameLevelMap;
+        typedef UpvalueNameLevelMap::const_iterator iterator;
 
         bool Empty() const
         {
-            return up_value_level_map_.empty();
+            return upvalue_level_map_.empty();
         }
 
         iterator Begin() const
         {
-            return up_value_level_map_.begin();
+            return upvalue_level_map_.begin();
         }
 
         iterator End() const
         {
-            return up_value_level_map_.end();
+            return upvalue_level_map_.end();
         }
 
-        void Insert(const Value *up_value, std::size_t level)
+        void Insert(const Value *upvalue, std::size_t level)
         {
-            up_value_level_map_.insert(std::make_pair(up_value, level));
+            upvalue_level_map_.insert(std::make_pair(upvalue, level));
         }
 
     private:
-        UpValueNameLevelMap up_value_level_map_;
+        UpvalueNameLevelMap upvalue_level_map_;
     };
 } // namespace lua
 

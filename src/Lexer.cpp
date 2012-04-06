@@ -16,7 +16,7 @@ namespace lua
           source_(source),
           lex_table_(lex_table),
           local_set_(0),
-          up_value_set_(0),
+          upvalue_set_(0),
           func_start_level_(0)
     {
         KeyWordSet::InitKeyWordSet();

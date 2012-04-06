@@ -179,7 +179,7 @@ namespace lua
     };
 
     std::unique_ptr<FunctionStatement> ParseFunctionStatement(Lexer *lexer, FuncNameType type = NORMAL_FUNC_NAME);
-    void CollectUpValueFromFunc(Lexer *lexer, const std::unique_ptr<FunctionStatement>& func_stmt);
+    void CollectUpvalueFromFunc(Lexer *lexer, const std::unique_ptr<FunctionStatement>& func_stmt);
 
     class LocalStatement : public Statement
     {

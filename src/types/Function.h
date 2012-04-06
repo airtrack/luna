@@ -10,7 +10,7 @@ namespace lua
     class Function : public Value, public InstructionSet
     {
     public:
-        explicit Function(std::unique_ptr<UpValueNameSet> &&up_value_set);
+        explicit Function(std::unique_ptr<UpvalueNameSet> &&upvalue_set);
 
         virtual int Type() const
         {
@@ -26,10 +26,10 @@ namespace lua
         virtual bool IsEqual(const Value *other) const;
 
         bool HasUpvalue() const;
-        const UpValueNameSet * GetUpValueSet() const;
+        const UpvalueNameSet * GetUpvalueSet() const;
 
     private:
-        std::unique_ptr<UpValueNameSet> up_value_set_;
+        std::unique_ptr<UpvalueNameSet> upvalue_set_;
     };
 } // namespace lua
 

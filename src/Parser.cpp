@@ -17,13 +17,13 @@ namespace lua
         NameSetLevelPusher level_pusher(&local_name_set);
 
         // New up value set for chunk
-        std::unique_ptr<UpValueNameSet> up_value_set(new UpValueNameSet);
+        std::unique_ptr<UpvalueNameSet> upvalue_set(new UpvalueNameSet);
 
         LocalNameSetter local_setter(&lexer_, &local_name_set);
-        UpValueNameSetter up_value_setter(&lexer_, up_value_set.get());
+        UpvalueNameSetter upvalue_setter(&lexer_, upvalue_set.get());
 
         StatementPtr block_stmt = ParseChunkStatement(&lexer_);
-        Function *func = lexer_.GetState()->GetDataPool()->GetFunction(std::move(up_value_set));
+        Function *func = lexer_.GetState()->GetDataPool()->GetFunction(std::move(upvalue_set));
 
         return StatementPtr(new FunctionStatement(NO_FUNC_NAME, 0,
             ExpressionPtr(), ExpressionPtr(), std::move(block_stmt), func));

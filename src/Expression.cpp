@@ -423,7 +423,7 @@ namespace lua
         {
             std::size_t level = lexer->GetLocalNameSet()->GetNameLevel(name);
             if (level < lexer->GetFuncStartLevel())
-                lexer->GetUpValueNameSet()->Insert(name, level);
+                lexer->GetUpvalueNameSet()->Insert(name, level);
         }
 
         return ExpressionPtr(new NameExpression(name, type));
@@ -505,7 +505,7 @@ namespace lua
     ExpressionPtr ParseFuncDefineExpression(Lexer *lexer)
     {
         std::unique_ptr<FunctionStatement> func_stmt = ParseFunctionStatement(lexer, NO_FUNC_NAME);
-        CollectUpValueFromFunc(lexer, func_stmt);
+        CollectUpvalueFromFunc(lexer, func_stmt);
         return ExpressionPtr(new FuncDefineExpression(std::move(func_stmt)));
     }
 

@@ -2,8 +2,8 @@
 
 namespace lua
 {
-    Function::Function(std::unique_ptr<UpValueNameSet> &&up_value_set)
-        : up_value_set_(std::move(up_value_set))
+    Function::Function(std::unique_ptr<UpvalueNameSet> &&upvalue_set)
+        : upvalue_set_(std::move(upvalue_set))
     {
     }
 
@@ -19,11 +19,11 @@ namespace lua
 
     bool Function::HasUpvalue() const
     {
-        return !up_value_set_->Empty();
+        return !upvalue_set_->Empty();
     }
 
-    const UpValueNameSet * Function::GetUpValueSet() const
+    const UpvalueNameSet * Function::GetUpvalueSet() const
     {
-        return up_value_set_.get();
+        return upvalue_set_.get();
     }
 } // namespace lua

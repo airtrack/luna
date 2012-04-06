@@ -9,7 +9,7 @@ namespace lua
 {
     class State;
     class NameSet;
-    class UpValueNameSet;
+    class UpvalueNameSet;
 
     class Lexer
     {
@@ -41,14 +41,14 @@ namespace lua
             local_set_ = set;
         }
 
-        UpValueNameSet * GetUpValueNameSet() const
+        UpvalueNameSet * GetUpvalueNameSet() const
         {
-            return up_value_set_;
+            return upvalue_set_;
         }
 
-        void SetUpValueNameSet(UpValueNameSet *set)
+        void SetUpvalueNameSet(UpvalueNameSet *set)
         {
-            up_value_set_ = set;
+            upvalue_set_ = set;
         }
 
         // Return token storing LexTable
@@ -97,7 +97,7 @@ namespace lua
         LexTable *lex_table_;
 
         NameSet *local_set_;
-        UpValueNameSet *up_value_set_;
+        UpvalueNameSet *upvalue_set_;
         std::size_t func_start_level_;
     };
 
@@ -121,24 +121,24 @@ namespace lua
         NameSet *old_name_set_;
     };
 
-    class UpValueNameSetter
+    class UpvalueNameSetter
     {
     public:
-        UpValueNameSetter(Lexer *lexer, UpValueNameSet *new_name_set)
+        UpvalueNameSetter(Lexer *lexer, UpvalueNameSet *new_name_set)
             : lexer_(lexer),
-              old_name_set_(lexer->GetUpValueNameSet())
+              old_name_set_(lexer->GetUpvalueNameSet())
         {
-            lexer_->SetUpValueNameSet(new_name_set);
+            lexer_->SetUpvalueNameSet(new_name_set);
         }
 
-        ~UpValueNameSetter()
+        ~UpvalueNameSetter()
         {
-            lexer_->SetUpValueNameSet(old_name_set_);
+            lexer_->SetUpvalueNameSet(old_name_set_);
         }
 
     private:
         Lexer *lexer_;
-        UpValueNameSet *old_name_set_;
+        UpvalueNameSet *old_name_set_;
     };
 
     class FuncStartLevelSetter
