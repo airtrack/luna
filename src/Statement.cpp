@@ -465,6 +465,27 @@ namespace lua
         return ExpressionPtr();
     }
 
+    void ParseFunctionBody(Lexer *lexer, ExpressionPtr& param_list, StatementPtr& block_stmt)
+    {
+        LexTable &lex_table = lexer->GetLexTable();
+        int index = lexer->GetToken();
+
+        if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
+            THROW_PARSER_ERROR("expect '(' here");
+
+        param_list = ParseParamListExpression(lexer);
+
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
+            THROW_PARSER_ERROR("expect ')' here");
+
+        block_stmt = ParseBlockStatement(lexer);
+
+        index = lexer->GetToken();
+        if (index < 0 || lex_table[index]->type != KW_END)
+            THROW_PARSER_ERROR("expect 'end' here");
+    }
+
     std::unique_ptr<FunctionStatement> ParseFunctionStatement(Lexer *lexer, FuncNameType type)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -489,21 +510,9 @@ namespace lua
         if (self_name)
             lexer->GetLocalNameSet()->Insert(self_name);
 
-        index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_LEFT_PARENTHESE)
-            THROW_PARSER_ERROR("expect '(' here");
-
-        ExpressionPtr param_list = ParseParamListExpression(lexer);
-
-        index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_RIGHT_PARENTHESE)
-            THROW_PARSER_ERROR("expect ')' here");
-
-        StatementPtr block_stmt = ParseBlockStatement(lexer);
-
-        index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != KW_END)
-            THROW_PARSER_ERROR("expect 'end' here");
+        ExpressionPtr param_list;
+        StatementPtr block_stmt;
+        ParseFunctionBody(lexer, param_list, block_stmt);
 
         Function *func = lexer->GetState()->GetDataPool()->GetFunction(std::move(upvalue_set));
         return std::unique_ptr<FunctionStatement>(new FunctionStatement(
