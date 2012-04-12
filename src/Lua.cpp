@@ -2,13 +2,13 @@
 #include "Error.h"
 #include "State.h"
 #include "BuildinFunctions.h"
-#include <stdio.h>
+#include <iostream>
 
 int main(int argc, char **argv)
 {
     if (argc < 2)
     {
-        printf("Usage: %s file\n", argv[0]);
+        std::cout << "Usage: " << argv[0] << " file" <<std::endl;
         return 0;
     }
 
@@ -20,13 +20,15 @@ int main(int argc, char **argv)
         const char *file = argv[1];
         lua::Bootstrap *boot = state.GetModuleLoader()->LoadModule(file);
         state.GetVM()->Run(boot);
-    } catch (lua::OpenFileError& err)
+    } catch (const lua::OpenFileError& err)
     {
-        printf("Can not open file %s.\n", err.file.c_str());
-    } catch (lua::Error& err)
+        std::cout << "Can not open file " << err.file << std::endl;
+    } catch (const lua::Error& err)
     {
-        std::string err_str = lua::Error::ConvertToReadable(err);
-        printf("%s\n", err_str.c_str());
+        std::cout << lua::Error::ConvertToReadable(err) << std::endl;
+    } catch (const lua::RuntimeError& err)
+    {
+        std::cout << err.info << std::endl;
     }
 
     return 0;

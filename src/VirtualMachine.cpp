@@ -1,4 +1,5 @@
 #include "VirtualMachine.h"
+#include "Error.h"
 #include "State.h"
 #include "Bootstrap.h"
 #include "Instruction.h"
@@ -179,7 +180,7 @@ namespace lua
 
         if (table->Type() != TYPE_TABLE)
         {
-            // TODO: raise error
+            throw RuntimeError("attempt to index value from " + table->Name());
         }
 
         Value *v = static_cast<Table *>(table)->GetValue(key);
@@ -328,7 +329,7 @@ namespace lua
         }
         else
         {
-            // TODO: raise error
+            throw RuntimeError("attempt to call " + callee->Name());
         }
     }
 

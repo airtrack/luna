@@ -10,10 +10,7 @@ namespace lua
     {
         std::string file;
 
-        explicit OpenFileError(const std::string& f)
-            : file(f)
-        {
-        }
+        explicit OpenFileError(const std::string& f) : file(f) { }
     };
 
     struct Error
@@ -31,6 +28,13 @@ namespace lua
 
         static void ThrowError(int line, int column, const std::string& desc);
         static std::string ConvertToReadable(const Error& error);
+    };
+
+    struct RuntimeError
+    {
+        std::string info;
+
+        explicit RuntimeError(const std::string& i) : info(i) { }
     };
 } // namespace lua
 
