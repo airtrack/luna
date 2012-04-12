@@ -300,6 +300,23 @@ namespace lua
 
     void VirtualMachine::ResetCounter()
     {
+        assert(stack_->Top()->type == StackValueType_Counter);
+        std::size_t counter = stack_->Top()->param.counter.total;
+
+        // counter is ok
+        if (counter == 1)
+            return ;
+
+        // Pop older counter
+        stack_->Pop();
+
+        if (counter == 0)
+            stack_->Push(data_pool_->GetNil());
+        else
+            stack_->Pop(counter - 1);
+
+        // Push new counter
+        stack_->Push(1, 0);
     }
 
     void VirtualMachine::Call()
