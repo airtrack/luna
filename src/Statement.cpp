@@ -405,6 +405,9 @@ namespace lua
         // Clear params which are caller passed to the stack.
         ins = writer->NewInstruction();
         ins->op_code = OpCode_CleanStack;
+        // Clear caller.
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
 
         block_stmt_->GenerateCode(writer);
 

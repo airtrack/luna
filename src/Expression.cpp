@@ -310,24 +310,27 @@ namespace lua
 
     void FuncCallExpression::GenerateCode(CodeWriter *writer)
     {
-        if (member_)
-        {
-            Instruction *ins = writer->NewInstruction();
-            ins->op_code = OpCode_ReserveStack;
-        }
-
-        arg_list_->GenerateCode(writer);
         caller_->GenerateCode(writer);
 
         if (member_)
         {
             Instruction *ins = writer->NewInstruction();
-            ins->op_code = OpCode_ExtendCounter;
+            ins->op_code = OpCode_DuplicateCounter;
 
             member_->GenerateCode(writer);
 
             ins = writer->NewInstruction();
             ins->op_code = OpCode_GetTableValue;
+            ins->param_a.type = InstructionParamType_CounterIndex;
+            ins->param_a.param.counter_index = 1;
+        }
+
+        arg_list_->GenerateCode(writer);
+
+        if (member_)
+        {
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_MergeCounter;
         }
 
         Instruction *ins = writer->NewInstruction();

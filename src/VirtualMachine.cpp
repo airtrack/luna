@@ -66,17 +66,14 @@ namespace lua
             case OpCode_GenerateArgTable:
                 GenerateArgTable();
                 break;
-            case OpCode_ReserveStack:
-                ReserveStack();
-                break;
-            case OpCode_ExtendCounter:
-                ExtendCounter();
-                break;
             case OpCode_MergeCounter:
                 MergeCounter();
                 break;
             case OpCode_ResetCounter:
                 ResetCounter();
+                break;
+            case OpCode_DuplicateCounter:
+                DuplicateCounter();
                 break;
             case OpCode_Call:
                 Call();
@@ -272,27 +269,6 @@ namespace lua
         local->Assign(data_pool_->GetString("arg"), arg);
     }
 
-    void VirtualMachine::ReserveStack()
-    {
-        stack_->Push();
-    }
-
-    void VirtualMachine::ExtendCounter()
-    {
-        // Stack top is counter
-        StackValue *fill_sv = stack_->GetStackValue(-2);
-        StackValue *counter = stack_->GetStackValue(-3);
-
-        // Fill stack value
-        int fill_pos = -3 - counter->param.counter.total - 1;
-        StackValue *filler = stack_->GetStackValue(fill_pos);
-        filler->type = fill_sv->type;
-        filler->param = fill_sv->param;
-
-        // Extend counter
-        ++counter->param.counter.total;
-    }
-
     void VirtualMachine::MergeCounter()
     {
         int counter1 = stack_->GetStackValue(-1)->param.counter.total;
@@ -333,15 +309,38 @@ namespace lua
         stack_->Push(1, 0);
     }
 
+    void VirtualMachine::DuplicateCounter()
+    {
+        assert(stack_->Top()->type == StackValueType_Counter);
+        int total = stack_->Top()->param.counter.total;
+
+        int stack_size = stack_->Size();
+        int index = stack_size - total - 1;
+
+        // Copy counter elements
+        for (int i = 0; i < total; ++i, ++index)
+        {
+            StackValue *src = stack_->GetStackValue(index);
+            StackValue *dst = stack_->Push();
+            dst->type = src->type;
+            dst->param = src->param;
+        }
+
+        // Push new counter
+        stack_->Push(total, 0);
+    }
+
     void VirtualMachine::Call()
     {
-        // Pop counter
-        stack_->Pop();
+        StackValue *sv = stack_->Top();
+        assert(sv->type == StackValueType_Counter);  // params counter
 
-        Value *callee = stack_->Top()->param.value;
-        // Pop callee
-        stack_->Pop();
+        int index = -1 - sv->param.counter.total;
+        sv = stack_->GetStackValue(--index);
+        assert(sv->type == StackValueType_Counter);  // caller counter
+        assert(sv->param.counter.total == 1);        // caller counter must 1
 
+        Value *callee = stack_->GetStackValue(--index)->param.value;
         call_stack_.push_back(CallStackInfo(ins_base_, ins_count_, ins_current_, callee));
 
         int type = callee->Type();

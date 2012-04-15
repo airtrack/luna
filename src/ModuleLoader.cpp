@@ -14,16 +14,18 @@ namespace lua
         Instruction *ins = writer.NewInstruction();
         ins->op_code = OpCode_AddGlobalTable;
 
+        root->GenerateCode(&writer);
+
+        // Push params
         ins = writer.NewInstruction();
         ins->op_code = OpCode_Push;
         ins->param_a.type = InstructionParamType_Counter;
         ins->param_a.param.counter = 0;
 
-        root->GenerateCode(&writer);
-
         ins = writer.NewInstruction();
         ins->op_code = OpCode_Call;
 
+        // Clear return values
         ins = writer.NewInstruction();
         ins->op_code = OpCode_CleanStack;
 

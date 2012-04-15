@@ -46,6 +46,7 @@ namespace lua
     private:
         bool IsType(int index, TypeId type) const;
         void PopInputParams();
+        void PopCaller();
         void PushReturnValueCounter();
 
         State *state_;

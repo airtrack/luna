@@ -10,6 +10,7 @@ namespace lua
           pushed_(0)
     {
         PopInputParams();
+        PopCaller();
     }
 
     NativeFunctionStackOperator::~NativeFunctionStackOperator()
@@ -138,7 +139,18 @@ namespace lua
             input_.Push(v->param.value);
         }
 
-        stack->Pop(total);
+        if (total > 0)
+            stack->Pop(total);
+    }
+
+    void NativeFunctionStackOperator::PopCaller()
+    {
+        Stack *stack = state_->GetStack();
+        StackValue *sv = stack->Top();
+        assert(sv && sv->type == StackValueType_Counter);
+        int total = sv->param.counter.total;
+
+        stack->Pop(total + 1);
     }
 
     void NativeFunctionStackOperator::PushReturnValueCounter()

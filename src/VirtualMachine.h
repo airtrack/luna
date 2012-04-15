@@ -32,10 +32,9 @@ namespace lua
         void GenerateClosure(Instruction *ins);
         void Return();
         void GenerateArgTable();
-        void ReserveStack();
-        void ExtendCounter();
         void MergeCounter();
         void ResetCounter();
+        void DuplicateCounter();
         void Call();
         void AddLocalTable();
         void DelLocalTable();
