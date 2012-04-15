@@ -205,6 +205,18 @@ namespace lua
         bool has_dot3_;
     };
 
+    class CallerExpression : public Expression
+    {
+    public:
+        CallerExpression(ExpressionPtr &&caller, bool is_variable);
+
+        virtual void GenerateCode(CodeWriter *writer);
+
+    private:
+        ExpressionPtr caller_;
+        bool is_variable_;
+    };
+
     class FuncCallExpression : public Expression
     {
     public:

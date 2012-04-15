@@ -283,6 +283,23 @@ namespace lua
         }
     }
 
+    CallerExpression::CallerExpression(ExpressionPtr &&caller, bool is_variable)
+        : caller_(std::move(caller)),
+          is_variable_(is_variable)
+    {
+    }
+
+    void CallerExpression::GenerateCode(CodeWriter *writer)
+    {
+        caller_->GenerateCode(writer);
+
+        Instruction *ins = writer->NewInstruction();
+        if (is_variable_)
+            ins->op_code = OpCode_GetTableValue;
+        else
+            ins->op_code = OpCode_ResetCounter;
+    }
+
     FuncCallExpression::FuncCallExpression(ExpressionPtr &&caller,
         ExpressionPtr &&member, ExpressionPtr &&arg_list)
         : caller_(std::move(caller)),
@@ -305,18 +322,15 @@ namespace lua
         if (member_)
         {
             Instruction *ins = writer->NewInstruction();
-            ins->op_code = OpCode_GetTableValue;
-
-            ins = writer->NewInstruction();
             ins->op_code = OpCode_ExtendCounter;
 
             member_->GenerateCode(writer);
+
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_GetTableValue;
         }
 
         Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_GetTableValue;
-
-        ins = writer->NewInstruction();
         ins->op_code = OpCode_Call;
     }
 
@@ -975,7 +989,7 @@ namespace lua
 
     ExpressionPtr ParseFuncCallExpression(
         ExpressionPtr caller, Lexer *lexer,
-        bool *is_func_call = 0, int call_level = 1)
+        bool *is_func_call = 0, bool caller_is_variable = false, int call_level = 1)
     {
         Expression *old_caller = caller.get();
         caller = ParseMemberExpression(std::move(caller), lexer);
@@ -989,8 +1003,9 @@ namespace lua
             return std::move(caller);
         }
 
+        caller.reset(new CallerExpression(std::move(caller), caller_is_variable));
         caller.reset(new FuncCallExpression(std::move(caller), std::move(member), std::move(args)));
-        return ParseFuncCallExpression(std::move(caller), lexer, is_func_call, call_level + 1);
+        return ParseFuncCallExpression(std::move(caller), lexer, is_func_call, false, call_level + 1);
     }
 
     ExpressionPtr ParseIdStarterExpression(Lexer *lexer, PreExpType *type)
@@ -998,7 +1013,7 @@ namespace lua
         ExpressionPtr result = ParseNameExpression(lexer, ParseNameType_GetName);
 
         bool is_func_call = false;
-        result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call);
+        result = ParseFuncCallExpression(std::move(result), lexer, &is_func_call, true);
 
         if (type)
             *type = is_func_call ? PreExp_FuncCall : PreExp_Variable;
