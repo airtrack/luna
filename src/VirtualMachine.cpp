@@ -52,7 +52,7 @@ namespace lua
                 GetTable(ins);
                 break;
             case OpCode_GetTableValue:
-                GetTableValue();
+                GetTableValue(ins);
                 break;
             case OpCode_Push:
                 DoPush(ins);
@@ -171,21 +171,35 @@ namespace lua
         stack_->Push(1, 0);
     }
 
-    void VirtualMachine::GetTableValue()
+    void VirtualMachine::GetTableValue(Instruction *ins)
     {
-        Value *key = stack_->Top()->param.value;
-        stack_->Pop(2);  // Pop key and counter
-        Value *table = stack_->Top()->param.value;
-        stack_->Pop();   // Pop the table
+        // Search to the counter
+        int index = -1;
+        int counter_index = ins->param_a.param.counter_index;
+        for (int i = 0; i < counter_index; ++i)
+        {
+            --index;
+            assert(stack_->GetStackValue(index)->type == StackValueType_Counter);
+            index -= stack_->GetStackValue(index)->param.counter.total;
+        }
+
+        assert(stack_->GetStackValue(index - 1)->type == StackValueType_Counter);
+
+        // -1: key, index - 1: counter, index - 2: table
+        StackValue *sv = stack_->GetStackValue(index - 2);
+        Value *table = sv->param.value;
 
         if (table->Type() != TYPE_TABLE)
         {
             throw RuntimeError("attempt to index value from " + table->Name());
         }
 
+        Value *key = stack_->Top()->param.value;
         Value *v = static_cast<Table *>(table)->GetValue(key);
-        stack_->Push(v);
-        stack_->Push(1, 0);
+        sv->param.value = v;
+
+        // Pop the key
+        stack_->Pop();
     }
 
     void VirtualMachine::DoPush(Instruction *ins)

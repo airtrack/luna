@@ -34,6 +34,7 @@ namespace lua
         InstructionParamType_Value,
         InstructionParamType_Name,
         InstructionParamType_Counter,
+        InstructionParamType_CounterIndex,
     };
 
     struct InstructionParam
@@ -44,6 +45,7 @@ namespace lua
             Value *value;
             String *name;
             int counter;
+            int counter_index;
         } param;
     };
 

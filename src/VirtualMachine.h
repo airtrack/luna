@@ -27,7 +27,7 @@ namespace lua
         void CleanStack();
         void GetTable(Instruction *ins);
         void GetLocalTable();
-        void GetTableValue();
+        void GetTableValue(Instruction *ins);
         void DoPush(Instruction *ins);
         void GenerateClosure(Instruction *ins);
         void Return();
