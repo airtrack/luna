@@ -27,6 +27,7 @@ namespace lua
         OpCode_AddGlobalTable,
         OpCode_DelGlobalTable,
         OpCode_Power,
+        OpCode_Multiply,
     };
 
     enum InstructionParamType

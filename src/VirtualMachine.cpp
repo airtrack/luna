@@ -94,6 +94,9 @@ namespace lua
             case OpCode_Power:
                 Power();
                 break;
+            case OpCode_Multiply:
+                Multiply();
+                break;
             }
             ++ins_current_;
         }
@@ -394,23 +397,42 @@ namespace lua
 
     void VirtualMachine::Power()
     {
+        double base = 0;
+        double power = 0;
+        CheckOperand(base, power);
+        SetOperResult(pow(base, power));
+    }
+
+    void VirtualMachine::Multiply()
+    {
+        double left = 0;
+        double right = 0;
+        CheckOperand(left, right);
+        SetOperResult(left * right);
+    }
+
+    void VirtualMachine::CheckOperand(double& left, double& right)
+    {
         assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
         assert(stack_->GetStackValue(-1)->param.counter.total == 1);
 
         StackValue *sv = stack_->GetStackValue(-2);
         if (sv->param.value->Type() != TYPE_NUMBER)
-            throw RuntimeError("power type(" + sv->param.value->Name() + ") is not number");
-        double power = static_cast<Number *>(sv->param.value)->Get();
+            throw RuntimeError("right operand type(" + sv->param.value->Name() + ") is not number");
+        right = static_cast<Number *>(sv->param.value)->Get();
 
         assert(stack_->GetStackValue(-3)->type == StackValueType_Counter);
         assert(stack_->GetStackValue(-3)->param.counter.total == 1);
 
         sv = stack_->GetStackValue(-4);
         if (sv->param.value->Type() != TYPE_NUMBER)
-            throw RuntimeError("base type(" + sv->param.value->Name() + ") is not number");
-        double base = static_cast<Number *>(sv->param.value)->Get();
+            throw RuntimeError("left operand type(" + sv->param.value->Name() + ") is not number");
+        left = static_cast<Number *>(sv->param.value)->Get();
+    }
 
-        static_cast<Number *>(sv->param.value)->Set(pow(base, power));
+    void VirtualMachine::SetOperResult(double result)
+    {
+        static_cast<Number *>(stack_->GetStackValue(-4)->param.value)->Set(result);
         stack_->Pop(2);
     }
 

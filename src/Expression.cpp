@@ -99,14 +99,18 @@ namespace lua
         }
     }
 
+#define CASE_OPERATOR_OPCODE(op, opcode)        \
+    case op:                                    \
+        ins->op_code = opcode;                  \
+        break
+
     void BinaryExpression::GenerateOpInstruction(CodeWriter *writer)
     {
         Instruction *ins = writer->NewInstruction();
         switch (type_)
         {
-        case BINARY_TYPE_POWER:
-            ins->op_code = OpCode_Power;
-            break;
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_POWER, OpCode_Power);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_MULTIPLY, OpCode_Multiply);
         }
     }
 

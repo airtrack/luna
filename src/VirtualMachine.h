@@ -41,7 +41,10 @@ namespace lua
         void AddGlobalTable();
         void DelGlobalTable();
         void Power();
+        void Multiply();
 
+        void CheckOperand(double& left, double& right);
+        void SetOperResult(double result);
         Table * GetUpvalueKeyOwnerTable(const Value *key);
 
         struct CallStackInfo
