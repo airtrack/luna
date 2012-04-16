@@ -53,6 +53,13 @@ namespace lua
     {
     }
 
+    void BinaryExpression::GenerateCode(CodeWriter *writer)
+    {
+        left_exp_->GenerateCode(writer);
+        right_exp_->GenerateCode(writer);
+        GenerateOpInstruction(writer);
+    }
+
     BinaryExpression::BinaryType BinaryExpression::GetBinaryType(TokenType type)
     {
         switch (type)
@@ -89,6 +96,17 @@ namespace lua
             return BINARY_TYPE_OR;
         default:
             return BINARY_TYPE_NONE;
+        }
+    }
+
+    void BinaryExpression::GenerateOpInstruction(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        switch (type_)
+        {
+        case BINARY_TYPE_POWER:
+            ins->op_code = OpCode_Power;
+            break;
         }
     }
 

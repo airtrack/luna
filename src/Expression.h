@@ -54,11 +54,13 @@ namespace lua
 
         BinaryExpression(BinaryType type, ExpressionPtr &&left_exp, ExpressionPtr &&right_exp);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
         static BinaryType GetBinaryType(TokenType type);
 
     private:
+        void GenerateOpInstruction(CodeWriter *writer);
+
         BinaryType type_;
         ExpressionPtr left_exp_;
         ExpressionPtr right_exp_;

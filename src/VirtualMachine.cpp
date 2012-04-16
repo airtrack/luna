@@ -6,6 +6,7 @@
 #include "types/Table.h"
 #include "types/Function.h"
 #include <assert.h>
+#include <math.h>
 
 namespace lua
 {
@@ -89,6 +90,9 @@ namespace lua
                 break;
             case OpCode_DelGlobalTable:
                 DelGlobalTable();
+                break;
+            case OpCode_Power:
+                Power();
                 break;
             }
             ++ins_current_;
@@ -386,6 +390,28 @@ namespace lua
     {
         nest_tables_.pop_back();
         call_stack_.pop_back();
+    }
+
+    void VirtualMachine::Power()
+    {
+        assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
+        assert(stack_->GetStackValue(-1)->param.counter.total == 1);
+
+        StackValue *sv = stack_->GetStackValue(-2);
+        if (sv->param.value->Type() != TYPE_NUMBER)
+            throw RuntimeError("power type(" + sv->param.value->Name() + ") is not number");
+        double power = static_cast<Number *>(sv->param.value)->Get();
+
+        assert(stack_->GetStackValue(-3)->type == StackValueType_Counter);
+        assert(stack_->GetStackValue(-3)->param.counter.total == 1);
+
+        sv = stack_->GetStackValue(-4);
+        if (sv->param.value->Type() != TYPE_NUMBER)
+            throw RuntimeError("base type(" + sv->param.value->Name() + ") is not number");
+        double base = static_cast<Number *>(sv->param.value)->Get();
+
+        static_cast<Number *>(sv->param.value)->Set(pow(base, power));
+        stack_->Pop(2);
     }
 
     Table * VirtualMachine::GetUpvalueKeyOwnerTable(const Value *key)

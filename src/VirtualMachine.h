@@ -40,6 +40,7 @@ namespace lua
         void DelLocalTable();
         void AddGlobalTable();
         void DelGlobalTable();
+        void Power();
 
         Table * GetUpvalueKeyOwnerTable(const Value *key);
 

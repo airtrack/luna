@@ -31,6 +31,11 @@ namespace lua
             return value_;
         }
 
+        void Set(double v)
+        {
+            value_ = v;
+        }
+
     private:
         double value_;
     };
