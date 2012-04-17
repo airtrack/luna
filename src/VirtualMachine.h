@@ -46,6 +46,7 @@ namespace lua
         void Mod();
         void Plus();
         void Minus();
+        void Concat();
 
         void CheckOperand(double& left, double& right);
         void SetOperResult(double result);

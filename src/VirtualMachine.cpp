@@ -7,6 +7,7 @@
 #include "types/Function.h"
 #include <assert.h>
 #include <math.h>
+#include <sstream>
 
 namespace lua
 {
@@ -108,6 +109,9 @@ namespace lua
                 break;
             case OpCode_Minus:
                 Minus();
+                break;
+            case OpCode_Concat:
+                Concat();
                 break;
             }
             ++ins_current_;
@@ -455,6 +459,36 @@ namespace lua
         SetOperResult(left - right);
     }
 
+    void VirtualMachine::Concat()
+    {
+        assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
+        assert(stack_->GetStackValue(-1)->param.counter.total == 1);
+
+        Value *right = stack_->GetStackValue(-2)->param.value;
+        if (right->Type() != TYPE_STRING && right->Type() != TYPE_NUMBER)
+            throw RuntimeError("attempt concat " + right->Name() + " type value");
+
+        assert(stack_->GetStackValue(-3)->type == StackValueType_Counter);
+        assert(stack_->GetStackValue(-3)->param.counter.total == 1);
+
+        Value *left = stack_->GetStackValue(-4)->param.value;
+        if (left->Type() != TYPE_STRING && left->Type() != TYPE_NUMBER)
+            throw RuntimeError("attempt concat " + left->Name() + " type value");
+
+        std::ostringstream oss;
+        if (left->Type() == TYPE_STRING)
+            oss << static_cast<String *>(left)->Get();
+        else
+            oss << static_cast<Number *>(left)->Get();
+        if (right->Type() == TYPE_STRING)
+            oss << static_cast<String *>(right)->Get();
+        else
+            oss << static_cast<Number *>(right)->Get();
+
+        stack_->GetStackValue(-4)->param.value = data_pool_->GetString(oss.str());
+        stack_->Pop(2);
+    }
+
     void VirtualMachine::CheckOperand(double& left, double& right)
     {
         assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
@@ -476,7 +510,7 @@ namespace lua
 
     void VirtualMachine::SetOperResult(double result)
     {
-        static_cast<Number *>(stack_->GetStackValue(-4)->param.value)->Set(result);
+        stack_->GetStackValue(-4)->param.value = data_pool_->GetNumber(result);
         stack_->Pop(2);
     }
 

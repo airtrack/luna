@@ -115,6 +115,7 @@ namespace lua
         CASE_OPERATOR_OPCODE(BINARY_TYPE_MOD, OpCode_Mod);
         CASE_OPERATOR_OPCODE(BINARY_TYPE_PLUS, OpCode_Plus);
         CASE_OPERATOR_OPCODE(BINARY_TYPE_MINUS, OpCode_Minus);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_CONCAT, OpCode_Concat);
         }
     }
 

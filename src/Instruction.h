@@ -32,6 +32,7 @@ namespace lua
         OpCode_Mod,
         OpCode_Plus,
         OpCode_Minus,
+        OpCode_Concat,
     };
 
     enum InstructionParamType
