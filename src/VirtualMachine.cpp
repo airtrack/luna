@@ -97,6 +97,18 @@ namespace lua
             case OpCode_Multiply:
                 Multiply();
                 break;
+            case OpCode_Divide:
+                Divide();
+                break;
+            case OpCode_Mod:
+                Mod();
+                break;
+            case OpCode_Plus:
+                Plus();
+                break;
+            case OpCode_Minus:
+                Minus();
+                break;
             }
             ++ins_current_;
         }
@@ -409,6 +421,38 @@ namespace lua
         double right = 0;
         CheckOperand(left, right);
         SetOperResult(left * right);
+    }
+
+    void VirtualMachine::Divide()
+    {
+        double denominator = 0;
+        double numerator = 0;
+        CheckOperand(denominator, numerator);
+        SetOperResult(denominator / numerator);
+    }
+
+    void VirtualMachine::Mod()
+    {
+        double denominator = 0;
+        double numerator = 0;
+        CheckOperand(denominator, numerator);
+        SetOperResult(fmod(denominator, numerator));
+    }
+
+    void VirtualMachine::Plus()
+    {
+        double left = 0;
+        double right = 0;
+        CheckOperand(left, right);
+        SetOperResult(left + right);
+    }
+
+    void VirtualMachine::Minus()
+    {
+        double left = 0;
+        double right = 0;
+        CheckOperand(left, right);
+        SetOperResult(left - right);
     }
 
     void VirtualMachine::CheckOperand(double& left, double& right)

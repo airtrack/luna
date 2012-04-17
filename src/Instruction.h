@@ -28,6 +28,10 @@ namespace lua
         OpCode_DelGlobalTable,
         OpCode_Power,
         OpCode_Multiply,
+        OpCode_Divide,
+        OpCode_Mod,
+        OpCode_Plus,
+        OpCode_Minus,
     };
 
     enum InstructionParamType

@@ -42,6 +42,10 @@ namespace lua
         void DelGlobalTable();
         void Power();
         void Multiply();
+        void Divide();
+        void Mod();
+        void Plus();
+        void Minus();
 
         void CheckOperand(double& left, double& right);
         void SetOperResult(double result);

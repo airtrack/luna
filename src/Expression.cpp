@@ -111,6 +111,10 @@ namespace lua
         {
         CASE_OPERATOR_OPCODE(BINARY_TYPE_POWER, OpCode_Power);
         CASE_OPERATOR_OPCODE(BINARY_TYPE_MULTIPLY, OpCode_Multiply);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_DIVIDE, OpCode_Divide);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_MOD, OpCode_Mod);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_PLUS, OpCode_Plus);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_MINUS, OpCode_Minus);
         }
     }
 
