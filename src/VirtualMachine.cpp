@@ -113,6 +113,18 @@ namespace lua
             case OpCode_Concat:
                 Concat();
                 break;
+            case OpCode_Less:
+                Less();
+                break;
+            case OpCode_Greater:
+                Greater();
+                break;
+            case OpCode_LessEqual:
+                LessEqual();
+                break;
+            case OpCode_GreaterEqual:
+                GreaterEqual();
+                break;
             }
             ++ins_current_;
         }
@@ -459,53 +471,89 @@ namespace lua
         SetOperResult(left - right);
     }
 
+#define ASSERT_COUNTER(index, counter_total)                                    \
+    assert(stack_->GetStackValue(index)->type == StackValueType_Counter);       \
+    assert(stack_->GetStackValue(index)->param.counter.total == counter_total)
+
     void VirtualMachine::Concat()
     {
-        assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
-        assert(stack_->GetStackValue(-1)->param.counter.total == 1);
-
-        Value *right = stack_->GetStackValue(-2)->param.value;
+        ASSERT_COUNTER(-1, 1);
+        const Value *right = stack_->GetStackValue(-2)->param.value;
         if (right->Type() != TYPE_STRING && right->Type() != TYPE_NUMBER)
             throw RuntimeError("attempt concat " + right->Name() + " type value");
 
-        assert(stack_->GetStackValue(-3)->type == StackValueType_Counter);
-        assert(stack_->GetStackValue(-3)->param.counter.total == 1);
-
-        Value *left = stack_->GetStackValue(-4)->param.value;
+        ASSERT_COUNTER(-3, 1);
+        const Value *left = stack_->GetStackValue(-4)->param.value;
         if (left->Type() != TYPE_STRING && left->Type() != TYPE_NUMBER)
             throw RuntimeError("attempt concat " + left->Name() + " type value");
 
         std::ostringstream oss;
         if (left->Type() == TYPE_STRING)
-            oss << static_cast<String *>(left)->Get();
+            oss << static_cast<const String *>(left)->Get();
         else
-            oss << static_cast<Number *>(left)->Get();
+            oss << static_cast<const Number *>(left)->Get();
         if (right->Type() == TYPE_STRING)
-            oss << static_cast<String *>(right)->Get();
+            oss << static_cast<const String *>(right)->Get();
         else
-            oss << static_cast<Number *>(right)->Get();
+            oss << static_cast<const Number *>(right)->Get();
 
         stack_->GetStackValue(-4)->param.value = data_pool_->GetString(oss.str());
         stack_->Pop(2);
     }
 
+#define COMPLETE_COMPARE_OPERATION(oper)                                                                    \
+    ASSERT_COUNTER(-1, 1);                                                                                  \
+    ASSERT_COUNTER(-3, 1);                                                                                  \
+    const Value *right = stack_->GetStackValue(-2)->param.value;                                            \
+    const Value *left = stack_->GetStackValue(-4)->param.value;                                             \
+    int right_type = right->Type();                                                                         \
+    int left_type = left->Type();                                                                           \
+                                                                                                            \
+    if (left_type != right_type || (left_type != TYPE_STRING && left_type != TYPE_NUMBER))                  \
+        throw RuntimeError("attempt to compare " + left->Name() + " with " + right->Name());                \
+                                                                                                            \
+    bool result = false;                                                                                    \
+    if (left_type == TYPE_STRING)                                                                           \
+        result = static_cast<const String *>(left)->Get() oper static_cast<const String *>(right)->Get();   \
+    else                                                                                                    \
+        result = static_cast<const Number *>(left)->Get() oper static_cast<const Number *>(right)->Get();   \
+                                                                                                            \
+    stack_->GetStackValue(-4)->param.value = data_pool_->GetBool(result);                                   \
+    stack_->Pop(2)
+
+    void VirtualMachine::Less()
+    {
+        COMPLETE_COMPARE_OPERATION(<);
+    }
+
+    void VirtualMachine::Greater()
+    {
+        COMPLETE_COMPARE_OPERATION(>);
+    }
+
+    void VirtualMachine::LessEqual()
+    {
+        COMPLETE_COMPARE_OPERATION(<=);
+    }
+
+    void VirtualMachine::GreaterEqual()
+    {
+        COMPLETE_COMPARE_OPERATION(>=);
+    }
+
     void VirtualMachine::CheckOperand(double& left, double& right)
     {
-        assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
-        assert(stack_->GetStackValue(-1)->param.counter.total == 1);
-
-        StackValue *sv = stack_->GetStackValue(-2);
+        ASSERT_COUNTER(-1, 1);
+        const StackValue *sv = stack_->GetStackValue(-2);
         if (sv->param.value->Type() != TYPE_NUMBER)
             throw RuntimeError("right operand type(" + sv->param.value->Name() + ") is not number");
-        right = static_cast<Number *>(sv->param.value)->Get();
+        right = static_cast<const Number *>(sv->param.value)->Get();
 
-        assert(stack_->GetStackValue(-3)->type == StackValueType_Counter);
-        assert(stack_->GetStackValue(-3)->param.counter.total == 1);
-
+        ASSERT_COUNTER(-3, 1);
         sv = stack_->GetStackValue(-4);
         if (sv->param.value->Type() != TYPE_NUMBER)
             throw RuntimeError("left operand type(" + sv->param.value->Name() + ") is not number");
-        left = static_cast<Number *>(sv->param.value)->Get();
+        left = static_cast<const Number *>(sv->param.value)->Get();
     }
 
     void VirtualMachine::SetOperResult(double result)

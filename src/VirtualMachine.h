@@ -47,6 +47,10 @@ namespace lua
         void Plus();
         void Minus();
         void Concat();
+        void Less();
+        void Greater();
+        void LessEqual();
+        void GreaterEqual();
 
         void CheckOperand(double& left, double& right);
         void SetOperResult(double result);

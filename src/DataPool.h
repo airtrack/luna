@@ -24,6 +24,7 @@ namespace lua
         Nil * GetNil();
         Bool * GetTrue();
         Bool * GetFalse();
+        Bool * GetBool(bool b);
         Number * GetNumber(double number);
         String * GetString(const std::string& str);
         Table * GetTable();

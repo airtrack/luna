@@ -41,6 +41,11 @@ namespace lua
         return &false_;
     }
 
+    Bool * DataPool::GetBool(bool b)
+    {
+        return b ? &true_ : &false_;
+    }
+
     Number * DataPool::GetNumber(double number)
     {
         return NewElem(number_pool_, number);
