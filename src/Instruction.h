@@ -37,6 +37,8 @@ namespace lua
         OpCode_Greater,
         OpCode_LessEqual,
         OpCode_GreaterEqual,
+        OpCode_NotEqual,
+        OpCode_Equal,
     };
 
     enum InstructionParamType

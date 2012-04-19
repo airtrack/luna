@@ -1,5 +1,5 @@
 function get_multiply_times()
-    return 2
+    return 2, 1
 end
 
 local a = 10 ^ 3.2
@@ -35,3 +35,5 @@ print(1 > 0)
 print(1 < 0)
 print(1 >= 0)
 print(1 <= 0)
+print(1 == "str", 1 == nil, 1 == true, 1 == false, true == false)
+print(1 ~= "str", 1 ~= nil, 1 ~= true, 1 ~= false, true ~= false)

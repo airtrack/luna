@@ -56,7 +56,13 @@ namespace lua
     void BinaryExpression::GenerateCode(CodeWriter *writer)
     {
         left_exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+
         right_exp_->GenerateCode(writer);
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+
         GenerateOpInstruction(writer);
     }
 
@@ -120,6 +126,8 @@ namespace lua
         CASE_OPERATOR_OPCODE(BINARY_TYPE_GREATER, OpCode_Greater);
         CASE_OPERATOR_OPCODE(BINARY_TYPE_LESS_EQUAL, OpCode_LessEqual);
         CASE_OPERATOR_OPCODE(BINARY_TYPE_GREATER_EQUAL, OpCode_GreaterEqual);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_NOT_EQUAL, OpCode_NotEqual);
+        CASE_OPERATOR_OPCODE(BINARY_TYPE_EQUAL, OpCode_Equal);
         }
     }
 

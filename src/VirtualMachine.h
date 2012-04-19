@@ -51,9 +51,13 @@ namespace lua
         void Greater();
         void LessEqual();
         void GreaterEqual();
+        void NotEqual();
+        void Equal();
 
         void CheckOperand(double& left, double& right);
+        bool IsOperandsEqual();
         void SetOperResult(double result);
+        void SetOperResult(Value *value);
         Table * GetUpvalueKeyOwnerTable(const Value *key);
 
         struct CallStackInfo

@@ -125,6 +125,12 @@ namespace lua
             case OpCode_GreaterEqual:
                 GreaterEqual();
                 break;
+            case OpCode_NotEqual:
+                NotEqual();
+                break;
+            case OpCode_Equal:
+                Equal();
+                break;
             }
             ++ins_current_;
         }
@@ -497,8 +503,7 @@ namespace lua
         else
             oss << static_cast<const Number *>(right)->Get();
 
-        stack_->GetStackValue(-4)->param.value = data_pool_->GetString(oss.str());
-        stack_->Pop(2);
+        SetOperResult(data_pool_->GetString(oss.str()));
     }
 
 #define COMPLETE_COMPARE_OPERATION(oper)                                                                    \
@@ -518,8 +523,7 @@ namespace lua
     else                                                                                                    \
         result = static_cast<const Number *>(left)->Get() oper static_cast<const Number *>(right)->Get();   \
                                                                                                             \
-    stack_->GetStackValue(-4)->param.value = data_pool_->GetBool(result);                                   \
-    stack_->Pop(2)
+    SetOperResult(data_pool_->GetBool(result))
 
     void VirtualMachine::Less()
     {
@@ -541,6 +545,18 @@ namespace lua
         COMPLETE_COMPARE_OPERATION(>=);
     }
 
+    void VirtualMachine::NotEqual()
+    {
+        bool result = !IsOperandsEqual();
+        SetOperResult(data_pool_->GetBool(result));
+    }
+
+    void VirtualMachine::Equal()
+    {
+        bool result = IsOperandsEqual();
+        SetOperResult(data_pool_->GetBool(result));
+    }
+
     void VirtualMachine::CheckOperand(double& left, double& right)
     {
         ASSERT_COUNTER(-1, 1);
@@ -556,9 +572,25 @@ namespace lua
         left = static_cast<const Number *>(sv->param.value)->Get();
     }
 
+    bool VirtualMachine::IsOperandsEqual()
+    {
+        ASSERT_COUNTER(-1, 1);
+        ASSERT_COUNTER(-3, 1);
+
+        const Value *right = stack_->GetStackValue(-2)->param.value;
+        const Value *left = stack_->GetStackValue(-4)->param.value;
+
+        return left->IsEqual(right);
+    }
+
     void VirtualMachine::SetOperResult(double result)
     {
-        stack_->GetStackValue(-4)->param.value = data_pool_->GetNumber(result);
+        SetOperResult(data_pool_->GetNumber(result));
+    }
+
+    void VirtualMachine::SetOperResult(Value *value)
+    {
+        stack_->GetStackValue(-4)->param.value = value;
         stack_->Pop(2);
     }
 
