@@ -10,6 +10,7 @@ namespace lua
     public:
         virtual ~CodeWriter() {}
         virtual Instruction * NewInstruction() = 0;
+        virtual std::size_t GetInstructionCount() const = 0;
     };
 
     class InstructionSetWriter : public CodeWriter
@@ -23,6 +24,11 @@ namespace lua
         virtual Instruction * NewInstruction()
         {
             return ins_set_->NewInstruction();
+        }
+
+        virtual std::size_t GetInstructionCount() const
+        {
+            return ins_set_->GetInstructionCount();
         }
 
     private:

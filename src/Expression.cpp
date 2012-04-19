@@ -55,15 +55,12 @@ namespace lua
 
     void BinaryExpression::GenerateCode(CodeWriter *writer)
     {
-        left_exp_->GenerateCode(writer);
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_ResetCounter;
-
-        right_exp_->GenerateCode(writer);
-        ins = writer->NewInstruction();
-        ins->op_code = OpCode_ResetCounter;
-
-        GenerateOpInstruction(writer);
+        if (type_ == BINARY_TYPE_AND)
+            GenerateAnd(writer);
+        else if (type_ == BINARY_TYPE_OR)
+            GenerateOr(writer);
+        else
+            GenerateOther(writer);
     }
 
     BinaryExpression::BinaryType BinaryExpression::GetBinaryType(TokenType type)
@@ -103,6 +100,57 @@ namespace lua
         default:
             return BINARY_TYPE_NONE;
         }
+    }
+
+    void BinaryExpression::GenerateAnd(CodeWriter *writer)
+    {
+        GenerateJmp(writer, OpCode_JmpFalse);
+    }
+
+    void BinaryExpression::GenerateOr(CodeWriter *writer)
+    {
+        GenerateJmp(writer, OpCode_JmpTrue);
+    }
+
+    void BinaryExpression::GenerateJmp(CodeWriter *writer, OpCode op_code)
+    {
+        GenerateLeftExp(writer);
+
+        Instruction *jmp = writer->NewInstruction();
+        jmp->op_code = op_code;
+        jmp->param_a.type = InstructionParamType_OpCodeIndex;
+
+        // If not execute jmp instruction then clean the left exp result,
+        // because "exp1 and exp2" return "exp2" result when "exp1" is true,
+        // and "exp1 or exp2" return "exp2" result when "exp1" is false.
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+
+        GenerateRightExp(writer);
+
+        // Fill opcode index for jmp instruction destination.
+        jmp->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+    }
+
+    void BinaryExpression::GenerateOther(CodeWriter *writer)
+    {
+        GenerateLeftExp(writer);
+        GenerateRightExp(writer);
+        GenerateOpInstruction(writer);
+    }
+
+    void BinaryExpression::GenerateLeftExp(CodeWriter *writer)
+    {
+        left_exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+    }
+
+    void BinaryExpression::GenerateRightExp(CodeWriter *writer)
+    {
+        right_exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
     }
 
 #define CASE_OPERATOR_OPCODE(op, opcode)        \

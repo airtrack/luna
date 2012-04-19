@@ -59,6 +59,12 @@ namespace lua
         static BinaryType GetBinaryType(TokenType type);
 
     private:
+        void GenerateAnd(CodeWriter *writer);
+        void GenerateOr(CodeWriter *writer);
+        void GenerateJmp(CodeWriter *writer, OpCode op_code);
+        void GenerateOther(CodeWriter *writer);
+        void GenerateLeftExp(CodeWriter *writer);
+        void GenerateRightExp(CodeWriter *writer);
         void GenerateOpInstruction(CodeWriter *writer);
 
         BinaryType type_;

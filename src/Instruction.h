@@ -39,6 +39,8 @@ namespace lua
         OpCode_GreaterEqual,
         OpCode_NotEqual,
         OpCode_Equal,
+        OpCode_JmpTrue,
+        OpCode_JmpFalse,
     };
 
     enum InstructionParamType
@@ -47,6 +49,7 @@ namespace lua
         InstructionParamType_Name,
         InstructionParamType_Counter,
         InstructionParamType_CounterIndex,
+        InstructionParamType_OpCodeIndex,
     };
 
     struct InstructionParam
@@ -58,6 +61,7 @@ namespace lua
             String *name;
             int counter;
             int counter_index;
+            int opcode_index;
         } param;
     };
 

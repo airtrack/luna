@@ -131,6 +131,12 @@ namespace lua
             case OpCode_Equal:
                 Equal();
                 break;
+            case OpCode_JmpTrue:
+                JmpTrue(ins);
+                break;
+            case OpCode_JmpFalse:
+                JmpFalse(ins);
+                break;
             }
             ++ins_current_;
         }
@@ -557,6 +563,28 @@ namespace lua
         SetOperResult(data_pool_->GetBool(result));
     }
 
+    void VirtualMachine::JmpTrue(Instruction *ins)
+    {
+        ASSERT_COUNTER(-1, 1);
+        const Value *value = stack_->GetStackValue(-2)->param.value;
+        if (IsValueTrue(value))
+        {
+            // value is true, then jmp
+            ins_current_ = ins->param_a.param.opcode_index;
+        }
+    }
+
+    void VirtualMachine::JmpFalse(Instruction *ins)
+    {
+        ASSERT_COUNTER(-1, 1);
+        const Value *value = stack_->GetStackValue(-2)->param.value;
+        if (!IsValueTrue(value))
+        {
+            // value is not true, then jmp
+            ins_current_ = ins->param_a.param.opcode_index;
+        }
+    }
+
     void VirtualMachine::CheckOperand(double& left, double& right)
     {
         ASSERT_COUNTER(-1, 1);
@@ -592,6 +620,18 @@ namespace lua
     {
         stack_->GetStackValue(-4)->param.value = value;
         stack_->Pop(2);
+    }
+
+    bool VirtualMachine::IsValueTrue(const Value *value)
+    {
+        int type = value->Type();
+        if (type == TYPE_NIL)
+            return false;
+
+        if (type == TYPE_BOOL && !static_cast<const Bool *>(value)->Get())
+            return false;
+
+        return true;
     }
 
     Table * VirtualMachine::GetUpvalueKeyOwnerTable(const Value *key)
