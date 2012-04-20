@@ -70,6 +70,7 @@ namespace lua
         virtual std::size_t GetHash() const;
         virtual bool IsEqual(const Value *other) const;
 
+        std::size_t GetArraySize() const;
         bool HaveKey(const Value *key) const;
 
         Value * GetValue(const Value *key);

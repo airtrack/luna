@@ -39,6 +39,9 @@ namespace lua
         OpCode_GreaterEqual,
         OpCode_NotEqual,
         OpCode_Equal,
+        OpCode_Not,
+        OpCode_Length,
+        OpCode_Negative,
         OpCode_JmpTrue,
         OpCode_JmpFalse,
     };

@@ -84,7 +84,7 @@ namespace lua
 
         UnaryExpression(UnaryType type, ExpressionPtr &&exp);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         UnaryType type_;

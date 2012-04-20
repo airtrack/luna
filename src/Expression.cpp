@@ -185,6 +185,21 @@ namespace lua
     {
     }
 
+    void UnaryExpression::GenerateCode(CodeWriter *writer)
+    {
+        exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+
+        ins = writer->NewInstruction();
+        switch (type_)
+        {
+        CASE_OPERATOR_OPCODE(UNARY_TYPE_NOT, OpCode_Not);
+        CASE_OPERATOR_OPCODE(UNARY_TYPE_LENGTH, OpCode_Length);
+        CASE_OPERATOR_OPCODE(UNARY_TYPE_NEGATIVE, OpCode_Negative);
+        }
+    }
+
     TableFieldExpression::TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value)
         : key_(std::move(key)),
           value_(std::move(value))

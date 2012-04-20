@@ -53,6 +53,9 @@ namespace lua
         void GreaterEqual();
         void NotEqual();
         void Equal();
+        void Not();
+        void Length();
+        void Negative();
         void JmpTrue(Instruction *ins);
         void JmpFalse(Instruction *ins);
 

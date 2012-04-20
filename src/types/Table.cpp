@@ -21,6 +21,12 @@ namespace lua
         return this == other;
     }
 
+    std::size_t Table::GetArraySize() const
+    {
+        // TODO: implement it
+        return 0;
+    }
+
     bool Table::HaveKey(const Value *key) const
     {
         if (!hash_table_)

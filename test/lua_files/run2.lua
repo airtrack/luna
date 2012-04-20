@@ -61,3 +61,7 @@ print(b)
 
 print(false or ins_b())
 print(b)
+
+print(-b)
+print(not b)
+print(#"str")

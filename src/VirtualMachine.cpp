@@ -131,6 +131,15 @@ namespace lua
             case OpCode_Equal:
                 Equal();
                 break;
+            case OpCode_Not:
+                Not();
+                break;
+            case OpCode_Length:
+                Length();
+                break;
+            case OpCode_Negative:
+                Negative();
+                break;
             case OpCode_JmpTrue:
                 JmpTrue(ins);
                 break;
@@ -561,6 +570,44 @@ namespace lua
     {
         bool result = IsOperandsEqual();
         SetOperResult(data_pool_->GetBool(result));
+    }
+
+    void VirtualMachine::Not()
+    {
+        ASSERT_COUNTER(-1, 1);
+        StackValue *sv = stack_->GetStackValue(-2);
+        bool result = !IsValueTrue(sv->param.value);
+        sv->param.value = data_pool_->GetBool(result);
+    }
+
+    void VirtualMachine::Length()
+    {
+        ASSERT_COUNTER(-1, 1);
+        StackValue *sv = stack_->GetStackValue(-2);
+        const Value *value = sv->param.value;
+        int type = value->Type();
+
+        double result = 0;
+        if (type == TYPE_TABLE)
+            result = static_cast<const Table *>(value)->GetArraySize();
+        else if (type == TYPE_STRING)
+            result = static_cast<const String *>(value)->Get().size();
+        else
+            throw RuntimeError("attempt to get length of " + value->Name() + " type value");
+
+        sv->param.value = data_pool_->GetNumber(result);
+    }
+
+    void VirtualMachine::Negative()
+    {
+        ASSERT_COUNTER(-1, 1);
+        StackValue *sv = stack_->GetStackValue(-2);
+        const Value *value = sv->param.value;
+        if (value->Type() != TYPE_NUMBER)
+            throw RuntimeError("attempt to negative " + value->Name() + " type value");
+
+        double result = -static_cast<const Number *>(value)->Get();
+        sv->param.value = data_pool_->GetNumber(result);
     }
 
     void VirtualMachine::JmpTrue(Instruction *ins)
