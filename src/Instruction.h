@@ -15,6 +15,7 @@ namespace lua
         OpCode_GetTable,
         OpCode_GetTableValue,
         OpCode_Push,
+        OpCode_Pop,
         OpCode_GenerateClosure,
         OpCode_Ret,
         OpCode_GenerateArgTable,
@@ -44,6 +45,8 @@ namespace lua
         OpCode_Negative,
         OpCode_JmpTrue,
         OpCode_JmpFalse,
+        OpCode_NewTable,
+        OpCode_SetTableArrayValue,
     };
 
     enum InstructionParamType
@@ -53,6 +56,7 @@ namespace lua
         InstructionParamType_Counter,
         InstructionParamType_CounterIndex,
         InstructionParamType_OpCodeIndex,
+        InstructionParamType_ArrayIndex,
     };
 
     struct InstructionParam
@@ -65,6 +69,7 @@ namespace lua
             int counter;
             int counter_index;
             int opcode_index;
+            int array_index;
         } param;
     };
 

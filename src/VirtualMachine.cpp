@@ -57,7 +57,10 @@ namespace lua
                 GetTableValue(ins);
                 break;
             case OpCode_Push:
-                DoPush(ins);
+                Push(ins);
+                break;
+            case OpCode_Pop:
+                Pop();
                 break;
             case OpCode_GenerateClosure:
                 GenerateClosure(ins);
@@ -146,6 +149,12 @@ namespace lua
             case OpCode_JmpFalse:
                 JmpFalse(ins);
                 break;
+            case OpCode_NewTable:
+                NewTable();
+                break;
+            case OpCode_SetTableArrayValue:
+                SetTableArrayValue(ins);
+                break;
             }
             ++ins_current_;
         }
@@ -155,6 +164,9 @@ namespace lua
     {
         assert(stack_->Top()->type == StackValueType_Value);
         Value *key = stack_->Top()->param.value;
+        if (key->Type() == TYPE_NIL)
+            throw RuntimeError("table index is nil");
+
         // Pop the key and counter
         stack_->Pop(2);
 
@@ -255,7 +267,7 @@ namespace lua
         stack_->Pop();
     }
 
-    void VirtualMachine::DoPush(Instruction *ins)
+    void VirtualMachine::Push(Instruction *ins)
     {
         if (ins->param_a.type == InstructionParamType_Name)
             stack_->Push(ins->param_a.param.name);
@@ -263,6 +275,11 @@ namespace lua
             stack_->Push(ins->param_a.param.value);
         else if (ins->param_a.type == InstructionParamType_Counter)
             stack_->Push(ins->param_a.param.counter, 0);
+    }
+
+    void VirtualMachine::Pop()
+    {
+        stack_->Pop();
     }
 
     void VirtualMachine::GenerateClosure(Instruction *ins)
@@ -640,6 +657,38 @@ namespace lua
         {
             // value is not true, then jmp
             ins_current_ = ins->param_a.param.opcode_index;
+        }
+    }
+
+    void VirtualMachine::NewTable()
+    {
+        // Push new table and counter on stack
+        stack_->Push(data_pool_->GetTable());
+        stack_->Push(1, 0);
+    }
+
+    void VirtualMachine::SetTableArrayValue(Instruction *ins)
+    {
+        ASSERT_COUNTER(-1, 1);
+        Value *value = stack_->GetStackValue(-2)->param.value;
+        assert(value->Type() == TYPE_TABLE);
+
+        // Pop counter and table
+        stack_->Pop(2);
+        Table *table = static_cast<Table *>(value);
+
+        assert(stack_->GetStackValue(-1)->type == StackValueType_Counter);
+
+        int total = stack_->GetStackValue(-1)->param.counter.total;
+        int array_index = ins->param_a.param.array_index;
+        int index = -1 - total;
+
+        for (int i = 0; i < total; ++i, ++index)
+        {
+            assert(stack_->GetStackValue(index)->type == StackValueType_Value);
+
+            Value *value = stack_->GetStackValue(index)->param.value;
+            table->ArrayAssign(array_index++, value);
         }
     }
 

@@ -28,7 +28,8 @@ namespace lua
         void GetTable(Instruction *ins);
         void GetLocalTable();
         void GetTableValue(Instruction *ins);
-        void DoPush(Instruction *ins);
+        void Push(Instruction *ins);
+        void Pop();
         void GenerateClosure(Instruction *ins);
         void Return();
         void GenerateArgTable();
@@ -58,6 +59,8 @@ namespace lua
         void Negative();
         void JmpTrue(Instruction *ins);
         void JmpFalse(Instruction *ins);
+        void NewTable();
+        void SetTableArrayValue(Instruction *ins);
 
         void CheckOperand(double& left, double& right);
         bool IsOperandsEqual();

@@ -91,42 +91,64 @@ namespace lua
         ExpressionPtr exp_;
     };
 
-    class TableFieldExpression : public Expression
+    enum TableKeyType
+    {
+        TableKeyType_Name,
+        TableKeyType_Exp,
+    };
+
+    class TableKeyExpression : public Expression
     {
     public:
-        TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value);
+        TableKeyExpression(TableKeyType type, ExpressionPtr &&key);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        TableKeyType type_;
         ExpressionPtr key_;
-        ExpressionPtr value_;
     };
 
     class TableExpression : public Expression
     {
     public:
-        void AddField(ExpressionPtr &&field)
+        TableExpression();
+
+        void AddField(std::pair<ExpressionPtr, ExpressionPtr> &&field)
         {
             fields_.push_back(std::move(field));
         }
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
-        std::vector<ExpressionPtr> fields_;
+        typedef std::vector<std::pair<ExpressionPtr, ExpressionPtr>> Fields;
+
+        void GenerateField(CodeWriter *writer, Fields::iterator it, bool reset_value);
+
+        Fields fields_;
+        int array_index_helper_;
+    };
+
+    enum MemberType
+    {
+        MemberType_Dot,
+        MemberType_Sub,
     };
 
     class MemberExpression : public Expression
     {
     public:
-        MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member);
+        MemberExpression(ExpressionPtr &&table,
+                         ExpressionPtr &&member,
+                         MemberType member_type);
 
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr table_exp_;
         ExpressionPtr member_exp_;
+        MemberType member_type_;
     };
 
     enum ParseNameType

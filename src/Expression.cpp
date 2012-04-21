@@ -200,15 +200,90 @@ namespace lua
         }
     }
 
-    TableFieldExpression::TableFieldExpression(ExpressionPtr &&key, ExpressionPtr &&value)
-        : key_(std::move(key)),
-          value_(std::move(value))
+    TableKeyExpression::TableKeyExpression(TableKeyType type, ExpressionPtr &&key)
+        : type_(type),
+          key_(std::move(key))
     {
     }
 
-    MemberExpression::MemberExpression(ExpressionPtr &&table, ExpressionPtr &&member)
+    void TableKeyExpression::GenerateCode(CodeWriter *writer)
+    {
+        key_->GenerateCode(writer);
+
+        if (type_ == TableKeyType_Exp)
+        {
+            // Reset counter as 1
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_ResetCounter;
+
+            // Pop counter
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Pop;
+        }
+    }
+
+    TableExpression::TableExpression()
+        : array_index_helper_(0)
+    {
+    }
+
+    void TableExpression::GenerateCode(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_NewTable;
+
+        if (fields_.empty())
+            return ;
+
+        auto it1 = fields_.begin();
+        auto it2 = --fields_.end();
+        for (; it1 != it2; ++it1)
+            GenerateField(writer, it1, true);
+
+        // for last field, we do not reset value counter
+        GenerateField(writer, it2, false);
+    }
+
+    void TableExpression::GenerateField(CodeWriter *writer, Fields::iterator it, bool reset_value)
+    {
+        it->second->GenerateCode(writer);
+        Instruction *ins = 0;
+
+        if (reset_value)
+        {
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_ResetCounter;
+        }
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DuplicateCounter;
+        ins->param_a.type = InstructionParamType_CounterIndex;
+        ins->param_a.param.counter_index = 1;
+
+        if (it->first)
+        {
+            it->first->GenerateCode(writer);
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Assign;
+        }
+        else
+        {
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_SetTableArrayValue;
+            ins->param_a.type = InstructionParamType_ArrayIndex;
+            ins->param_a.param.array_index = ++array_index_helper_;
+        }
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+    }
+
+    MemberExpression::MemberExpression(ExpressionPtr &&table,
+                                       ExpressionPtr &&member,
+                                       MemberType member_type)
         : table_exp_(std::move(table)),
-          member_exp_(std::move(member))
+          member_exp_(std::move(member)),
+          member_type_(member_type)
     {
     }
 
@@ -220,6 +295,17 @@ namespace lua
         ins->op_code = OpCode_GetTableValue;
 
         member_exp_->GenerateCode(writer);
+
+        if (member_type_ == MemberType_Sub)
+        {
+            // Reset counter as 1
+            Instruction *ins = writer->NewInstruction();
+            ins->op_code = OpCode_ResetCounter;
+
+            // Pop the counter
+            ins = writer->NewInstruction();
+            ins->op_code = OpCode_Pop;
+        }
     }
 
     NameExpression::NameExpression(String *name, ParseNameType parse_name_type)
@@ -520,12 +606,19 @@ namespace lua
         }
 
         ExpressionPtr member;
+        MemberType member_type;
         if (lex_table[index]->type == OP_DOT)
+        {
+            member_type = MemberType_Dot;
             member = ParseDotMemberExpression(lexer);
+        }
         else
+        {
+            member_type = MemberType_Sub;
             member = ParseSubMemberExpression(lexer);
+        }
 
-        table.reset(new MemberExpression(std::move(table), std::move(member)));
+        table.reset(new MemberExpression(std::move(table), std::move(member), member_type));
         return ParseMemberExpression(std::move(table), lexer);
     }
 
@@ -827,7 +920,7 @@ namespace lua
         }
 
         ExpressionPtr member = ParseDotMemberExpression(lexer);
-        table.reset(new MemberExpression(std::move(table), std::move(member)));
+        table.reset(new MemberExpression(std::move(table), std::move(member), MemberType_Dot));
 
         return ParseFuncMemberNameExpression(std::move(table), lexer);
     }
@@ -980,6 +1073,8 @@ namespace lua
             index = lexer->GetToken();
             if (index < 0 || lex_table[index]->type != OP_ASSIGN)
                 THROW_PARSER_ERROR("expect '=' here");
+
+            key.reset(new TableKeyExpression(TableKeyType_Exp, std::move(key)));
         }
         else if (lex_table[index]->type == IDENTIFIER)
         {
@@ -992,6 +1087,7 @@ namespace lua
             else
             {
                 key.reset(new NameExpression(GET_STRING_FROM_POOL(index), ParseNameType_GetMemberName));
+                key.reset(new TableKeyExpression(TableKeyType_Name, std::move(key)));
             }
         }
 
@@ -1003,15 +1099,15 @@ namespace lua
         return ParseExpression(lexer);
     }
 
-    ExpressionPtr ParseTableFieldExpression(Lexer *lexer)
+    std::pair<ExpressionPtr, ExpressionPtr> ParseTableFieldExpression(Lexer *lexer)
     {
         ExpressionPtr key = ParseTableFieldKeyExpression(lexer);
         ExpressionPtr value = ParseTableFieldValueExpression(lexer);
 
         if (value)
-            return ExpressionPtr(new TableFieldExpression(std::move(key), std::move(value)));
-        else
-            return ExpressionPtr();
+            return std::make_pair<ExpressionPtr, ExpressionPtr>(std::move(key), std::move(value));
+
+        return std::make_pair(ExpressionPtr(), ExpressionPtr());
     }
 
     bool ParseTableFieldSeparator(Lexer *lexer)
@@ -1039,8 +1135,8 @@ namespace lua
             THROW_PARSER_ERROR("expect '{' here");
 
         std::unique_ptr<TableExpression> table(new TableExpression);
-        ExpressionPtr field = ParseTableFieldExpression(lexer);
-        while (field)
+        std::pair<ExpressionPtr, ExpressionPtr> field = ParseTableFieldExpression(lexer);
+        while (field.second)
         {
             table->AddField(std::move(field));
             if (ParseTableFieldSeparator(lexer))

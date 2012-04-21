@@ -23,7 +23,8 @@ namespace lua
 
     std::size_t Table::GetArraySize() const
     {
-        // TODO: implement it
+        if (array_)
+            return array_->size();
         return 0;
     }
 
@@ -54,6 +55,23 @@ namespace lua
             return 0;
 
         return it->second;
+    }
+
+    void Table::ArrayAssign(std::size_t array_index, Value *value)
+    {
+        // Array index start from 1
+        assert(array_index >= 1);
+
+        if (!array_)
+            array_.reset(new ArrayType);
+
+        std::size_t array_size = array_->size();
+        if (array_index <= array_size)
+            (*array_)[array_index - 1]->SetValue(value);
+        else if (array_index == array_size + 1)
+            array_->push_back(data_pool_->GetTableValue(value));
+        else
+            Assign(data_pool_->GetNumber(array_index), value);
     }
 
     void Table::Assign(const Value *key, Value *value)

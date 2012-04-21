@@ -76,6 +76,7 @@ namespace lua
         Value * GetValue(const Value *key);
         TableValue * GetTableValue(const Value *key);
 
+        void ArrayAssign(std::size_t array_index, Value *value);
         void Assign(const Value *key, Value *value);
         void Assign(const Value *key, TableValue *table_value);
 
