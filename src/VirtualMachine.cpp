@@ -75,7 +75,7 @@ namespace lua
                 ResetCounter();
                 break;
             case OpCode_DuplicateCounter:
-                DuplicateCounter();
+                DuplicateCounter(ins);
                 break;
             case OpCode_Call:
                 Call();
@@ -365,13 +365,24 @@ namespace lua
         stack_->Push(1, 0);
     }
 
-    void VirtualMachine::DuplicateCounter()
+    void VirtualMachine::DuplicateCounter(Instruction *ins)
     {
-        assert(stack_->Top()->type == StackValueType_Counter);
-        int total = stack_->Top()->param.counter.total;
+        // Search counter
+        int index = -1;
+        int counter_index = ins->param_a.param.counter_index;
+        for (int i = 0; i < counter_index; ++i)
+        {
+            assert(stack_->GetStackValue(index)->type == StackValueType_Counter);
+            index -= stack_->GetStackValue(index)->param.counter.total;
+            --index;
+        }
 
+        assert(stack_->GetStackValue(index)->type == StackValueType_Counter);
+        int total = stack_->GetStackValue(index)->param.counter.total;
+
+        // Adjust stack index which is from bottom to top
         int stack_size = stack_->Size();
-        int index = stack_size - total - 1;
+        index += stack_size - total;
 
         // Copy counter elements
         for (int i = 0; i < total; ++i, ++index)

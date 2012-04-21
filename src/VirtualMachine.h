@@ -34,7 +34,7 @@ namespace lua
         void GenerateArgTable();
         void MergeCounter();
         void ResetCounter();
-        void DuplicateCounter();
+        void DuplicateCounter(Instruction *ins);
         void Call();
         void AddLocalTable();
         void DelLocalTable();
