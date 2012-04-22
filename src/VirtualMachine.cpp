@@ -149,6 +149,9 @@ namespace lua
             case OpCode_JmpFalse:
                 JmpFalse(ins);
                 break;
+            case OpCode_Jmp:
+                Jmp(ins);
+                break;
             case OpCode_NewTable:
                 NewTable();
                 break;
@@ -658,6 +661,11 @@ namespace lua
             // value is not true, then jmp
             ins_current_ = ins->param_a.param.opcode_index;
         }
+    }
+
+    void VirtualMachine::Jmp(Instruction *ins)
+    {
+        ins_current_ = ins->param_a.param.opcode_index;
     }
 
     void VirtualMachine::NewTable()

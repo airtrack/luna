@@ -59,6 +59,7 @@ namespace lua
         void Negative();
         void JmpTrue(Instruction *ins);
         void JmpFalse(Instruction *ins);
+        void Jmp(Instruction *ins);
         void NewTable();
         void SetTableArrayValue(Instruction *ins);
 

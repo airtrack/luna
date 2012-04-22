@@ -3,6 +3,7 @@
 
 #include "types/Value.h"
 #include "types/String.h"
+#include <assert.h>
 #include <vector>
 
 namespace lua
@@ -45,6 +46,7 @@ namespace lua
         OpCode_Negative,
         OpCode_JmpTrue,
         OpCode_JmpFalse,
+        OpCode_Jmp,
         OpCode_NewTable,
         OpCode_SetTableArrayValue,
     };
@@ -88,6 +90,13 @@ namespace lua
         {
             instructions_.resize(instructions_.size() + 1);
             return &instructions_.back();
+        }
+
+        // Get instruction by index
+        Instruction * GetInstruction(std::size_t index)
+        {
+            assert(index < instructions_.size());
+            return &instructions_[index];
         }
 
         // Get instructions array base pointer.

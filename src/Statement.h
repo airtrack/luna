@@ -85,31 +85,19 @@ namespace lua
                     StatementPtr &&block_stmt,
                     StatementPtr &&else_stmt);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        void CleanExpResult(CodeWriter *writer);
+        void GenerateTrueBlock(CodeWriter *writer);
+        void GenerateFalseBlock(CodeWriter *writer);
+
         ExpressionPtr exp_;
         StatementPtr block_stmt_;
         StatementPtr else_stmt_;
     };
 
     StatementPtr ParseIfStatement(Lexer *lexer);
-
-    class ElseIfStatement : public Statement
-    {
-    public:
-        ElseIfStatement(ExpressionPtr &&exp,
-                        StatementPtr &&block_stmt,
-                        StatementPtr &&else_stmt);
-
-        virtual void GenerateCode(CodeWriter *writer) {}
-
-    private:
-        ExpressionPtr exp_;
-        StatementPtr block_stmt_;
-        StatementPtr else_stmt_;
-    };
-
     StatementPtr ParseElseIfStatement(Lexer *lexer);
 
     class ElseStatement : public Statement
@@ -117,7 +105,7 @@ namespace lua
     public:
         explicit ElseStatement(StatementPtr &&stmt);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         StatementPtr block_stmt_;

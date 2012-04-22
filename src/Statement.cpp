@@ -212,6 +212,8 @@ namespace lua
     void ParseExpThenElse(ExpressionPtr &exp, StatementPtr &block_stmt, StatementPtr &else_stmt, Lexer *lexer)
     {
         exp = ParseExpression(lexer);
+        if (!exp)
+            THROW_PARSER_ERROR("expect 'exp' here");
 
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
@@ -253,6 +255,62 @@ namespace lua
     {
     }
 
+    void IfStatement::GenerateCode(CodeWriter *writer)
+    {
+        exp_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+
+        // If exp is false, we jump to false block statments
+        Instruction *jmp_false = writer->NewInstruction();
+        jmp_false->op_code = OpCode_JmpFalse;
+        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
+        std::size_t jmp_false_index = writer->GetInstructionCount() - 1;
+
+        CleanExpResult(writer);
+        GenerateTrueBlock(writer);
+
+        // After execute true block statements, we jump to the end of if-statement
+        Instruction *jmp_end = writer->NewInstruction();
+        jmp_end->op_code = OpCode_Jmp;
+        jmp_end->param_a.type = InstructionParamType_OpCodeIndex;
+        std::size_t jmp_end_index = writer->GetInstructionCount() - 1;
+
+        // Fill instruction index for jmp_false destination
+        jmp_false = writer->GetInstruction(jmp_false_index);
+        jmp_false->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+
+        CleanExpResult(writer);
+        GenerateFalseBlock(writer);
+
+        // Fill instruction index for jmp_end destination
+        jmp_end = writer->GetInstruction(jmp_end_index);
+        jmp_end->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+    }
+
+    void IfStatement::CleanExpResult(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+    }
+
+    void IfStatement::GenerateTrueBlock(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        block_stmt_->GenerateCode(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+    }
+
+    void IfStatement::GenerateFalseBlock(CodeWriter *writer)
+    {
+        if (else_stmt_)
+            else_stmt_->GenerateCode(writer);
+    }
+
     StatementPtr ParseIfStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -269,15 +327,6 @@ namespace lua
         return StatementPtr(new IfStatement(std::move(exp), std::move(block_stmt), std::move(else_stmt)));
     }
 
-    ElseIfStatement::ElseIfStatement(ExpressionPtr &&exp,
-                                     StatementPtr &&block_stmt,
-                                     StatementPtr &&else_stmt)
-        : exp_(std::move(exp)),
-          block_stmt_(std::move(block_stmt)),
-          else_stmt_(std::move(else_stmt))
-    {
-    }
-
     StatementPtr ParseElseIfStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -291,12 +340,23 @@ namespace lua
         StatementPtr else_stmt;
         ParseExpThenElse(exp, block_stmt, else_stmt, lexer);
 
-        return StatementPtr(new ElseIfStatement(std::move(exp), std::move(block_stmt), std::move(else_stmt)));
+        return StatementPtr(new IfStatement(std::move(exp), std::move(block_stmt), std::move(else_stmt)));
     }
 
     ElseStatement::ElseStatement(StatementPtr &&stmt)
         : block_stmt_(std::move(stmt))
     {
+    }
+
+    void ElseStatement::GenerateCode(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        block_stmt_->GenerateCode(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
     }
 
     StatementPtr ParseElseStatement(Lexer *lexer)

@@ -10,6 +10,7 @@ namespace lua
     public:
         virtual ~CodeWriter() {}
         virtual Instruction * NewInstruction() = 0;
+        virtual Instruction * GetInstruction(std::size_t index) = 0;
         virtual std::size_t GetInstructionCount() const = 0;
     };
 
@@ -24,6 +25,11 @@ namespace lua
         virtual Instruction * NewInstruction()
         {
             return ins_set_->NewInstruction();
+        }
+
+        virtual Instruction * GetInstruction(std::size_t index)
+        {
+            return ins_set_->GetInstruction(index);
         }
 
         virtual std::size_t GetInstructionCount() const
