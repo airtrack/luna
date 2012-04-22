@@ -261,7 +261,7 @@ namespace lua
 
         Value *key = stack_->Top()->param.value;
         Value *v = static_cast<Table *>(table)->GetValue(key);
-        sv->param.value = v;
+        sv->param.value = v ? v : data_pool_->GetNil();
 
         // Pop the key
         stack_->Pop();

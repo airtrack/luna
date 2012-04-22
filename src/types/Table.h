@@ -77,12 +77,16 @@ namespace lua
         TableValue * GetTableValue(const Value *key);
 
         void ArrayAssign(std::size_t array_index, Value *value);
+        void ArrayAssign(std::size_t array_index, TableValue *table_value);
         void Assign(const Value *key, Value *value);
         void Assign(const Value *key, TableValue *table_value);
 
     private:
         typedef std::vector<TableValue *> ArrayType;
         typedef std::unordered_map<const Value *, TableValue *, ValueHasher, ValueEqualer> HashTableType;
+
+        bool HashTableHasKey(const Value *key) const;
+        bool ArrayHasKey(const Value *key) const;
 
         DataPool *data_pool_;
         std::unique_ptr<ArrayType> array_;

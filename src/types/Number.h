@@ -2,6 +2,7 @@
 #define NUMBER_H
 
 #include "Value.h"
+#include <math.h>
 
 namespace lua
 {
@@ -34,6 +35,16 @@ namespace lua
         void Set(double v)
         {
             value_ = v;
+        }
+
+        bool IsInteger() const
+        {
+            return floor(value_) == value_;
+        }
+
+        int GetInteger() const
+        {
+            return static_cast<int>(floor(value_));
         }
 
     private:
