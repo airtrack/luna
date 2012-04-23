@@ -26,6 +26,29 @@ namespace lua
         lexer->UngetToken(index);                               \
         return parse_func(lexer)
 
+    inline void ResetExpResult(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+    }
+
+    inline void CleanExpResult(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
+    }
+
+    inline void GenerateBlock(CodeWriter *writer, StatementPtr& block_stmt)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        block_stmt->GenerateCode(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+    }
+
     StatementPtr ParseNonReturnStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -166,6 +189,33 @@ namespace lua
     {
     }
 
+    void WhileStatement::GenerateCode(CodeWriter *writer)
+    {
+        assert(writer->GetInstructionCount() > 0);
+        std::size_t begin_index = writer->GetInstructionCount() - 1;
+
+        exp_->GenerateCode(writer);
+        ResetExpResult(writer);
+
+        Instruction *jmp_false = writer->NewInstruction();
+        jmp_false->op_code = OpCode_JmpFalse;
+        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
+        std::size_t jmp_false_index = writer->GetInstructionCount() - 1;
+
+        CleanExpResult(writer);
+
+        GenerateBlock(writer, block_stmt_);
+        Instruction *jmp_begin = writer->NewInstruction();
+        jmp_begin->op_code = OpCode_Jmp;
+        jmp_begin->param_a.type = InstructionParamType_OpCodeIndex;
+        jmp_begin->param_a.param.opcode_index = begin_index;
+
+        jmp_false = writer->GetInstruction(jmp_false_index);
+        jmp_false->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+
+        CleanExpResult(writer);
+    }
+
     StatementPtr ParseWhileStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();
@@ -258,8 +308,7 @@ namespace lua
     void IfStatement::GenerateCode(CodeWriter *writer)
     {
         exp_->GenerateCode(writer);
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_ResetCounter;
+        ResetExpResult(writer);
 
         // If exp is false, we jump to false block statments
         Instruction *jmp_false = writer->NewInstruction();
@@ -288,21 +337,9 @@ namespace lua
         jmp_end->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
     }
 
-    void IfStatement::CleanExpResult(CodeWriter *writer)
-    {
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_CleanStack;
-    }
-
     void IfStatement::GenerateTrueBlock(CodeWriter *writer)
     {
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_AddLocalTable;
-
-        block_stmt_->GenerateCode(writer);
-
-        ins = writer->NewInstruction();
-        ins->op_code = OpCode_DelLocalTable;
+        GenerateBlock(writer, block_stmt_);
     }
 
     void IfStatement::GenerateFalseBlock(CodeWriter *writer)
@@ -350,13 +387,7 @@ namespace lua
 
     void ElseStatement::GenerateCode(CodeWriter *writer)
     {
-        Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_AddLocalTable;
-
-        block_stmt_->GenerateCode(writer);
-
-        ins = writer->NewInstruction();
-        ins->op_code = OpCode_DelLocalTable;
+        GenerateBlock(writer, block_stmt_);
     }
 
     StatementPtr ParseElseStatement(Lexer *lexer)

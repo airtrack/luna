@@ -55,7 +55,7 @@ namespace lua
     public:
         WhileStatement(ExpressionPtr &&exp, StatementPtr &&stmt);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         ExpressionPtr exp_;
@@ -88,7 +88,6 @@ namespace lua
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
-        void CleanExpResult(CodeWriter *writer);
         void GenerateTrueBlock(CodeWriter *writer);
         void GenerateFalseBlock(CodeWriter *writer);
 
