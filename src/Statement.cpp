@@ -476,7 +476,7 @@ namespace lua
 
     void FunctionStatement::GenerateCode(CodeWriter *writer)
     {
-        InstructionSetWriter func_writer(func_);
+        CodeWriter func_writer(func_);
         GenerateFunctionCode(&func_writer);
 
         GenerateClosure(writer);

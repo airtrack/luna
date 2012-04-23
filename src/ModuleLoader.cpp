@@ -9,7 +9,7 @@ namespace lua
           boot_(new Bootstrap)
     {
         ParseTreeNodePtr root = parser_->Parse();
-        InstructionSetWriter writer(boot_.get());
+        CodeWriter writer(boot_.get());
 
         Instruction *ins = writer.NewInstruction();
         ins->op_code = OpCode_AddGlobalTable;
