@@ -236,6 +236,39 @@ namespace lua
     {
     }
 
+    void RepeatStatement::GenerateCode(CodeWriter *writer)
+    {
+        // We add a empty counter as last exp result at first time
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Push;
+        ins->param_a.type = InstructionParamType_Counter;
+        ins->param_a.param.counter = 0;
+
+        std::size_t begin_index = writer->GetInstructionCount() - 1;
+
+        // Clean last exp result
+        CleanExpResult(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        block_stmt_->GenerateCode(writer);
+
+        exp_->GenerateCode(writer);
+        ResetExpResult(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+
+        Instruction *jmp_false = writer->NewInstruction();
+        jmp_false->op_code = OpCode_JmpFalse;
+        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
+        jmp_false->param_a.param.opcode_index = begin_index;
+
+        // Clean exp result when exp is true
+        CleanExpResult(writer);
+    }
+
     StatementPtr ParseRepeatStatement(Lexer *lexer)
     {
         LexTable &lex_table = lexer->GetLexTable();

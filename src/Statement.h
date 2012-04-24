@@ -69,7 +69,7 @@ namespace lua
     public:
         RepeatStatement(StatementPtr &&stmt, ExpressionPtr &&exp);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
         StatementPtr block_stmt_;
