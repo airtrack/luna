@@ -441,13 +441,64 @@ namespace lua
         return StatementPtr(new ElseStatement(std::move(stmt)));
     }
 
-    ForStatement::ForStatement(bool in_mode, ExpressionPtr &&name_list,
-            ExpressionPtr &&exp_list, StatementPtr &&block_stmt)
-        : in_mode_(in_mode),
-          name_list_(std::move(name_list)),
+    NumericForStatement::NumericForStatement(ExpressionPtr &&name,
+                                             ExpressionPtr &&exp1,
+                                             ExpressionPtr &&exp2,
+                                             ExpressionPtr &&exp3,
+                                             StatementPtr &&block_stmt)
+        : name_(std::move(name)),
+          exp1_(std::move(exp1)),
+          exp2_(std::move(exp2)),
+          exp3_(std::move(exp3)),
+          block_stmt_(std::move(block_stmt))
+    {
+    }
+
+    void NumericForStatement::GenerateCode(CodeWriter *writer)
+    {
+    }
+
+    GenericForStatement::GenericForStatement(ExpressionPtr &&name_list,
+                                             ExpressionPtr &&exp_list,
+                                             StatementPtr &&block_stmt)
+        : name_list_(std::move(name_list)),
           exp_list_(std::move(exp_list)),
           block_stmt_(std::move(block_stmt))
     {
+    }
+
+    void GenericForStatement::GenerateCode(CodeWriter *writer)
+    {
+    }
+
+    StatementPtr ParseNumericForStatement(Lexer *lexer, ExpressionPtr &&name_list)
+    {
+        ExpressionPtr exp1 = ParseExpression(lexer);
+        ExpressionPtr exp2 = ParseExpression(lexer);
+        ExpressionPtr exp3 = ParseExpression(lexer);
+        if (!exp1 && !exp2)
+            THROW_PARSER_ERROR("expect two expression here at least");
+
+        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
+
+        return StatementPtr(new NumericForStatement(std::move(name_list),
+                                                    std::move(exp1),
+                                                    std::move(exp2),
+                                                    std::move(exp3),
+                                                    std::move(block_stmt)));
+    }
+
+    StatementPtr ParseGenericForStatement(Lexer *lexer, ExpressionPtr &&name_list)
+    {
+        ExpressionPtr exp_list = ParseExpListExpression(lexer);
+        if (!exp_list)
+            THROW_PARSER_ERROR("expect expression here");
+
+        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
+
+        return StatementPtr(new GenericForStatement(std::move(name_list),
+                                                    std::move(exp_list),
+                                                    std::move(block_stmt)));
     }
 
     StatementPtr ParseForStatement(Lexer *lexer)
@@ -465,26 +516,14 @@ namespace lua
         if (index < 0 || lex_table[index]->type != OP_ASSIGN && lex_table[index]->type != KW_IN)
             THROW_PARSER_ERROR("expect '=' or 'in' here");
 
-        bool in_mode = false;
-        if (lex_table[index]->type == KW_IN)
-            in_mode = true;
+        std::size_t name_count = name_list->GetCount();
+        if (name_count > 1 && lex_table[index]->type != KW_IN)
+            THROW_PARSER_ERROR("expect 'in' here");
 
-        // '=' mode, then 'name' must only one.
-        if (!in_mode && name_list->GetCount() != 1)
-            THROW_PARSER_ERROR("expect only one 'name' here");
-
-        std::unique_ptr<ExpListExpression> exp_list = ParseExpListExpression(lexer);
-        if (!exp_list)
-            THROW_PARSER_ERROR("expect expression here");
-
-        // '=' mode, then 'exp' must less equal than three.
-        if (!in_mode && exp_list->GetCount() > 3)
-            THROW_PARSER_ERROR("expect three 'exp' here at most");
-
-        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
-
-        return StatementPtr(new ForStatement(in_mode, std::move(name_list),
-                    std::move(exp_list), std::move(block_stmt)));
+        if (lex_table[index]->type == OP_ASSIGN)
+            return ParseNumericForStatement(lexer, std::move(name_list));
+        else
+            return ParseGenericForStatement(lexer, std::move(name_list));
     }
 
     FunctionStatement::FunctionStatement(FuncNameType name_type,

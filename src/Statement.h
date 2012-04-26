@@ -112,16 +112,35 @@ namespace lua
 
     StatementPtr ParseElseStatement(Lexer *lexer);
 
-    class ForStatement : public Statement
+    class NumericForStatement : public Statement
     {
     public:
-        ForStatement(bool in_mode, ExpressionPtr &&name_list,
-                ExpressionPtr &&exp_list, StatementPtr &&block_stmt);
+        NumericForStatement(ExpressionPtr &&name,
+                            ExpressionPtr &&exp1,
+                            ExpressionPtr &&exp2,
+                            ExpressionPtr &&exp3,
+                            StatementPtr &&block_stmt);
 
-        virtual void GenerateCode(CodeWriter *writer) {}
+        virtual void GenerateCode(CodeWriter *writer);
 
     private:
-        bool in_mode_;
+        ExpressionPtr name_;
+        ExpressionPtr exp1_;
+        ExpressionPtr exp2_;
+        ExpressionPtr exp3_;
+        StatementPtr block_stmt_;
+    };
+
+    class GenericForStatement : public Statement
+    {
+    public:
+        GenericForStatement(ExpressionPtr &&name_list,
+                            ExpressionPtr &&exp_list,
+                            StatementPtr &&block_stmt);
+
+        virtual void GenerateCode(CodeWriter *writer);
+
+    private:
         ExpressionPtr name_list_;
         ExpressionPtr exp_list_;
         StatementPtr block_stmt_;
