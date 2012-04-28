@@ -204,22 +204,13 @@ namespace lua
         exp_->GenerateCode(writer);
         ResetExpResult(writer);
 
-        Instruction *jmp_false = writer->NewInstruction();
-        jmp_false->op_code = OpCode_JmpFalse;
-        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
-        std::size_t jmp_false_index = writer->GetInstructionCount() - 1;
-
+        std::size_t jmp_false_index = writer->StartJmpInstruction(OpCode_JmpFalse);
         CleanExpResult(writer);
 
         GenerateBlock(writer, block_stmt_);
-        Instruction *jmp_begin = writer->NewInstruction();
-        jmp_begin->op_code = OpCode_Jmp;
-        jmp_begin->param_a.type = InstructionParamType_OpCodeIndex;
-        jmp_begin->param_a.param.opcode_index = begin_index;
+        writer->NewJmpInstruction(OpCode_Jmp, begin_index);
 
-        jmp_false = writer->GetInstruction(jmp_false_index);
-        jmp_false->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
-
+        writer->CompleteJmpInstruction(jmp_false_index);
         CleanExpResult(writer);
     }
 
@@ -267,10 +258,7 @@ namespace lua
         ins = writer->NewInstruction();
         ins->op_code = OpCode_DelLocalTable;
 
-        Instruction *jmp_false = writer->NewInstruction();
-        jmp_false->op_code = OpCode_JmpFalse;
-        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
-        jmp_false->param_a.param.opcode_index = begin_index;
+        writer->NewJmpInstruction(OpCode_JmpFalse, begin_index);
 
         // Clean exp result when exp is true
         CleanExpResult(writer);
@@ -351,30 +339,22 @@ namespace lua
         ResetExpResult(writer);
 
         // If exp is false, we jump to false block statments
-        Instruction *jmp_false = writer->NewInstruction();
-        jmp_false->op_code = OpCode_JmpFalse;
-        jmp_false->param_a.type = InstructionParamType_OpCodeIndex;
-        std::size_t jmp_false_index = writer->GetInstructionCount() - 1;
+        std::size_t jmp_false_index = writer->StartJmpInstruction(OpCode_JmpFalse);
 
         CleanExpResult(writer);
         GenerateTrueBlock(writer);
 
         // After execute true block statements, we jump to the end of if-statement
-        Instruction *jmp_end = writer->NewInstruction();
-        jmp_end->op_code = OpCode_Jmp;
-        jmp_end->param_a.type = InstructionParamType_OpCodeIndex;
-        std::size_t jmp_end_index = writer->GetInstructionCount() - 1;
+        std::size_t jmp_end_index = writer->StartJmpInstruction(OpCode_Jmp);
 
         // Fill instruction index for jmp_false destination
-        jmp_false = writer->GetInstruction(jmp_false_index);
-        jmp_false->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+        writer->CompleteJmpInstruction(jmp_false_index);
 
         CleanExpResult(writer);
         GenerateFalseBlock(writer);
 
         // Fill instruction index for jmp_end destination
-        jmp_end = writer->GetInstruction(jmp_end_index);
-        jmp_end->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+        writer->CompleteJmpInstruction(jmp_end_index);
     }
 
     void IfStatement::GenerateTrueBlock(CodeWriter *writer)
@@ -473,7 +453,7 @@ namespace lua
         ins->op_code = OpCode_AddLocalTable;
 
         GenerateInit(writer);
-        std::size_t being_index = writer->GetInstructionCount() - 1;
+        std::size_t begin_index = writer->GetInstructionCount() - 1;
 
         GenerateCompareZero(writer);
         std::size_t jmp_step_greater_zero_index = writer->StartJmpInstruction(OpCode_JmpTrue);
@@ -498,8 +478,7 @@ namespace lua
 
         CleanExpResult(writer);
         GenerateBody(writer);
-        std::size_t jmp_to_begin_index = writer->StartJmpInstruction(OpCode_Jmp);
-        writer->CompleteJmpInstruction(jmp_to_begin_index, being_index);
+        writer->NewJmpInstruction(OpCode_Jmp, begin_index);
         writer->CompleteJmpInstruction(jmp_to_end_index1);
         writer->CompleteJmpInstruction(jmp_to_end_index2);
 
@@ -535,7 +514,7 @@ namespace lua
         GetNameValue(writer, name1);
         GetNameValue(writer, name2);
         Instruction *ins = writer->NewInstruction();
-        ins->op_code = OpCode_GreaterEqual;
+        ins->op_code = op_code;
     }
 
     void NumericForStatement::GenerateCompareZero(CodeWriter *writer)

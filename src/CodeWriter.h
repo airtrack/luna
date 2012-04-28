@@ -36,15 +36,20 @@ namespace lua
             return GetInstructionCount() - 1;
         }
 
+        void CompleteJmpInstruction(std::size_t index, std::size_t opcode_index)
+        {
+            Instruction *ins = GetInstruction(index);
+            ins->param_a.param.opcode_index = opcode_index;
+        }
+
         void CompleteJmpInstruction(std::size_t index)
         {
             CompleteJmpInstruction(index, GetInstructionCount() - 1);
         }
 
-        void CompleteJmpInstruction(std::size_t index, std::size_t opcode_index)
+        void NewJmpInstruction(OpCode op_code, std::size_t dest_index)
         {
-            Instruction *ins = GetInstruction(index);
-            ins->param_a.param.opcode_index = opcode_index;
+            CompleteJmpInstruction(StartJmpInstruction(op_code), dest_index);
         }
 
     private:

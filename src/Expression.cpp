@@ -116,10 +116,7 @@ namespace lua
     {
         GenerateLeftExp(writer);
 
-        Instruction *jmp = writer->NewInstruction();
-        jmp->op_code = op_code;
-        jmp->param_a.type = InstructionParamType_OpCodeIndex;
-        std::size_t jmp_index = writer->GetInstructionCount() - 1;
+        std::size_t jmp_index = writer->StartJmpInstruction(op_code);
 
         // If not execute jmp instruction then clean the left exp result,
         // because "exp1 and exp2" return "exp2" result when "exp1" is true,
@@ -129,9 +126,7 @@ namespace lua
 
         GenerateRightExp(writer);
 
-        // Fill opcode index for jmp instruction destination.
-        jmp = writer->GetInstruction(jmp_index);
-        jmp->param_a.param.opcode_index = writer->GetInstructionCount() - 1;
+        writer->CompleteJmpInstruction(jmp_index);
     }
 
     void BinaryExpression::GenerateOther(CodeWriter *writer)
