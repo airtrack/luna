@@ -357,6 +357,16 @@ namespace lua
         name_list_.push_back(std::move(name));
     }
 
+    ExpressionPtr NameListExpression::PopName()
+    {
+        if (name_list_.empty())
+            return ExpressionPtr();
+
+        ExpressionPtr result = std::move(name_list_.back());
+        name_list_.pop_back();
+        return std::move(result);
+    }
+
     void NameListExpression::GenerateCode(CodeWriter *writer)
     {
         for (auto it = name_list_.begin(); it != name_list_.end(); ++it)
@@ -376,6 +386,16 @@ namespace lua
     void ExpListExpression::AddExp(ExpressionPtr &&exp)
     {
         exp_list_.push_back(std::move(exp));
+    }
+
+    ExpressionPtr ExpListExpression::PopExp()
+    {
+        if (exp_list_.empty())
+            return ExpressionPtr();
+
+        ExpressionPtr result = std::move(exp_list_.back());
+        exp_list_.pop_back();
+        return std::move(result);
     }
 
     void ExpListExpression::GenerateCode(CodeWriter *writer)

@@ -38,6 +38,13 @@ namespace lua
         ins->op_code = OpCode_CleanStack;
     }
 
+    inline void GetNameValue(CodeWriter *writer, ExpressionPtr& name)
+    {
+        name->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GetTableValue;
+    }
+
     inline void GenerateBlock(CodeWriter *writer, StatementPtr& block_stmt)
     {
         Instruction *ins = writer->NewInstruction();
@@ -441,21 +448,153 @@ namespace lua
         return StatementPtr(new ElseStatement(std::move(stmt)));
     }
 
-    NumericForStatement::NumericForStatement(ExpressionPtr &&name,
+    NumericForStatement::NumericForStatement(ExpressionPtr &&var,
                                              ExpressionPtr &&exp1,
+                                             ExpressionPtr &&limit,
                                              ExpressionPtr &&exp2,
+                                             ExpressionPtr &&step,
                                              ExpressionPtr &&exp3,
+                                             ExpressionPtr &&zero,
                                              StatementPtr &&block_stmt)
-        : name_(std::move(name)),
+        : var_(std::move(var)),
           exp1_(std::move(exp1)),
+          limit_(std::move(limit)),
           exp2_(std::move(exp2)),
+          step_(std::move(step)),
           exp3_(std::move(exp3)),
+          zero_(std::move(zero)),
           block_stmt_(std::move(block_stmt))
     {
     }
 
     void NumericForStatement::GenerateCode(CodeWriter *writer)
     {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        GenerateInit(writer);
+        std::size_t being_index = writer->GetInstructionCount() - 1;
+
+        GenerateCompareZero(writer);
+        std::size_t jmp_step_greater_zero_index = writer->StartJmpInstruction(OpCode_JmpTrue);
+
+        CleanExpResult(writer);
+        GenerateCompare(writer, var_, limit_, OpCode_GreaterEqual);
+        std::size_t jmp_to_block_index1 = writer->StartJmpInstruction(OpCode_JmpTrue);
+
+        CleanExpResult(writer);
+        std::size_t jmp_to_end_index1 = writer->StartJmpInstruction(OpCode_Jmp);
+
+        writer->CompleteJmpInstruction(jmp_step_greater_zero_index);
+
+        CleanExpResult(writer);
+        GenerateCompare(writer, var_, limit_, OpCode_LessEqual);
+        std::size_t jmp_to_block_index2 = writer->StartJmpInstruction(OpCode_JmpTrue);
+
+        CleanExpResult(writer);
+        std::size_t jmp_to_end_index2 = writer->StartJmpInstruction(OpCode_Jmp);
+        writer->CompleteJmpInstruction(jmp_to_block_index1);
+        writer->CompleteJmpInstruction(jmp_to_block_index2);
+
+        CleanExpResult(writer);
+        GenerateBody(writer);
+        std::size_t jmp_to_begin_index = writer->StartJmpInstruction(OpCode_Jmp);
+        writer->CompleteJmpInstruction(jmp_to_begin_index, being_index);
+        writer->CompleteJmpInstruction(jmp_to_end_index1);
+        writer->CompleteJmpInstruction(jmp_to_end_index2);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+    }
+
+    void NumericForStatement::GenerateInit(CodeWriter *writer)
+    {
+        GenerateAssign(writer, exp1_, var_);
+        GenerateAssign(writer, exp2_, limit_);
+        GenerateAssign(writer, exp3_, step_);
+    }
+
+    void NumericForStatement::GenerateAssign(CodeWriter *writer,
+                                             ExpressionPtr& exp,
+                                             ExpressionPtr& name)
+    {
+        exp->GenerateCode(writer);
+        name->GenerateCode(writer);
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        CleanExpResult(writer);
+    }
+
+    void NumericForStatement::GenerateCompare(CodeWriter *writer,
+                                              ExpressionPtr& name1,
+                                              ExpressionPtr& name2,
+                                              OpCode op_code)
+    {
+        GetNameValue(writer, name1);
+        GetNameValue(writer, name2);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_GreaterEqual;
+    }
+
+    void NumericForStatement::GenerateCompareZero(CodeWriter *writer)
+    {
+        GetNameValue(writer, step_);
+        zero_->GenerateCode(writer);
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Greater;
+    }
+
+    void NumericForStatement::GenerateBody(CodeWriter *writer)
+    {
+        GenerateBlock(writer, block_stmt_);
+
+        GetNameValue(writer, var_);
+        GetNameValue(writer, step_);
+
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Plus;
+
+        var_->GenerateCode(writer);
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        CleanExpResult(writer);
+    }
+
+    StatementPtr ParseNumericForStatement(Lexer *lexer,
+                                          std::unique_ptr<NameListExpression> &&name_list,
+                                          std::unique_ptr<ExpListExpression> &&exp_list)
+    {
+        std::size_t exp_count = exp_list->GetCount();
+        if (exp_count != 2 && exp_count != 3)
+            THROW_PARSER_ERROR("expect two or three expressions here");
+
+        DataPool *data_pool = lexer->GetState()->GetDataPool();
+        ExpressionPtr exp3;
+        if (exp_count == 3)
+            exp3 = exp_list->PopExp();
+        else
+            exp3.reset(new TermExpression(TermExpression::TERM_NUMBER,
+                                          data_pool->GetNumber(1)));
+
+        ExpressionPtr exp2 = exp_list->PopExp();
+        ExpressionPtr exp1 = exp_list->PopExp();
+        ExpressionPtr var = name_list->PopName();
+        ExpressionPtr limit(new NameExpression(data_pool->GetString("@limit@"),
+                                               ParseNameType_DefineLocalName));
+        ExpressionPtr step(new NameExpression(data_pool->GetString("@step@"),
+                                              ParseNameType_DefineLocalName));
+        ExpressionPtr zero(new TermExpression(TermExpression::TERM_NUMBER,
+                                              data_pool->GetNumber(0)));
+
+        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
+
+        return StatementPtr(new NumericForStatement(
+            std::move(var), std::move(exp1), std::move(limit), std::move(exp2),
+            std::move(step), std::move(exp3), std::move(zero), std::move(block_stmt)));
     }
 
     GenericForStatement::GenericForStatement(ExpressionPtr &&name_list,
@@ -471,31 +610,11 @@ namespace lua
     {
     }
 
-    StatementPtr ParseNumericForStatement(Lexer *lexer, ExpressionPtr &&name_list)
+    StatementPtr ParseGenericForStatement(Lexer *lexer,
+                                          ExpressionPtr &&name_list,
+                                          ExpressionPtr &&exp_list)
     {
-        ExpressionPtr exp1 = ParseExpression(lexer);
-        ExpressionPtr exp2 = ParseExpression(lexer);
-        ExpressionPtr exp3 = ParseExpression(lexer);
-        if (!exp1 && !exp2)
-            THROW_PARSER_ERROR("expect two expression here at least");
-
         StatementPtr block_stmt = ParseDoBlockEnd(lexer);
-
-        return StatementPtr(new NumericForStatement(std::move(name_list),
-                                                    std::move(exp1),
-                                                    std::move(exp2),
-                                                    std::move(exp3),
-                                                    std::move(block_stmt)));
-    }
-
-    StatementPtr ParseGenericForStatement(Lexer *lexer, ExpressionPtr &&name_list)
-    {
-        ExpressionPtr exp_list = ParseExpListExpression(lexer);
-        if (!exp_list)
-            THROW_PARSER_ERROR("expect expression here");
-
-        StatementPtr block_stmt = ParseDoBlockEnd(lexer);
-
         return StatementPtr(new GenericForStatement(std::move(name_list),
                                                     std::move(exp_list),
                                                     std::move(block_stmt)));
@@ -520,10 +639,14 @@ namespace lua
         if (name_count > 1 && lex_table[index]->type != KW_IN)
             THROW_PARSER_ERROR("expect 'in' here");
 
+        std::unique_ptr<ExpListExpression> exp_list = ParseExpListExpression(lexer);
+        if (!exp_list)
+            THROW_PARSER_ERROR("expect expression here");
+
         if (lex_table[index]->type == OP_ASSIGN)
-            return ParseNumericForStatement(lexer, std::move(name_list));
+            return ParseNumericForStatement(lexer, std::move(name_list), std::move(exp_list));
         else
-            return ParseGenericForStatement(lexer, std::move(name_list));
+            return ParseGenericForStatement(lexer, std::move(name_list), std::move(exp_list));
     }
 
     FunctionStatement::FunctionStatement(FuncNameType name_type,

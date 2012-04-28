@@ -115,19 +115,36 @@ namespace lua
     class NumericForStatement : public Statement
     {
     public:
-        NumericForStatement(ExpressionPtr &&name,
+        NumericForStatement(ExpressionPtr &&var,
                             ExpressionPtr &&exp1,
+                            ExpressionPtr &&limit,
                             ExpressionPtr &&exp2,
+                            ExpressionPtr &&step,
                             ExpressionPtr &&exp3,
+                            ExpressionPtr &&zero,
                             StatementPtr &&block_stmt);
 
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
-        ExpressionPtr name_;
+        void GenerateInit(CodeWriter *writer);
+        void GenerateAssign(CodeWriter *writer,
+                            ExpressionPtr& exp,
+                            ExpressionPtr& name);
+        void GenerateCompare(CodeWriter *writer,
+                             ExpressionPtr& name1,
+                             ExpressionPtr& name2,
+                             OpCode op_code);
+        void GenerateCompareZero(CodeWriter *writer);
+        void GenerateBody(CodeWriter *writer);
+
+        ExpressionPtr var_;
         ExpressionPtr exp1_;
+        ExpressionPtr limit_;
         ExpressionPtr exp2_;
+        ExpressionPtr step_;
         ExpressionPtr exp3_;
+        ExpressionPtr zero_;
         StatementPtr block_stmt_;
     };
 

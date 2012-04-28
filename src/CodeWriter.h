@@ -28,6 +28,25 @@ namespace lua
             return ins_set_->GetInstructionCount();
         }
 
+        std::size_t StartJmpInstruction(OpCode op_code)
+        {
+            Instruction *ins = NewInstruction();
+            ins->op_code = op_code;
+            ins->param_a.type = InstructionParamType_OpCodeIndex;
+            return GetInstructionCount() - 1;
+        }
+
+        void CompleteJmpInstruction(std::size_t index)
+        {
+            CompleteJmpInstruction(index, GetInstructionCount() - 1);
+        }
+
+        void CompleteJmpInstruction(std::size_t index, std::size_t opcode_index)
+        {
+            Instruction *ins = GetInstruction(index);
+            ins->param_a.param.opcode_index = opcode_index;
+        }
+
     private:
         InstructionSet *ins_set_;
     };

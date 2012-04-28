@@ -177,6 +177,7 @@ namespace lua
     public:
         std::size_t GetCount() const;
         void AddName(ExpressionPtr &&name);
+        ExpressionPtr PopName();
 
         virtual void GenerateCode(CodeWriter *writer);
 
@@ -189,6 +190,7 @@ namespace lua
     public:
         std::size_t GetCount() const;
         void AddExp(ExpressionPtr &&exp);
+        ExpressionPtr PopExp();
 
         virtual void GenerateCode(CodeWriter *writer);
 
