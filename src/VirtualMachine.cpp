@@ -149,6 +149,9 @@ namespace lua
             case OpCode_JmpFalse:
                 JmpFalse(ins);
                 break;
+            case OpCode_JmpNil:
+                JmpNil(ins);
+                break;
             case OpCode_Jmp:
                 Jmp(ins);
                 break;
@@ -367,11 +370,16 @@ namespace lua
     void VirtualMachine::ResetCounter()
     {
         assert(stack_->Top()->type == StackValueType_Counter);
-        std::size_t counter = stack_->Top()->param.counter.total;
+        StackValue *sv = stack_->Top();
+        std::size_t counter = sv->param.counter.total;
 
         // counter is ok
         if (counter == 1)
+        {
+            // Reset current value
+            sv->param.counter.current = 0;
             return ;
+        }
 
         // Pop older counter
         stack_->Pop();
@@ -659,6 +667,17 @@ namespace lua
         if (!IsValueTrue(value))
         {
             // value is not true, then jmp
+            ins_current_ = ins->param_a.param.opcode_index;
+        }
+    }
+
+    void VirtualMachine::JmpNil(Instruction *ins)
+    {
+        ASSERT_COUNTER(-1, 1);
+        const Value *value = stack_->GetStackValue(-2)->param.value;
+        if (value->Type() == TYPE_NIL)
+        {
+            // value is nil, then jmp
             ins_current_ = ins->param_a.param.opcode_index;
         }
     }

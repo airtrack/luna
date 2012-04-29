@@ -151,13 +151,23 @@ namespace lua
     class GenericForStatement : public Statement
     {
     public:
-        GenericForStatement(ExpressionPtr &&name_list,
+        GenericForStatement(ExpressionPtr &&f,
+                            ExpressionPtr &&s,
+                            ExpressionPtr &&var,
+                            ExpressionPtr &&name_list,
                             ExpressionPtr &&exp_list,
                             StatementPtr &&block_stmt);
 
         virtual void GenerateCode(CodeWriter *writer);
 
     private:
+        void GenerateInit(CodeWriter *writer);
+        void GenerateCall(CodeWriter *writer);
+        void GenerateAssignVar(CodeWriter *writer);
+
+        ExpressionPtr f_;
+        ExpressionPtr s_;
+        ExpressionPtr var_;
         ExpressionPtr name_list_;
         ExpressionPtr exp_list_;
         StatementPtr block_stmt_;

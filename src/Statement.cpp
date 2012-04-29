@@ -576,10 +576,16 @@ namespace lua
             std::move(step), std::move(exp3), std::move(zero), std::move(block_stmt)));
     }
 
-    GenericForStatement::GenericForStatement(ExpressionPtr &&name_list,
+    GenericForStatement::GenericForStatement(ExpressionPtr &&f,
+                                             ExpressionPtr &&s,
+                                             ExpressionPtr &&var,
+                                             ExpressionPtr &&name_list,
                                              ExpressionPtr &&exp_list,
                                              StatementPtr &&block_stmt)
-        : name_list_(std::move(name_list)),
+        : f_(std::move(f)),
+          s_(std::move(s)),
+          var_(std::move(var)),
+          name_list_(std::move(name_list)),
           exp_list_(std::move(exp_list)),
           block_stmt_(std::move(block_stmt))
     {
@@ -587,6 +593,73 @@ namespace lua
 
     void GenericForStatement::GenerateCode(CodeWriter *writer)
     {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_AddLocalTable;
+
+        GenerateInit(writer);
+
+        std::size_t begin_index = writer->GetInstructionCount() - 1;
+        GenerateCall(writer);
+        name_list_->GenerateCode(writer);
+
+        GenerateAssignVar(writer);
+
+        GetNameValue(writer, var_);
+        std::size_t jmp_end_index = writer->StartJmpInstruction(OpCode_JmpNil);
+
+        CleanExpResult(writer);
+        GenerateBlock(writer, block_stmt_);
+        writer->NewJmpInstruction(OpCode_Jmp, begin_index);
+
+        writer->CompleteJmpInstruction(jmp_end_index);
+        CleanExpResult(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_DelLocalTable;
+    }
+
+    void GenericForStatement::GenerateInit(CodeWriter *writer)
+    {
+        exp_list_->GenerateCode(writer);
+        f_->GenerateCode(writer);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        s_->GenerateCode(writer);
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        var_->GenerateCode(writer);
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        CleanExpResult(writer);
+    }
+
+    void GenericForStatement::GenerateCall(CodeWriter *writer)
+    {
+        GetNameValue(writer, f_);
+        GetNameValue(writer, s_);
+        GetNameValue(writer, var_);
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_MergeCounter;
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Call;
+    }
+
+    void GenericForStatement::GenerateAssignVar(CodeWriter *writer)
+    {
+        Instruction *ins = writer->NewInstruction();
+        ins->op_code = OpCode_ResetCounter;
+
+        var_->GenerateCode(writer);
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_Assign;
+
+        ins = writer->NewInstruction();
+        ins->op_code = OpCode_CleanStack;
     }
 
     StatementPtr ParseGenericForStatement(Lexer *lexer,
@@ -594,7 +667,19 @@ namespace lua
                                           ExpressionPtr &&exp_list)
     {
         StatementPtr block_stmt = ParseDoBlockEnd(lexer);
-        return StatementPtr(new GenericForStatement(std::move(name_list),
+
+        DataPool *data_pool = lexer->GetState()->GetDataPool();
+        ExpressionPtr f(new NameExpression(data_pool->GetString("@f@"),
+                                           ParseNameType_DefineLocalName));
+        ExpressionPtr s(new NameExpression(data_pool->GetString("@s@"),
+                                           ParseNameType_DefineLocalName));
+        ExpressionPtr var(new NameExpression(data_pool->GetString("@var@"),
+                                             ParseNameType_DefineLocalName));
+
+        return StatementPtr(new GenericForStatement(std::move(f),
+                                                    std::move(s),
+                                                    std::move(var),
+                                                    std::move(name_list),
                                                     std::move(exp_list),
                                                     std::move(block_stmt)));
     }

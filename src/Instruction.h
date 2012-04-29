@@ -46,6 +46,7 @@ namespace lua
         OpCode_Negative,
         OpCode_JmpTrue,
         OpCode_JmpFalse,
+        OpCode_JmpNil,
         OpCode_Jmp,
         OpCode_NewTable,
         OpCode_SetTableArrayValue,
