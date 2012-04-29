@@ -80,7 +80,6 @@ namespace lua
     {
         OpCode op_code;
         InstructionParam param_a;
-        InstructionParam param_b;
     };
 
     class InstructionSet
