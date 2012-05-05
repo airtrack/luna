@@ -7,10 +7,12 @@ namespace lua
           data_pool_(new DataPool),
           module_loader_(new ModuleLoader),
           vm_(new VirtualMachine),
+          gc_(new GarbageCollector),
           global_table_(data_pool_->GetTable())
     {
         module_loader_->Init(this);
         vm_->Init(this);
+        gc_->Init(this);
     }
 
     Stack * State::GetStack()
@@ -31,6 +33,11 @@ namespace lua
     VirtualMachine * State::GetVM()
     {
         return vm_.get();
+    }
+
+    GarbageCollector * State::GetGC()
+    {
+        return gc_.get();
     }
 
     Table * State::GetGlobalTable()

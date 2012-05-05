@@ -53,6 +53,9 @@ namespace lua
         Modules::iterator it = modules_.find(module_name);
         if (it == modules_.end())
         {
+            // Lock GC when load new module
+            GCLocker locker(state_->GetGC());
+
             ModuleInfoPtr module(new ModuleInfo(module_name, state_));
             it = modules_.insert(modules_.begin(),
                 std::make_pair(module_name, std::move(module)));

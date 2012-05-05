@@ -81,6 +81,7 @@
     <ClInclude Include="..\src\DataPool.h" />
     <ClInclude Include="..\src\Error.h" />
     <ClInclude Include="..\src\Expression.h" />
+    <ClInclude Include="..\src\GarbageCollector.h" />
     <ClInclude Include="..\src\Instruction.h" />
     <ClInclude Include="..\src\io\ICacheStream.h" />
     <ClInclude Include="..\src\io\ICRLFFilterStream.h" />
@@ -116,6 +117,7 @@
     <ClCompile Include="..\src\DataPool.cpp" />
     <ClCompile Include="..\src\Error.cpp" />
     <ClCompile Include="..\src\Expression.cpp" />
+    <ClCompile Include="..\src\GarbageCollector.cpp" />
     <ClCompile Include="..\src\io\ICacheStream.cpp" />
     <ClCompile Include="..\src\io\ICRLFFilterStream.cpp" />
     <ClCompile Include="..\src\io\IFileStream.cpp" />

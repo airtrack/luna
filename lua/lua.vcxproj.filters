@@ -114,6 +114,9 @@
     <ClInclude Include="..\src\types\Closure.h">
       <Filter>src\types</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\GarbageCollector.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Error.cpp">
@@ -196,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="..\src\types\Closure.cpp">
       <Filter>src\types</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\GarbageCollector.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
