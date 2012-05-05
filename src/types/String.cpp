@@ -17,4 +17,9 @@ namespace lua
 
         return value_ == static_cast<const String *>(other)->value_;
     }
+
+    void String::Mark()
+    {
+        MarkSelf();
+    }
 } // namespace lua

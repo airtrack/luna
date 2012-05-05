@@ -96,4 +96,14 @@ namespace lua
         sv->param.counter.total = total;
         sv->param.counter.current = current;
     }
+
+    void Stack::MarkStackValues()
+    {
+        for (auto it = stack_.begin(); it != stack_.end(); ++it)
+        {
+            StackValue *sv = &(*it);
+            if (sv->type == StackValueType_Value)
+                sv->param.value->Mark();
+        }
+    }
 } // namespace lua

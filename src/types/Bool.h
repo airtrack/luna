@@ -37,6 +37,11 @@ namespace lua
             return value_ == static_cast<const Bool *>(other)->value_;
         }
 
+        virtual void Mark()
+        {
+            MarkSelf();
+        }
+
         bool Get() const
         {
             return value_;

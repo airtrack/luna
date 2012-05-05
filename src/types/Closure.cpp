@@ -1,5 +1,6 @@
 #include "Closure.h"
 #include "Function.h"
+#include "Table.h"
 
 namespace lua
 {
@@ -17,6 +18,15 @@ namespace lua
     bool Closure::IsEqual(const Value *other) const
     {
         return this == other;
+    }
+
+    void Closure::Mark()
+    {
+        MarkSelf();
+        func_->Mark();
+
+        if (upvalue_table_)
+            upvalue_table_->Mark();
     }
 
     Instruction * Closure::GetInstructions()

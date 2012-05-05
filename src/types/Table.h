@@ -38,6 +38,12 @@ namespace lua
             return value_->IsEqual(other);
         }
 
+        virtual void Mark()
+        {
+            MarkSelf();
+            value_->Mark();
+        }
+
         Value * GetValue()
         {
             return value_;
@@ -69,6 +75,7 @@ namespace lua
 
         virtual std::size_t GetHash() const;
         virtual bool IsEqual(const Value *other) const;
+        virtual void Mark();
 
         std::size_t GetArraySize() const;
         bool HaveKey(const Value *key) const;
@@ -87,6 +94,8 @@ namespace lua
 
         bool HashTableHasKey(const Value *key) const;
         bool ArrayHasKey(const Value *key) const;
+        void MarkArray();
+        void MarkHashTable();
 
         DataPool *data_pool_;
         std::unique_ptr<ArrayType> array_;

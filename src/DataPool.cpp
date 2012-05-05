@@ -87,4 +87,19 @@ namespace lua
     {
         return NewElem(native_func_pool_, func);
     }
+
+    void DataPool::Sweep()
+    {
+        nil_.UnmarkSelf();
+        true_.UnmarkSelf();
+        false_.UnmarkSelf();
+
+        SweepPool(number_pool_);
+        SweepPool(string_pool_);
+        SweepPool(table_pool_);
+        SweepPool(table_value_pool_);
+        SweepPool(function_pool_);
+        SweepPool(closure_pool_);
+        SweepPool(native_func_pool_);
+    }
 } // namespace lua

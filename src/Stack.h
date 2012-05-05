@@ -61,6 +61,8 @@ namespace lua
         // Push counter to stack
         void Push(int total, int current);
 
+        void MarkStackValues();
+
     private:
         std::vector<StackValue> stack_;
     };

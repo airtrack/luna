@@ -33,6 +33,8 @@ namespace lua
         Closure * GetClosure(Function *func);
         NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 
+        void Sweep();
+
     private:
         template<typename ElemType>
         struct PoolElement
@@ -77,6 +79,30 @@ namespace lua
             PoolElement<ElemType> *elem = new PoolElement<ElemType>(param, pool);
             pool = elem;
             return &elem->elem;
+        }
+
+        template<typename ElemType>
+        void SweepPool(PoolElement<ElemType> *& pool)
+        {
+            PoolElement<ElemType> *elem = pool;
+            while (elem)
+            {
+                PoolElement<ElemType> *sweep_elem = 0;
+                if (elem->elem.IsSelfMarked())
+                    elem->elem.UnmarkSelf();
+                else
+                    sweep_elem = elem;
+
+                elem = elem->next;
+
+                // If current sweep elem is the pool head,
+                // we reset pool head
+                if (sweep_elem == pool)
+                    pool = elem;
+
+                // Sweep the elem
+                delete sweep_elem;
+            }
         }
 
         Nil nil_;

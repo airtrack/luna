@@ -29,6 +29,11 @@ namespace lua
                 return true;
             return Type() == other->Type();
         }
+
+        virtual void Mark()
+        {
+            MarkSelf();
+        }
     };
 } // namespace lua
 

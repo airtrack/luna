@@ -21,6 +21,13 @@ namespace lua
         return this == other;
     }
 
+    void Table::Mark()
+    {
+        MarkSelf();
+        MarkArray();
+        MarkHashTable();
+    }
+
     std::size_t Table::GetArraySize() const
     {
         if (array_)
@@ -147,5 +154,27 @@ namespace lua
         if (index < 1 || index > size)
             return false;
         return true;
+    }
+
+    void Table::MarkArray()
+    {
+        if (!array_)
+            return ;
+
+        for (auto it = array_->begin(); it != array_->end(); ++it)
+            (*it)->Mark();
+    }
+
+    void Table::MarkHashTable()
+    {
+        if (!hash_table_)
+            return ;
+
+        for (auto it = hash_table_->begin(); it != hash_table_->end(); ++it)
+        {
+            Value *key = const_cast<Value *>(it->first);
+            key->Mark();
+            it->second->Mark();
+        }
     }
 } // namespace lua

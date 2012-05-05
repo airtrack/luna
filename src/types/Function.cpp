@@ -17,6 +17,11 @@ namespace lua
         return this == other;
     }
 
+    void Function::Mark()
+    {
+        MarkSelf();
+    }
+
     bool Function::HasUpvalue() const
     {
         return !upvalue_set_->Empty();

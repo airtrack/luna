@@ -113,6 +113,25 @@ namespace lua
             return instructions_.size();
         }
 
+        // Mark all values and names in instructions for GC
+        void MarkInstructions()
+        {
+            for (auto it = instructions_.begin(); it != instructions_.end(); ++it)
+            {
+                Instruction& ins = (*it);
+                if (ins.param_a.type == InstructionParamType_Value)
+                {
+                    if (ins.param_a.param.value)
+                        ins.param_a.param.value->Mark();
+                }
+                else if (ins.param_a.type == InstructionParamType_Name)
+                {
+                    if (ins.param_a.param.name)
+                        ins.param_a.param.name->Mark();
+                }
+            }
+        }
+
     private:
         std::vector<Instruction> instructions_;
     };

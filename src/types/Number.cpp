@@ -17,4 +17,9 @@ namespace lua
 
         return value_ == static_cast<const Number *>(other)->value_;
     }
+
+    void Number::Mark()
+    {
+        MarkSelf();
+    }
 } // namespace lua

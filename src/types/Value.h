@@ -25,6 +25,19 @@ namespace lua
         virtual std::string Name() const = 0;
         virtual std::size_t GetHash() const = 0;
         virtual bool IsEqual(const Value *other) const = 0;
+        virtual void Mark() = 0;
+
+        void MarkSelf()
+        { gc_flag_ = true; }
+
+        void UnmarkSelf()
+        { gc_flag_ = false; }
+
+        bool IsSelfMarked() const
+        { return gc_flag_; }
+
+    private:
+        bool gc_flag_;
     };
 
     struct ValueHasher : public std::unary_function<Value *, std::size_t>

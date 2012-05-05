@@ -11,4 +11,9 @@ namespace lua
     {
         return this == other;
     }
+
+    void NativeFunction::Mark()
+    {
+        MarkSelf();
+    }
 } // namespace lua

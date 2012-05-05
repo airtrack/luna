@@ -60,4 +60,10 @@ namespace lua
 
         return it->second->boot_.get();
     }
+
+    void ModuleLoader::MarkModules()
+    {
+        for (auto it = modules_.begin(); it != modules_.end(); ++it)
+            it->second->boot_->MarkInstructions();
+    }
 } // namespace lua

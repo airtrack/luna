@@ -166,6 +166,12 @@ namespace lua
         }
     }
 
+    void VirtualMachine::MarkLocalTables()
+    {
+        for (auto it = nest_tables_.begin(); it != nest_tables_.end(); ++it)
+            (*it)->Mark();
+    }
+
     void VirtualMachine::Assign()
     {
         assert(stack_->Top()->type == StackValueType_Value);

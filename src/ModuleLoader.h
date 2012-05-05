@@ -19,6 +19,7 @@ namespace lua
         void Init(State *state);
         bool IsModuleLoaded(const std::string& module_name) const;
         Bootstrap* LoadModule(const std::string& module_name);
+        void MarkModules();
 
     private:
         struct ModuleInfo
