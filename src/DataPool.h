@@ -12,12 +12,15 @@
 #include "types/NativeFunction.h"
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace lua
 {
     class DataPool
     {
     public:
+        typedef std::function<void (std::size_t)> StatFunc;
+
         DataPool();
         ~DataPool();
 
@@ -34,6 +37,8 @@ namespace lua
         NativeFunction * GetNativeFunction(const NativeFunction::FuncType& func);
 
         void Sweep();
+        void SetOnAlloc(const StatFunc& on_alloc);
+        void SetOnDealloc(const StatFunc& on_dealloc);
 
     private:
         template<typename ElemType>
@@ -45,13 +50,16 @@ namespace lua
             ThisType *next;
 
             template<typename T>
-            explicit PoolElement(const T& t, ThisType *n) : elem(t), next(n) { }
+            explicit PoolElement(const T& t, ThisType *n)
+                : elem(t), next(n) { }
 
             template<typename T>
-            explicit PoolElement(std::unique_ptr<T>&& t, ThisType *n) : elem(std::move(t)), next(n) { }
+            explicit PoolElement(std::unique_ptr<T>&& t, ThisType *n)
+                : elem(std::move(t)), next(n) { }
 
             template<typename T, typename V>
-            PoolElement(const T& t, const V& v, ThisType *n) : elem(t, v), next(n) { }
+            PoolElement(const T& t, const V& v, ThisType *n)
+                : elem(t, v), next(n) { }
         };
 
         typedef PoolElement<Number> NumberPoolElement;
@@ -76,6 +84,7 @@ namespace lua
         template<typename ElemType, typename ParamType>
         ElemType * NewElem(PoolElement<ElemType> *& pool, const ParamType& param)
         {
+            on_alloc_(sizeof(PoolElement<ElemType>));
             PoolElement<ElemType> *elem = new PoolElement<ElemType>(param, pool);
             pool = elem;
             return &elem->elem;
@@ -84,24 +93,36 @@ namespace lua
         template<typename ElemType>
         void SweepPool(PoolElement<ElemType> *& pool)
         {
-            PoolElement<ElemType> *elem = pool;
-            while (elem)
+            PoolElement<ElemType> *previous = 0;
+            PoolElement<ElemType> *current = pool;
+            while (current)
             {
-                PoolElement<ElemType> *sweep_elem = 0;
-                if (elem->elem.IsSelfMarked())
-                    elem->elem.UnmarkSelf();
+                PoolElement<ElemType> *sweep = 0;
+                if (current->elem.IsSelfMarked())
+                {
+                    current->elem.UnmarkSelf();
+                    if (previous)
+                        previous = previous->next;
+                    else
+                        previous = current;
+                }
                 else
-                    sweep_elem = elem;
+                {
+                    sweep = current;
+                    if (previous)
+                        previous->next = current->next;
+                    else
+                        pool = current->next;
+                }
 
-                elem = elem->next;
-
-                // If current sweep elem is the pool head,
-                // we reset pool head
-                if (sweep_elem == pool)
-                    pool = elem;
+                current = current->next;
 
                 // Sweep the elem
-                delete sweep_elem;
+                if (sweep)
+                {
+                    on_dealloc_(sizeof(*sweep));
+                    delete sweep;
+                }
             }
         }
 
@@ -116,6 +137,9 @@ namespace lua
         FunctionPoolElement *function_pool_;
         ClosurePoolElement *closure_pool_;
         NativeFunctionPoolElement *native_func_pool_;
+
+        StatFunc on_alloc_;
+        StatFunc on_dealloc_;
     };
 } // namespace lua
 

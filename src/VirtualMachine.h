@@ -21,7 +21,7 @@ namespace lua
         VirtualMachine();
         void Init(State *state);
         void Run(Bootstrap *boot);
-        void MarkLocalTables();
+        void MarkRuntime();
 
     private:
         void Assign();

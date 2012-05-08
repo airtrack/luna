@@ -40,6 +40,9 @@ namespace lua
 
         virtual void Mark()
         {
+            if (IsSelfMarked())
+                return ;
+
             MarkSelf();
             value_->Mark();
         }

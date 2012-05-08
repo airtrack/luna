@@ -23,6 +23,9 @@ namespace lua
 
     void Table::Mark()
     {
+        if (IsSelfMarked())
+            return ;
+
         MarkSelf();
         MarkArray();
         MarkHashTable();

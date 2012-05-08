@@ -19,7 +19,11 @@ namespace lua
 
     void Function::Mark()
     {
+        if (IsSelfMarked())
+            return ;
+
         MarkSelf();
+        MarkInstructions();
     }
 
     bool Function::HasUpvalue() const

@@ -22,6 +22,9 @@ namespace lua
 
     void Closure::Mark()
     {
+        if (IsSelfMarked())
+            return ;
+
         MarkSelf();
         func_->Mark();
 

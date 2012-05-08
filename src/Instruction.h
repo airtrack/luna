@@ -54,6 +54,7 @@ namespace lua
 
     enum InstructionParamType
     {
+        InstructionParamType_None,
         InstructionParamType_Value,
         InstructionParamType_Name,
         InstructionParamType_Counter,

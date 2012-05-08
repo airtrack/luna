@@ -166,10 +166,18 @@ namespace lua
         }
     }
 
-    void VirtualMachine::MarkLocalTables()
+    void VirtualMachine::MarkRuntime()
     {
+        stack_->MarkStackValues();
+
         for (auto it = nest_tables_.begin(); it != nest_tables_.end(); ++it)
             (*it)->Mark();
+
+        for (auto it = call_stack_.begin(); it != call_stack_.end(); ++it)
+        {
+            if (it->callee)
+                it->callee->Mark();
+        }
     }
 
     void VirtualMachine::Assign()
@@ -453,6 +461,7 @@ namespace lua
         }
         else if (type == TYPE_NATIVE_FUNCTION)
         {
+            GCLocker locker(state_->GetGC());
             static_cast<NativeFunction *>(callee)->Call();
             ins_base_ = native_func_ret_->GetInstructions();
             ins_count_ = native_func_ret_->GetInstructionCount();
