@@ -89,7 +89,18 @@ namespace lua
                   callee_tables(0)
             {
             }
+
+            CallStackInfo()
+                : caller_base(0),
+                  caller_total(0),
+                  caller_offset(0),
+                  callee(0),
+                  callee_tables(0)
+            {
+            }
         };
+
+        class RuntimeGuard;
 
         State *state_;
         Stack *stack_;

@@ -11,6 +11,41 @@
 
 namespace lua
 {
+    class VirtualMachine::RuntimeGuard
+    {
+    public:
+        RuntimeGuard(Stack *stack,
+                     VirtualMachine::NestTables *nest_tables,
+                     VirtualMachine::CallStack *call_stack)
+            : stack_(stack),
+              nest_tables_(nest_tables),
+              call_stack_(call_stack),
+              stack_size_(stack->Size()),
+              tables_(nest_tables->size()),
+              call_stack_size_(call_stack->size())
+        {
+        }
+
+        ~RuntimeGuard()
+        {
+            int stack_size_diff = stack_->Size() - stack_size_;
+            if (stack_size_diff > 0)
+                stack_->Pop(stack_size_diff);
+
+            nest_tables_->resize(tables_);
+            call_stack_->resize(call_stack_size_);
+        }
+
+    private:
+        Stack *stack_;
+        VirtualMachine::NestTables *nest_tables_;
+        VirtualMachine::CallStack *call_stack_;
+
+        std::size_t stack_size_;
+        std::size_t tables_;
+        std::size_t call_stack_size_;
+    };
+
     VirtualMachine::VirtualMachine()
         : state_(0),
           stack_(0),
@@ -32,6 +67,8 @@ namespace lua
 
     void VirtualMachine::Run(Bootstrap *boot)
     {
+        RuntimeGuard guard(stack_, &nest_tables_, &call_stack_);
+
         ins_base_ = boot->GetInstructions();
         ins_count_ = boot->GetInstructionCount();
         ins_current_ = 0;
@@ -192,6 +229,9 @@ namespace lua
 
         assert(stack_->Top()->type == StackValueType_Value);
         Value *table = stack_->Top()->param.value;
+        if (table->Type() != TYPE_TABLE)
+            throw RuntimeError("attempt to index value from " + table->Name());
+
         stack_->Pop();
 
         StackValue *counter = stack_->Top();
