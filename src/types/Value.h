@@ -20,6 +20,7 @@ namespace lua
     class Value
     {
     public:
+        Value() : gc_flag_(false) { }
         virtual ~Value() { }
         virtual int Type() const = 0;
         virtual std::string Name() const = 0;
