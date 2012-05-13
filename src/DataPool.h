@@ -19,7 +19,7 @@ namespace lua
     class DataPool
     {
     public:
-        typedef std::function<void (std::size_t)> StatFunc;
+        typedef std::function<void ()> StatFunc;
 
         DataPool();
         ~DataPool();
@@ -84,7 +84,7 @@ namespace lua
         template<typename ElemType, typename ParamType>
         ElemType * NewElem(PoolElement<ElemType> *& pool, const ParamType& param)
         {
-            on_alloc_(sizeof(PoolElement<ElemType>));
+            on_alloc_();
             PoolElement<ElemType> *elem = new PoolElement<ElemType>(param, pool);
             pool = elem;
             return &elem->elem;
@@ -120,7 +120,7 @@ namespace lua
                 // Sweep the elem
                 if (sweep)
                 {
-                    on_dealloc_(sizeof(*sweep));
+                    on_dealloc_();
                     delete sweep;
                 }
             }

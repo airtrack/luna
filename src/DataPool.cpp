@@ -68,7 +68,7 @@ namespace lua
 
     Function * DataPool::GetFunction(std::unique_ptr<UpvalueNameSet> &&upvalue_set)
     {
-        on_alloc_(sizeof(FunctionPoolElement));
+        on_alloc_();
         FunctionPoolElement *elem =
             new FunctionPoolElement(std::move(upvalue_set), function_pool_);
         function_pool_ = elem;
@@ -77,7 +77,7 @@ namespace lua
 
     Closure * DataPool::GetClosure(Function *func)
     {
-        on_alloc_(sizeof(ClosurePoolElement));
+        on_alloc_();
         Table *upvalue_table = func->HasUpvalue() ? GetTable() : 0;
         ClosurePoolElement *elem =
             new ClosurePoolElement(func, upvalue_table, closure_pool_);

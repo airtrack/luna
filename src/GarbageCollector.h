@@ -21,14 +21,16 @@ namespace lua
         // Run the GC if GC not locked.
         void Run();
 
-        // If GC lock, then GC will not work,
-        // GC resume work until unlock.
-        void Lock();
-        void Unlock();
+        // Check GC need run to collect garbage.
+        bool NeedRun() const
+        {
+            return need_run_;
+        }
 
     private:
-        void StatAlloc(std::size_t bytes);
-        void StatDealloc(std::size_t bytes);
+        void AfterRun();
+        void StatAlloc();
+        void StatDealloc();
 
         static const std::size_t kBaseMaxCount = 2048;
 
@@ -38,29 +40,10 @@ namespace lua
         ModuleLoader *module_loader_;
         VirtualMachine *vm_;
 
-        bool locked_;
+        bool need_run_;
 
-        std::size_t total_bytes_;
         std::size_t total_count_;
         std::size_t max_count_;
-    };
-
-    class GCLocker
-    {
-    public:
-        explicit GCLocker(GarbageCollector *gc)
-            : gc_(gc)
-        {
-            gc_->Lock();
-        }
-
-        ~GCLocker()
-        {
-            gc_->Unlock();
-        }
-
-    private:
-        GarbageCollector *gc_;
     };
 } // namespace lua
 

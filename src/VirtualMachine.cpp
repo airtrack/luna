@@ -50,6 +50,7 @@ namespace lua
         : state_(0),
           stack_(0),
           data_pool_(0),
+          gc_(0),
           ins_base_(0),
           ins_count_(0),
           ins_current_(0),
@@ -63,6 +64,7 @@ namespace lua
         state_ = state;
         stack_ = state->GetStack();
         data_pool_ = state->GetDataPool();
+        gc_ = state->GetGC();
     }
 
     void VirtualMachine::Run(Bootstrap *boot)
@@ -200,6 +202,10 @@ namespace lua
                 break;
             }
             ++ins_current_;
+
+            // If need run GC, we run it.
+            if (gc_->NeedRun())
+                gc_->Run();
         }
     }
 
@@ -501,7 +507,6 @@ namespace lua
         }
         else if (type == TYPE_NATIVE_FUNCTION)
         {
-            GCLocker locker(state_->GetGC());
             static_cast<NativeFunction *>(callee)->Call();
             ins_base_ = native_func_ret_->GetInstructions();
             ins_count_ = native_func_ret_->GetInstructionCount();

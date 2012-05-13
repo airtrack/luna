@@ -13,6 +13,7 @@ namespace lua
     class DataPool;
     class String;
     class Bootstrap;
+    class GarbageCollector;
     struct Instruction;
 
     class VirtualMachine
@@ -105,6 +106,7 @@ namespace lua
         State *state_;
         Stack *stack_;
         DataPool *data_pool_;
+        GarbageCollector *gc_;
 
         typedef std::vector<Table *> NestTables;
         NestTables nest_tables_;
