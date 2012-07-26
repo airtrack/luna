@@ -306,8 +306,6 @@ namespace lua
         PreExpType type_;
     };
 
-    enum FuncNameType;
-
     ExpressionPtr ParseExpression(Lexer *lexer);
     ExpressionPtr ParseNameExpression(Lexer *lexer, ParseNameType type);
     ExpressionPtr ParseFuncNameExpression(Lexer *lexer, FuncNameType& type);

@@ -34,6 +34,14 @@ namespace lua
         lexer->GetLineNumber(),  \
         lexer->GetColumnNumber(),\
         desc)
+
+    enum FuncNameType
+    {
+        NORMAL_FUNC_NAME,
+        NORMAL_FUNC_NAME_WITH_SELF,
+        LOCAL_FUNC_NAME,
+        NO_FUNC_NAME,
+    };
 } // namespace lua
 
 #endif // PARSE_TREE_NODE_H

@@ -616,7 +616,7 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
         int index = lexer->GetToken();
 
-        if (index < 0 || lex_table[index]->type != OP_DOT && lex_table[index]->type != OP_LEFT_BRACKET)
+        if (index < 0 || (lex_table[index]->type != OP_DOT && lex_table[index]->type != OP_LEFT_BRACKET))
         {
             lexer->UngetToken(index);
             return std::move(table);
@@ -1006,7 +1006,7 @@ namespace lua
         LexTable &lex_table = lexer->GetLexTable();
 
         int index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_COMMA && lex_table[index]->type != OP_PARAM_LIST)
+        if (index < 0 || (lex_table[index]->type != OP_COMMA && lex_table[index]->type != OP_PARAM_LIST))
         {
             lexer->UngetToken(index);
             return false;
@@ -1073,7 +1073,7 @@ namespace lua
         int index = lexer->GetToken();
 
         ExpressionPtr key;
-        if (index < 0 || lex_table[index]->type != OP_LEFT_BRACKET && lex_table[index]->type != IDENTIFIER)
+        if (index < 0 || (lex_table[index]->type != OP_LEFT_BRACKET && lex_table[index]->type != IDENTIFIER))
         {
             lexer->UngetToken(index);
             return key;

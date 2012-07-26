@@ -7,3 +7,5 @@
 ipch/
 Debug/
 Release/
+project.xcworkspace/
+xcuserdata/

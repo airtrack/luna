@@ -696,7 +696,7 @@ namespace lua
         std::unique_ptr<NameListExpression> name_list = ParseNameListExpression(lexer);
 
         index = lexer->GetToken();
-        if (index < 0 || lex_table[index]->type != OP_ASSIGN && lex_table[index]->type != KW_IN)
+        if (index < 0 || (lex_table[index]->type != OP_ASSIGN && lex_table[index]->type != KW_IN))
             THROW_PARSER_ERROR("expect '=' or 'in' here");
 
         std::size_t name_count = name_list->GetCount();

@@ -175,14 +175,6 @@ namespace lua
 
     StatementPtr ParseForStatement(Lexer *lexer);
 
-    enum FuncNameType
-    {
-        NORMAL_FUNC_NAME,
-        NORMAL_FUNC_NAME_WITH_SELF,
-        LOCAL_FUNC_NAME,
-        NO_FUNC_NAME,
-    };
-
     class FunctionStatement : public Statement
     {
     public:
