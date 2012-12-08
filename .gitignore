@@ -4,6 +4,8 @@
 *.swp
 *.opensdf
 *.DS_Store
+*.sublime-project
+*.sublime-workspace
 ipch/
 Debug/
 Release/
