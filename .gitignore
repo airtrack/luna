@@ -9,5 +9,6 @@
 ipch/
 Debug/
 Release/
+DerivedData/
 project.xcworkspace/
 xcuserdata/

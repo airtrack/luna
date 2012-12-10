@@ -1,0 +1,78 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		CE2EA6F616763B2700E59BBC /* Lex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Lex.h; path = ../src/Lex.h; sourceTree = "<group>"; };
+		CE2EA6F716763B2700E59BBC /* TextInStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextInStream.cpp; path = ../src/TextInStream.cpp; sourceTree = "<group>"; };
+		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
+		CE2EA6FB16763D9A00E59BBC /* Lex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Lex.cpp; path = ../src/Lex.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		CE2EA6ED16763B0500E59BBC = {
+			isa = PBXGroup;
+			children = (
+				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
+				CE2EA6F616763B2700E59BBC /* Lex.h */,
+				CE2EA6F716763B2700E59BBC /* TextInStream.cpp */,
+				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		CE2EA6EF16763B0500E59BBC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+			};
+			buildConfigurationList = CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna2" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CE2EA6ED16763B0500E59BBC;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		CE2EA6F416763B0500E59BBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		CE2EA6F516763B0500E59BBC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE2EA6F416763B0500E59BBC /* Debug */,
+				CE2EA6F516763B0500E59BBC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CE2EA6EF16763B0500E59BBC /* Project object */;
+}
