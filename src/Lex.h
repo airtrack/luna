@@ -11,7 +11,7 @@ namespace luna
     {
         Token_Id = 128, Token_KeyWord, Token_String, Token_Number,
         Token_Equal, Token_NotEqual, Token_LessEqual, Token_BigEqual,
-        Token_Concat, Token_VarArg,
+        Token_Concat, Token_VarArg, Token_EOF,
     };
 
     struct TokenDetail
@@ -40,7 +40,21 @@ namespace luna
         int GetToken(TokenDetail *detail);
 
     private:
+        int Next()
+        {
+            ++column_;
+            return in_stream_();
+        }
+
+        void LexNewLine();
+        void LexComment();
+        void LexMultiLineComment();
+        void LexSingleLineComment();
+
         CharInStream in_stream_;
+        int current_;
+        int line_;
+        int column_;
     };
 } // namespace luna
 
