@@ -12,6 +12,7 @@
 		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
 		CE2EA6FB16763D9A00E59BBC /* Lex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Lex.cpp; path = ../src/Lex.cpp; sourceTree = "<group>"; };
 		CE36379A167C5B97009E2D95 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Exception.h; path = ../src/Exception.h; sourceTree = "<group>"; };
+		CE36379C167C6345009E2D95 /* State.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -19,6 +20,7 @@
 			isa = PBXGroup;
 			children = (
 				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
+				CE36379C167C6345009E2D95 /* State.h */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
 				CE2EA6F616763B2700E59BBC /* Lex.h */,
 				CE2EA6F716763B2700E59BBC /* TextInStream.cpp */,

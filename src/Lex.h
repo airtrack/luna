@@ -6,6 +6,7 @@
 namespace luna
 {
     class String;
+    class State;
 
     enum Token
     {
@@ -32,7 +33,7 @@ namespace luna
     public:
         typedef std::function<int ()> CharInStream;
 
-        explicit Lexer(CharInStream in);
+        Lexer(State *state, CharInStream in);
 
         Lexer(const Lexer&) = delete;
         void operator = (const Lexer&) = delete;
@@ -51,6 +52,7 @@ namespace luna
         void LexMultiLineComment();
         void LexSingleLineComment();
 
+        State *state_;
         CharInStream in_stream_;
         int current_;
         int line_;

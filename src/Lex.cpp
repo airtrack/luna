@@ -1,11 +1,28 @@
 #include "Lex.h"
+#include "State.h"
 #include "Exception.h"
+#include <assert.h>
 #include <stddef.h>
 
 namespace luna
 {
-    Lexer::Lexer(CharInStream in)
-        : in_stream_(in),
+#define RETURN_NORMAL_TOKEN_DETAIL(detail, token)           \
+    detail->line_ = line_;                                  \
+    detail->column_ = column_;                              \
+    detail->module_ = state_->GetCurrentModule();           \
+    return token
+
+#define RETURN_NUMBER_TOKEN_DETAIL(detail, number)          \
+    detail->number_ = number;                               \
+    RETURN_NORMAL_TOKEN_DETAIL(detail, Token_Number)
+
+#define RETURN_TOKEN_DETAIL(detail, string, token)          \
+    detail->str_ = string;                                  \
+    RETURN_NORMAL_TOKEN_DETAIL(detail, token)
+
+    Lexer::Lexer(State *state, CharInStream in)
+        : state_(state),
+          in_stream_(in),
           current_(EOF),
           line_(1),
           column_(0)
@@ -14,6 +31,7 @@ namespace luna
 
     int Lexer::GetToken(TokenDetail *detail)
     {
+        assert(detail);
         if (current_ == EOF)
             current_ = Next();
 
@@ -34,7 +52,7 @@ namespace luna
                     else
                     {
                         current_ = next;
-                        return '-';
+                        RETURN_NORMAL_TOKEN_DETAIL(detail, '-');
                     }
                 }
                 break;
