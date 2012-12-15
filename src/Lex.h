@@ -1,6 +1,7 @@
 #ifndef LEX_H
 #define LEX_H
 
+#include <string>
 #include <functional>
 
 namespace luna
@@ -52,11 +53,29 @@ namespace luna
         void LexMultiLineComment();
         void LexSingleLineComment();
 
+        int LexNumber(TokenDetail *detail, bool negative);
+        int LexNumberX(TokenDetail *detail, bool negative, bool integer_part,
+                       std::function<bool (int)> is_number_char,
+                       std::function<bool (int)> is_exponent);
+        int LexNumberXFractional(TokenDetail *detail, bool negative,
+                                 bool integer_part, bool point,
+                                 std::function<bool (int)> is_number_char,
+                                 std::function<bool (int)> is_exponent);
+
+        int LexXEqual(TokenDetail *detail, int equal_token);
+
+        int LexMultiLineString(TokenDetail *detail);
+        int LexSingleLineString(TokenDetail *detail);
+
+        int LexId(TokenDetail *detail);
+
         State *state_;
         CharInStream in_stream_;
         int current_;
         int line_;
         int column_;
+
+        std::string token_buffer_;
     };
 } // namespace luna
 
