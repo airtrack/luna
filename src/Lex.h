@@ -53,11 +53,11 @@ namespace luna
         void LexMultiLineComment();
         void LexSingleLineComment();
 
-        int LexNumber(TokenDetail *detail, bool negative);
-        int LexNumberX(TokenDetail *detail, bool negative, bool integer_part,
+        int LexNumber(TokenDetail *detail);
+        int LexNumberX(TokenDetail *detail, bool integer_part,
                        std::function<bool (int)> is_number_char,
                        std::function<bool (int)> is_exponent);
-        int LexNumberXFractional(TokenDetail *detail, bool negative,
+        int LexNumberXFractional(TokenDetail *detail,
                                  bool integer_part, bool point,
                                  std::function<bool (int)> is_number_char,
                                  std::function<bool (int)> is_exponent);

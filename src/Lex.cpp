@@ -66,7 +66,7 @@ namespace luna
                 break;
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
-                return LexNumber(detail, false);
+                return LexNumber(detail);
             case '+': case '*': case '/': case '%': case '^':
             case '#': case '(': case ')': case '{': case '}':
             case ']': case ';': case ':': case ',':
@@ -98,7 +98,7 @@ namespace luna
                         token_buffer_.clear();
                         token_buffer_.push_back(current_);
                         current_ = next;
-                        return LexNumberXFractional(detail, false, false, true, isdigit,
+                        return LexNumberXFractional(detail, false, true, isdigit,
                                                     [](int c) { return c == 'e' || c == 'E'; });
                     }
                     else
@@ -217,7 +217,7 @@ namespace luna
             current_ = Next();
     }
 
-    int Lexer::LexNumber(TokenDetail *detail, bool negative)
+    int Lexer::LexNumber(TokenDetail *detail)
     {
         bool integer_part = false;
         token_buffer_.clear();
@@ -230,7 +230,7 @@ namespace luna
                 token_buffer_.push_back(next);
                 current_ = Next();
 
-                return LexNumberX(detail, negative, false,
+                return LexNumberX(detail, false,
                                   [](int c)
                                   {
                                       return (c >= '0' && c <= '9') ||
@@ -250,11 +250,11 @@ namespace luna
             }
         }
 
-        return LexNumberX(detail, negative, integer_part, isdigit,
+        return LexNumberX(detail, integer_part, isdigit,
                           [](int c) { return c == 'e' || c == 'E'; });
     }
 
-    int Lexer::LexNumberX(TokenDetail *detail, bool negative, bool integer_part,
+    int Lexer::LexNumberX(TokenDetail *detail, bool integer_part,
                           std::function<bool (int)> is_number_char,
                           std::function<bool (int)> is_exponent)
     {
@@ -273,11 +273,11 @@ namespace luna
             point = true;
         }
 
-        return LexNumberXFractional(detail, negative, integer_part,
-                                    point, is_number_char, is_exponent);
+        return LexNumberXFractional(detail, integer_part, point,
+                                    is_number_char, is_exponent);
     }
 
-    int Lexer::LexNumberXFractional(TokenDetail *detail, bool negative,
+    int Lexer::LexNumberXFractional(TokenDetail *detail,
                                     bool integer_part, bool point,
                                     std::function<bool (int)> is_number_char,
                                     std::function<bool (int)> is_exponent)
@@ -315,7 +315,7 @@ namespace luna
             }
         }
 
-        double number = negative ? -strtod(token_buffer_.c_str()) : strtod(token_buffer_.c_str());
+        double number = strtod(token_buffer_.c_str());
         RETURN_NUMBER_TOKEN_DETAIL(detail, number);
     }
 
