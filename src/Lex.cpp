@@ -6,6 +6,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+namespace
+{
+    inline bool IsHexChar(int c)
+    {
+        return (c >= '0' && c <= '9') ||
+               (c >= 'a' && c <= 'f') ||
+               (c >= 'A' && c <= 'F');
+    }
+} // namespace
+
 namespace luna
 {
 #define RETURN_NORMAL_TOKEN_DETAIL(detail, token)               \
@@ -230,17 +240,8 @@ namespace luna
                 token_buffer_.push_back(next);
                 current_ = Next();
 
-                return LexNumberX(detail, false,
-                                  [](int c)
-                                  {
-                                      return (c >= '0' && c <= '9') ||
-                                             (c >= 'a' && c <= 'f') ||
-                                             (c >= 'A' && c <= 'F');
-                                  },
-                                  [](int c)
-                                  {
-                                      return c == 'p' || c == 'P';
-                                  });
+                return LexNumberX(detail, false, IsHexChar,
+                                  [](int c) { return c == 'p' || c == 'P'; });
             }
             else
             {
@@ -388,8 +389,7 @@ namespace luna
             }
             else
             {
-                token_buffer_.push_back(current_);
-                current_ = Next();
+                LexStringChar();
             }
         }
 
@@ -410,12 +410,67 @@ namespace luna
             if (current_ == '\r' || current_ == '\n')
                 throw LexException("incomplete string at this line");
             
-            token_buffer_.push_back(current_);
-            current_ = Next();
+            LexStringChar();
         }
 
         current_ = Next();
         RETURN_TOKEN_DETAIL(detail, token_buffer_, Token_String);
+    }
+
+    void Lexer::LexStringChar()
+    {
+        if (current_ == '\\')
+        {
+            current_ = Next();
+            if (current_ == 'a')
+                token_buffer_.push_back(7);
+            else if (current_ == 'b')
+                token_buffer_.push_back(8);
+            else if (current_ == 'f')
+                token_buffer_.push_back(12);
+            else if (current_ == 'n')
+                token_buffer_.push_back(10);
+            else if (current_ == 'r')
+                token_buffer_.push_back(13);
+            else if (current_ == 't')
+                token_buffer_.push_back(9);
+            else if (current_ == 'v')
+                token_buffer_.push_back(11);
+            else if (current_ == '\\')
+                token_buffer_.push_back('\\');
+            else if (current_ == '"')
+                token_buffer_.push_back('"');
+            else if (current_ == '\'')
+                token_buffer_.push_back('\'');
+            else if (current_ == 'x')
+            {
+                current_ = Next();
+                char hex[3] = { 0 };
+                int i = 0;
+                for (; i < 2 && IsHexChar(current_); ++i, current_ = Next())
+                    hex[i] = current_;
+                if (i == 0)
+                    throw LexException("unexpect char after '\\x'");
+                token_buffer_.push_back(strtoul(hex, 0, 16));
+                return ;
+            }
+            else if (isdigit(current_))
+            {
+                char oct[4] = { 0 };
+                for (int i = 0; i < 3 && isdigit(current_); ++i, current_ = Next())
+                    oct[i] = current_;
+                token_buffer_.push_back(strtoul(oct, 0, 8));
+                return ;
+            }
+            else
+                throw LexException("unexpect char after '\\'");
+        }
+        else
+        {
+            token_buffer_.push_back(current_);
+        }
+
+        current_ = Next();
     }
 
     int Lexer::LexId(TokenDetail *detail)

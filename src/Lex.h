@@ -66,6 +66,7 @@ namespace luna
 
         int LexMultiLineString(TokenDetail *detail);
         int LexSingleLineString(TokenDetail *detail);
+        void LexStringChar();
 
         int LexId(TokenDetail *detail);
 
