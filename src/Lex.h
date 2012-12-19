@@ -11,7 +11,11 @@ namespace luna
 
     enum Token
     {
-        Token_Id = 128, Token_KeyWord, Token_String, Token_Number,
+        Token_And = 256, Token_Do, Token_Else, Token_Elseif, Token_End,
+        Token_False, Token_For, Token_Function, Token_If, Token_In,
+        Token_Local, Token_Nil, Token_Not, Token_Or, Token_Repeat,
+        Token_Return, Token_Then, Token_True, Token_Until, Token_While,
+        Token_Id, Token_String, Token_Number,
         Token_Equal, Token_NotEqual, Token_LessEqual, Token_BigEqual,
         Token_Concat, Token_VarArg, Token_EOF,
     };

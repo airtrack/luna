@@ -14,8 +14,6 @@ namespace luna
         String *GetCurrentModule() const;
         String *GetString(const std::string &str);
     };
-
-    bool IsKeyWord(const std::string &id);
 } // namespace luna
 
 #endif // STATE_H

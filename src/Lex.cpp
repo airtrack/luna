@@ -5,9 +5,28 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <algorithm>
 
 namespace
 {
+    const char *keyword[] = {
+        "and", "do", "else", "elseif", "end",
+        "false", "for", "function", "if", "in",
+        "local", "nil", "not", "or", "repeat",
+        "return", "then", "true", "until", "while"
+    }
+
+    bool IsKeyWord(const std::string& name, int *token)
+    {
+        assert(token);
+        auto result = std::equal_range(keyword, keyword + sizeof(keyword) / keyword[0], name);
+        if (result.first == result.second)
+            return false;
+
+        *token = result.first - keyword + Token_And;
+        return true;
+    }
+
     inline bool IsHexChar(int c)
     {
         return (c >= '0' && c <= '9') ||
@@ -488,9 +507,9 @@ namespace luna
             current_ = Next();
         }
 
-        if (IsKeyWord(token_buffer_))
-            RETURN_TOKEN_DETAIL(detail, token_buffer_, Token_KeyWord);
-        else
-            RETURN_TOKEN_DETAIL(detail, token_buffer_, Token_Id);
+        int token = 0;
+        if (!IsKeyWord(token_buffer_, &token))
+            token = Token_Id;
+        RETURN_TOKEN_DETAIL(detail, token_buffer_, token);
     }
 } // namespace luna
