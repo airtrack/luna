@@ -1,25 +1,32 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
+#include <stdio.h>
 #include <string>
+#include <utility>
 
 namespace luna
 {
     class Exception
     {
     public:
-        explicit Exception(const std::string &what) : what_(what) { }
-
         std::string What() const { return what_; }
 
-    private:
+    protected:
         std::string what_;
     };
 
     class LexException : public Exception
     {
     public:
-        explicit LexException(const std::string &what) : Exception(what) { }
+        template<typename... Args>
+        LexException(int line, int column, const char *format, Args&&... args)
+        {
+            char buffer[128] = { 0 };
+            int len = snprintf(buffer, sizeof(buffer), "%d:%d ", line, column);
+            snprintf(buffer + len, sizeof(buffer) - len, format, std::forward<Args>(args)...);
+            what_ = buffer;
+        }
     };
 } // namespace luna
 

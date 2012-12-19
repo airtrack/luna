@@ -141,7 +141,7 @@ namespace luna
                 {
                     int next = Next();
                     if (next != '=')
-                        throw LexException("expect '=' here");
+                        throw LexException(line_, column_, "expect '=' after '~'");
                     current_ = Next();
                     RETURN_NORMAL_TOKEN_DETAIL(detail, Token_NotEqual);
                 }
@@ -227,7 +227,7 @@ namespace luna
             else if (current_ == EOF)
             {
                 // uncompleted multi-line comment
-                throw LexException("expect complete multi-line comment before <eof>.");
+                throw LexException(line_, column_, "expect complete multi-line comment before <eof>.");
             }
             else if (current_ == '\r' || current_ == '\n')
             {
@@ -311,9 +311,9 @@ namespace luna
         }
 
         if (point && !integer_part && !fractional_part)
-            throw LexException("unexpect '.' here");
+            throw LexException(line_, column_, "unexpect '.'");
         else if (!point && !integer_part && !fractional_part)
-            throw LexException("unexpect incomplete number here");
+            throw LexException(line_, column_, "unexpect incomplete number '%s'", token_buffer_.c_str());
 
         if (is_exponent(current_))
         {
@@ -326,7 +326,7 @@ namespace luna
             }
 
             if (!isdigit(current_))
-                throw LexException("expect exponent at here.");
+                throw LexException(line_, column_, "expect exponent after '%s'", token_buffer_.c_str());
 
             while (isdigit(current_))
             {
@@ -366,7 +366,7 @@ namespace luna
         }
 
         if (current_ != '[')
-            throw LexException("incomplete multi-line string here");
+            throw LexException(line_, column_, "incomplete multi-line string at '%s'", token_buffer_.c_str());
 
         current_ = Next();
         token_buffer_.clear();
@@ -412,7 +412,7 @@ namespace luna
             }
         }
 
-        throw LexException("incomplete multi-line string at <eof>");
+        throw LexException(line_, column_, "incomplete multi-line string at <eof>");
     }
 
     int Lexer::LexSingleLineString(TokenDetail *detail)
@@ -424,10 +424,10 @@ namespace luna
         while (current_ != quote)
         {
             if (current_ == EOF)
-                throw LexException("incomplete string at <eof>");
+                throw LexException(line_, column_, "incomplete string at <eof>");
 
             if (current_ == '\r' || current_ == '\n')
-                throw LexException("incomplete string at this line");
+                throw LexException(line_, column_, "incomplete string at this line");
             
             LexStringChar();
         }
@@ -469,7 +469,7 @@ namespace luna
                 for (; i < 2 && IsHexChar(current_); ++i, current_ = Next())
                     hex[i] = current_;
                 if (i == 0)
-                    throw LexException("unexpect char after '\\x'");
+                    throw LexException(line_, column_, "unexpect character after '\\x'");
                 token_buffer_.push_back(strtoul(hex, 0, 16));
                 return ;
             }
@@ -482,7 +482,7 @@ namespace luna
                 return ;
             }
             else
-                throw LexException("unexpect char after '\\'");
+                throw LexException(line_, column_, "unexpect character after '\\'");
         }
         else
         {
@@ -495,7 +495,7 @@ namespace luna
     int Lexer::LexId(TokenDetail *detail)
     {
         if (!isalpha(current_) && current_ != '_')
-            throw LexException("unexpect char at here");
+            throw LexException(line_, column_, "unexpect character");
 
         token_buffer_.clear();
         token_buffer_.push_back(current_);
