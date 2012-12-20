@@ -3,7 +3,7 @@
 namespace io {
 namespace text {
 
-    InStream::InStream(const std::string& path)
+    InStream::InStream(const std::string &path)
         : stream_(nullptr)
     {
         stream_ = fopen(path.c_str(), "rb");
@@ -13,6 +13,12 @@ namespace text {
     {
         if (stream_)
             fclose(stream_);
+    }
+
+    InStringStream::InStringStream(const std::string &str)
+        : str_(str),
+          pos_(0)
+    {
     }
 
 } // namespace text

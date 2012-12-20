@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		CE19539216835C0400504CCD /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = String.h; path = ../src/String.h; sourceTree = "<group>"; };
+		CE1953941683648900504CCD /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = "<group>"; };
+		CE19539516836BC100504CCD /* ModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModuleManager.h; path = ../src/ModuleManager.h; sourceTree = "<group>"; };
 		CE2EA6F616763B2700E59BBC /* Lex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Lex.h; path = ../src/Lex.h; sourceTree = "<group>"; };
 		CE2EA6F716763B2700E59BBC /* TextInStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextInStream.cpp; path = ../src/TextInStream.cpp; sourceTree = "<group>"; };
 		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
@@ -19,10 +22,13 @@
 		CE2EA6ED16763B0500E59BBC = {
 			isa = PBXGroup;
 			children = (
-				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
-				CE36379C167C6345009E2D95 /* State.h */,
+				CE19539516836BC100504CCD /* ModuleManager.h */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
+				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
 				CE2EA6F616763B2700E59BBC /* Lex.h */,
+				CE1953941683648900504CCD /* State.cpp */,
+				CE36379C167C6345009E2D95 /* State.h */,
+				CE19539216835C0400504CCD /* String.h */,
 				CE2EA6F716763B2700E59BBC /* TextInStream.cpp */,
 				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
 			);

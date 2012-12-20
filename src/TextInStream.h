@@ -10,7 +10,7 @@ namespace text {
     class InStream
     {
     public:
-        explicit InStream(const std::string& path);
+        explicit InStream(const std::string &path);
         ~InStream();
 
         InStream(const InStream&) = delete;
@@ -28,6 +28,27 @@ namespace text {
 
     private:
         FILE *stream_;
+    };
+
+    class InStringStream
+    {
+    public:
+        explicit InStringStream(const std::string &str);
+
+        InStringStream(const InStringStream&) = delete;
+        void operator = (const InStringStream&) = delete;
+
+        int GetChar()
+        {
+            if (pos_ < str_.size())
+                return static_cast<unsigned char>(str_[pos_++]);
+            else
+                return EOF;
+        }
+
+    private:
+        std::string str_;
+        std::size_t pos_;
     };
 
 } // namespace text
