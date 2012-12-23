@@ -336,7 +336,7 @@ namespace luna
             }
         }
 
-        double number = strtod(token_buffer_.c_str(), 0);
+        double number = strtod(token_buffer_.c_str(), nullptr);
         RETURN_NUMBER_TOKEN_DETAIL(detail, number);
     }
 
