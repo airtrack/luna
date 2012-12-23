@@ -14,16 +14,16 @@ namespace
         "false", "for", "function", "if", "in",
         "local", "nil", "not", "or", "repeat",
         "return", "then", "true", "until", "while"
-    }
+    };
 
     bool IsKeyWord(const std::string& name, int *token)
     {
         assert(token);
-        auto result = std::equal_range(keyword, keyword + sizeof(keyword) / keyword[0], name);
+        auto result = std::equal_range(keyword, keyword + sizeof(keyword) / sizeof(keyword[0]), name);
         if (result.first == result.second)
             return false;
 
-        *token = result.first - keyword + Token_And;
+        *token = result.first - keyword + luna::Token_And;
         return true;
     }
 
@@ -41,7 +41,7 @@ namespace luna
     do {                                                        \
         detail->line_ = line_;                                  \
         detail->column_ = column_;                              \
-        detail->module_ = state_->GetCurrentModule();           \
+        detail->module_ = module_;                              \
         return token;                                           \
     } while (0)
 
@@ -57,8 +57,9 @@ namespace luna
         RETURN_NORMAL_TOKEN_DETAIL(detail, token);              \
     } while (0)
 
-    Lexer::Lexer(State *state, CharInStream in)
+    Lexer::Lexer(State *state, String *module, CharInStream in)
         : state_(state),
+          module_(module),
           in_stream_(in),
           current_(EOF),
           line_(1),
@@ -335,7 +336,7 @@ namespace luna
             }
         }
 
-        double number = strtod(token_buffer_.c_str());
+        double number = strtod(token_buffer_.c_str(), 0);
         RETURN_NUMBER_TOKEN_DETAIL(detail, number);
     }
 

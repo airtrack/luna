@@ -5,8 +5,6 @@
 
 namespace luna
 {
-    class String;
-
     class ModuleManager
     {
     public:
@@ -17,7 +15,6 @@ namespace luna
 
         void AddModulePath(const std::string &path);
         void LoadModule(const std::string &module_name);
-        String *GetCurrentModule() const;
     };
 } // namespace luna
 

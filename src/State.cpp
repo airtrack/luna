@@ -25,11 +25,6 @@ namespace luna
     {
     }
 
-    String * State::GetCurrentModule() const
-    {
-        return module_manager_->GetCurrentModule();
-    }
-
     String * State::GetString(const std::string &str)
     {
         return new String(str);

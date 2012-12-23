@@ -22,7 +22,6 @@ namespace luna
         void LoadModule(const std::string &module_name);
         void LoadString(const std::string &script_str);
 
-        String *GetCurrentModule() const;
         String *GetString(const std::string &str);
 
     private:
