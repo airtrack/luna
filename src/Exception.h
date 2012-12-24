@@ -19,6 +19,14 @@ namespace luna
     class LexException : public Exception
     {
     public:
+        LexException(int line, int column, const char *str)
+        {
+            char buffer[128] = { 0 };
+            int len = snprintf(buffer, sizeof(buffer), "%d:%d ", line, column);
+            snprintf(buffer + len, sizeof(buffer) - len, "%s", str);
+            what_ = buffer;
+        }
+
         template<typename... Args>
         LexException(int line, int column, const char *format, Args&&... args)
         {
