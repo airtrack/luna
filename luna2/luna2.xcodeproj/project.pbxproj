@@ -7,12 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
 		CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6FB16763D9A00E59BBC /* Lex.cpp */; };
 		CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1953941683648900504CCD /* State.cpp */; };
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		CE08844416889AA400E05968 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		CE0884341688845E00E05968 /* UnitTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UnitTest.h; path = ../test/UnitTest.h; sourceTree = "<group>"; };
+		CE0884351688981400E05968 /* UnitTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnitTest.cpp; path = ../test/UnitTest.cpp; sourceTree = "<group>"; };
+		CE08844616889AA400E05968 /* unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE19539216835C0400504CCD /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = String.h; path = ../src/String.h; sourceTree = "<group>"; };
 		CE1953941683648900504CCD /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = "<group>"; };
 		CE19539516836BC100504CCD /* ModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModuleManager.h; path = ../src/ModuleManager.h; sourceTree = "<group>"; };
@@ -26,6 +42,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		CE08844316889AA400E05968 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CE8F1AF616875AE6001FBAA6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -36,7 +59,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CE2EA6ED16763B0500E59BBC = {
+		CE0884321688834E00E05968 /* src */ = {
 			isa = PBXGroup;
 			children = (
 				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
@@ -48,6 +71,24 @@
 				CE36379C167C6345009E2D95 /* State.h */,
 				CE19539216835C0400504CCD /* String.h */,
 				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		CE088433168883A200E05968 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				CE0884341688845E00E05968 /* UnitTest.h */,
+				CE0884351688981400E05968 /* UnitTest.cpp */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		CE2EA6ED16763B0500E59BBC = {
+			isa = PBXGroup;
+			children = (
+				CE088433168883A200E05968 /* test */,
+				CE0884321688834E00E05968 /* src */,
 				CE8F1AFA16875AE6001FBAA6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				CE8F1AF916875AE6001FBAA6 /* libluna.a */,
+				CE08844616889AA400E05968 /* unittest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,6 +115,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		CE08844516889AA400E05968 /* unittest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE08844D16889AA400E05968 /* Build configuration list for PBXNativeTarget "unittest" */;
+			buildPhases = (
+				CE08844216889AA400E05968 /* Sources */,
+				CE08844316889AA400E05968 /* Frameworks */,
+				CE08844416889AA400E05968 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = unittest;
+			productName = unittest;
+			productReference = CE08844616889AA400E05968 /* unittest */;
+			productType = "com.apple.product-type.tool";
+		};
 		CE8F1AF816875AE6001FBAA6 /* luna */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CE8F1AFD16875AE6001FBAA6 /* Build configuration list for PBXNativeTarget "luna" */;
@@ -111,11 +170,20 @@
 			projectRoot = "";
 			targets = (
 				CE8F1AF816875AE6001FBAA6 /* luna */,
+				CE08844516889AA400E05968 /* unittest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		CE08844216889AA400E05968 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE08845016889B1400E05968 /* UnitTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CE8F1AF516875AE6001FBAA6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -129,6 +197,59 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		CE08844E16889AA400E05968 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CE08844F16889AA400E05968 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		CE2EA6F416763B0500E59BBC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -210,6 +331,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CE08844D16889AA400E05968 /* Build configuration list for PBXNativeTarget "unittest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE08844E16889AA400E05968 /* Debug */,
+				CE08844F16889AA400E05968 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
