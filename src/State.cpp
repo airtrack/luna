@@ -2,7 +2,6 @@
 #include "Lex.h"
 #include "String.h"
 #include "TextInStream.h"
-#include "ModuleManager.h"
 
 namespace luna
 {

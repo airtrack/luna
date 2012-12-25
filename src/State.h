@@ -1,13 +1,13 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "ModuleManager.h"
 #include <string>
 #include <memory>
 
 namespace luna
 {
     class String;
-    class ModuleManager;
 
     class State
     {

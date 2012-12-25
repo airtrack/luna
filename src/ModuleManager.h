@@ -8,13 +8,13 @@ namespace luna
     class ModuleManager
     {
     public:
-        ModuleManager();
+        ModuleManager() { }
 
         ModuleManager(const ModuleManager&) = delete;
         void operator = (const ModuleManager&) = delete;
 
-        void AddModulePath(const std::string &path);
-        void LoadModule(const std::string &module_name);
+        void AddModulePath(const std::string &path) { }
+        void LoadModule(const std::string &module_name) { }
     };
 } // namespace luna
 
