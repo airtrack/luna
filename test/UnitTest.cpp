@@ -38,7 +38,7 @@ public:
                     ++failed;
                     printf("\033[31m[%s] failed:\n", test->GetTestName().c_str());
 
-                    std::vector<std::string> errors = test->GetErrors();
+                    auto errors = test->GetErrors();
                     for (auto &error : errors)
                     {
                         printf("\t%s\n", error.c_str());
