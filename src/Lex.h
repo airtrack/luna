@@ -30,7 +30,9 @@ namespace luna
 
         String *module_;            // module name of this token belongs to
         int line_;                  // token line number in module
-        int column_;                // token column number in the 'line_'
+        int column_;                // token column number at 'line_'
+
+        TokenDetail() : str_(nullptr), module_(nullptr), line_(0), column_(0) { }
     };
 
     class Lexer
