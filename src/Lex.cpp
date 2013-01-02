@@ -39,6 +39,7 @@ namespace luna
 {
 #define RETURN_NORMAL_TOKEN_DETAIL(detail, token)               \
     do {                                                        \
+        detail->token_ = token;                                 \
         detail->line_ = line_;                                  \
         detail->column_ = column_;                              \
         detail->module_ = module_;                              \

@@ -10,9 +10,16 @@
 		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
+		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
 		CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6FB16763D9A00E59BBC /* Lex.cpp */; };
 		CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1953941683648900504CCD /* State.cpp */; };
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
+		CEC60A25169011B700E15ADE /* Parser.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A24169011B700E15ADE /* Parser.h */; };
+		CEC60A281690121500E15ADE /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC60A271690121500E15ADE /* Parser.cpp */; };
+		CEC60A2B1690429C00E15ADE /* TestParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC60A291690429C00E15ADE /* TestParser.cpp */; };
+		CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC60A2C1690792A00E15ADE /* SyntaxTree.cpp */; };
+		CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A2D1690792A00E15ADE /* SyntaxTree.h */; };
+		CEC60A3116907B8700E15ADE /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A3016907B8700E15ADE /* Visitor.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +52,7 @@
 		CE1953941683648900504CCD /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = "<group>"; };
 		CE19539516836BC100504CCD /* ModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModuleManager.h; path = ../src/ModuleManager.h; sourceTree = "<group>"; };
 		CE1DC67D168A0595004EAEBC /* TestLex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestLex.cpp; path = ../test/TestLex.cpp; sourceTree = "<group>"; };
+		CE1E694916941F940060DE44 /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Token.h; path = ../src/Token.h; sourceTree = "<group>"; };
 		CE2EA6F616763B2700E59BBC /* Lex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Lex.h; path = ../src/Lex.h; sourceTree = "<group>"; };
 		CE2EA6F716763B2700E59BBC /* TextInStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextInStream.cpp; path = ../src/TextInStream.cpp; sourceTree = "<group>"; };
 		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
@@ -52,6 +60,12 @@
 		CE36379A167C5B97009E2D95 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Exception.h; path = ../src/Exception.h; sourceTree = "<group>"; };
 		CE36379C167C6345009E2D95 /* State.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
 		CE8F1AF916875AE6001FBAA6 /* libluna.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libluna.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEC60A24169011B700E15ADE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
+		CEC60A271690121500E15ADE /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../src/Parser.cpp; sourceTree = "<group>"; };
+		CEC60A291690429C00E15ADE /* TestParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestParser.cpp; path = ../test/TestParser.cpp; sourceTree = "<group>"; };
+		CEC60A2C1690792A00E15ADE /* SyntaxTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SyntaxTree.cpp; path = ../src/SyntaxTree.cpp; sourceTree = "<group>"; };
+		CEC60A2D1690792A00E15ADE /* SyntaxTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyntaxTree.h; path = ../src/SyntaxTree.h; sourceTree = "<group>"; };
+		CEC60A3016907B8700E15ADE /* Visitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = ../src/Visitor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +99,12 @@
 				CE36379C167C6345009E2D95 /* State.h */,
 				CE19539216835C0400504CCD /* String.h */,
 				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
+				CEC60A24169011B700E15ADE /* Parser.h */,
+				CEC60A271690121500E15ADE /* Parser.cpp */,
+				CEC60A2C1690792A00E15ADE /* SyntaxTree.cpp */,
+				CEC60A2D1690792A00E15ADE /* SyntaxTree.h */,
+				CEC60A3016907B8700E15ADE /* Visitor.h */,
+				CE1E694916941F940060DE44 /* Token.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -95,6 +115,7 @@
 				CE0884341688845E00E05968 /* UnitTest.h */,
 				CE0884351688981400E05968 /* UnitTest.cpp */,
 				CE1DC67D168A0595004EAEBC /* TestLex.cpp */,
+				CEC60A291690429C00E15ADE /* TestParser.cpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -124,6 +145,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEC60A25169011B700E15ADE /* Parser.h in Headers */,
+				CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */,
+				CEC60A3116907B8700E15ADE /* Visitor.h in Headers */,
+				CE1E694A16941F940060DE44 /* Token.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +223,7 @@
 			files = (
 				CE08845016889B1400E05968 /* UnitTest.cpp in Sources */,
 				CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */,
+				CEC60A2B1690429C00E15ADE /* TestParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +234,8 @@
 				CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */,
 				CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */,
 				CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */,
+				CEC60A281690121500E15ADE /* Parser.cpp in Sources */,
+				CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
