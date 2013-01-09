@@ -15,6 +15,8 @@
 		CE597F31169DBFB000407019 /* GCObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE597F30169DBFB000407019 /* GCObject.cpp */; };
 		CE597F33169DC07E00407019 /* Table.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F32169DC07E00407019 /* Table.h */; };
 		CE597F35169DC0F700407019 /* Function.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F34169DC0F700407019 /* Function.h */; };
+		CE597F37169DC25F00407019 /* StringPool.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F36169DC25F00407019 /* StringPool.h */; };
+		CE597F39169DC30700407019 /* StringPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE597F38169DC30700407019 /* StringPool.cpp */; };
 		CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6FB16763D9A00E59BBC /* Lex.cpp */; };
 		CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1953941683648900504CCD /* State.cpp */; };
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
@@ -67,6 +69,8 @@
 		CE597F30169DBFB000407019 /* GCObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCObject.cpp; path = ../src/GCObject.cpp; sourceTree = "<group>"; };
 		CE597F32169DC07E00407019 /* Table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Table.h; path = ../src/Table.h; sourceTree = "<group>"; };
 		CE597F34169DC0F700407019 /* Function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../src/Function.h; sourceTree = "<group>"; };
+		CE597F36169DC25F00407019 /* StringPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringPool.h; path = ../src/StringPool.h; sourceTree = "<group>"; };
+		CE597F38169DC30700407019 /* StringPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringPool.cpp; path = ../src/StringPool.cpp; sourceTree = "<group>"; };
 		CE8F1AF916875AE6001FBAA6 /* libluna.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libluna.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC60A24169011B700E15ADE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
 		CEC60A271690121500E15ADE /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../src/Parser.cpp; sourceTree = "<group>"; };
@@ -117,6 +121,8 @@
 				CE597F30169DBFB000407019 /* GCObject.cpp */,
 				CE597F32169DC07E00407019 /* Table.h */,
 				CE597F34169DC0F700407019 /* Function.h */,
+				CE597F36169DC25F00407019 /* StringPool.h */,
+				CE597F38169DC30700407019 /* StringPool.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -164,6 +170,7 @@
 				CE597F2E169DBF3B00407019 /* GCObject.h in Headers */,
 				CE597F33169DC07E00407019 /* Table.h in Headers */,
 				CE597F35169DC0F700407019 /* Function.h in Headers */,
+				CE597F37169DC25F00407019 /* StringPool.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +259,7 @@
 				CEC60A281690121500E15ADE /* Parser.cpp in Sources */,
 				CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */,
 				CE597F31169DBFB000407019 /* GCObject.cpp in Sources */,
+				CE597F39169DC30700407019 /* StringPool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
