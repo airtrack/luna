@@ -11,6 +11,10 @@
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
+		CE597F2E169DBF3B00407019 /* GCObject.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F2D169DBF3B00407019 /* GCObject.h */; };
+		CE597F31169DBFB000407019 /* GCObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE597F30169DBFB000407019 /* GCObject.cpp */; };
+		CE597F33169DC07E00407019 /* Table.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F32169DC07E00407019 /* Table.h */; };
+		CE597F35169DC0F700407019 /* Function.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F34169DC0F700407019 /* Function.h */; };
 		CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6FB16763D9A00E59BBC /* Lex.cpp */; };
 		CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1953941683648900504CCD /* State.cpp */; };
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
@@ -59,6 +63,10 @@
 		CE2EA6FB16763D9A00E59BBC /* Lex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Lex.cpp; path = ../src/Lex.cpp; sourceTree = "<group>"; };
 		CE36379A167C5B97009E2D95 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Exception.h; path = ../src/Exception.h; sourceTree = "<group>"; };
 		CE36379C167C6345009E2D95 /* State.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
+		CE597F2D169DBF3B00407019 /* GCObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCObject.h; path = ../src/GCObject.h; sourceTree = "<group>"; };
+		CE597F30169DBFB000407019 /* GCObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCObject.cpp; path = ../src/GCObject.cpp; sourceTree = "<group>"; };
+		CE597F32169DC07E00407019 /* Table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Table.h; path = ../src/Table.h; sourceTree = "<group>"; };
+		CE597F34169DC0F700407019 /* Function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Function.h; path = ../src/Function.h; sourceTree = "<group>"; };
 		CE8F1AF916875AE6001FBAA6 /* libluna.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libluna.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEC60A24169011B700E15ADE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
 		CEC60A271690121500E15ADE /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../src/Parser.cpp; sourceTree = "<group>"; };
@@ -105,6 +113,10 @@
 				CEC60A2D1690792A00E15ADE /* SyntaxTree.h */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
 				CE1E694916941F940060DE44 /* Token.h */,
+				CE597F2D169DBF3B00407019 /* GCObject.h */,
+				CE597F30169DBFB000407019 /* GCObject.cpp */,
+				CE597F32169DC07E00407019 /* Table.h */,
+				CE597F34169DC0F700407019 /* Function.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -149,6 +161,9 @@
 				CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */,
 				CEC60A3116907B8700E15ADE /* Visitor.h in Headers */,
 				CE1E694A16941F940060DE44 /* Token.h in Headers */,
+				CE597F2E169DBF3B00407019 /* GCObject.h in Headers */,
+				CE597F33169DC07E00407019 /* Table.h in Headers */,
+				CE597F35169DC0F700407019 /* Function.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +251,7 @@
 				CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */,
 				CEC60A281690121500E15ADE /* Parser.cpp in Sources */,
 				CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */,
+				CE597F31169DBFB000407019 /* GCObject.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

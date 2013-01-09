@@ -1,11 +1,12 @@
 #ifndef STRING_H
 #define STRING_H
 
+#include "GCObject.h"
 #include <string>
 
 namespace luna
 {
-    class String
+    class String : public GCObject
     {
     public:
         explicit String(const std::string &str) : str_(str) { }
