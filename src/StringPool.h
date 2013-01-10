@@ -2,6 +2,7 @@
 #define STRING_POOL_H
 
 #include "String.h"
+#include <vector>
 #include <unordered_set>
 
 namespace luna
@@ -14,6 +15,8 @@ namespace luna
 
         StringPool(const StringPool&) = delete;
         void operator = (const StringPool&) = delete;
+
+        String * AllocString(const std::string &str);
 
     private:
         struct StringHash
@@ -32,7 +35,13 @@ namespace luna
             }
         };
 
+        String * GetSpareString();
+        void UseSpareString(String *spare);
+
+        // all used String store in it
         std::unordered_set<String *, StringHash, StringEqual> strings_;
+        // all unused String for spare
+        std::vector<String *> spares_;
     };
 } // namespace luna
 
