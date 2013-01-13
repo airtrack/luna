@@ -12,6 +12,6 @@ TEST_CASE(parser1)
     luna::State state;
     luna::String name("parser");
     luna::Lexer lexer(&state, &name, std::bind(&io::text::InStringStream::GetChar, &iss));
-    luna::Parser parser;
+    luna::Parser parser(&state);
     luna::TokenDetail detail;
 }

@@ -1,19 +1,26 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "Lex.h"
+#include "SyntaxTree.h"
+#include <memory>
 
 namespace luna
 {
+    class Lexer;
+    class State;
+
     class Parser
     {
     public:
-        Parser() { }
+        explicit Parser(State *state);
 
         Parser(const Parser&) = delete;
         void operator = (const Parser&) = delete;
 
-        bool Parse(Lexer *lexer) { return false; }
+        std::unique_ptr<SyntaxTree> Parse(Lexer *lexer);
+
+    private:
+        State *state_;
     };
 } // namespace luna
 

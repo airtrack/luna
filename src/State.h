@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include "ModuleManager.h"
+#include "StringPool.h"
 #include <string>
 #include <memory>
 
@@ -26,6 +27,7 @@ namespace luna
 
     private:
         std::unique_ptr<ModuleManager> module_manager_;
+        std::unique_ptr<StringPool> string_pool_;
     };
 } // namespace luna
 

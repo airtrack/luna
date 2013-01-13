@@ -6,7 +6,8 @@
 namespace luna
 {
     State::State()
-        : module_manager_(new ModuleManager)
+        : module_manager_(new ModuleManager),
+          string_pool_(new StringPool)
     {
     }
 
@@ -26,6 +27,6 @@ namespace luna
 
     String * State::GetString(const std::string &str)
     {
-        return new String(str);
+        return string_pool_->AllocString(str);
     }
 } // namespace luna
