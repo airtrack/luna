@@ -36,6 +36,11 @@ namespace luna
             what_ = buffer;
         }
     };
+
+    class ParseException : public Exception
+    {
+    public:
+    };
 } // namespace luna
 
 #endif // EXCEPTION_H

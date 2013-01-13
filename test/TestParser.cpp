@@ -13,5 +13,7 @@ TEST_CASE(parser1)
     luna::String name("parser");
     luna::Lexer lexer(&state, &name, std::bind(&io::text::InStringStream::GetChar, &iss));
     luna::Parser parser(&state);
-    luna::TokenDetail detail;
+
+    auto exp = parser.Parse(&lexer);
+    EXPECT_TRUE(exp);
 }

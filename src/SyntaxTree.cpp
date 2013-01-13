@@ -2,4 +2,15 @@
 
 namespace luna
 {
+    void Terminator::Accept(Visitor *v)
+    {
+    }
+
+    void BinaryExpression::Accept(Visitor *v)
+    {
+    }
+
+    void UnaryExpression::Accept(Visitor *v)
+    {
+    }
 } // namespace luna

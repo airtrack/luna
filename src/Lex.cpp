@@ -71,6 +71,7 @@ namespace luna
     int Lexer::GetToken(TokenDetail *detail)
     {
         assert(detail);
+        *detail = TokenDetail();
         if (current_ == EOF)
             current_ = Next();
 

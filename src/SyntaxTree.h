@@ -18,6 +18,11 @@ namespace luna
     {
     public:
         TokenDetail token_;
+
+        Terminator() { }
+        explicit Terminator(const TokenDetail &token) : token_(token) { }
+
+        virtual void Accept(Visitor *v);
     };
 
     class BinaryExpression : public SyntaxTree
@@ -27,6 +32,14 @@ namespace luna
         std::unique_ptr<SyntaxTree> right_;
         TokenDetail op_token_;
 
+        BinaryExpression() { }
+        BinaryExpression(std::unique_ptr<SyntaxTree> left,
+                         std::unique_ptr<SyntaxTree> right,
+                         const TokenDetail &op)
+            : left_(std::move(left)), right_(std::move(right)), op_token_(op)
+        {
+        }
+
         virtual void Accept(Visitor *v);
     };
 
@@ -35,6 +48,13 @@ namespace luna
     public:
         std::unique_ptr<SyntaxTree> exp_;
         TokenDetail op_token_;
+
+        UnaryExpression() { }
+        UnaryExpression(std::unique_ptr<SyntaxTree> exp,
+                        const TokenDetail &op)
+            : exp_(std::move(exp)), op_token_(op)
+        {
+        }
 
         virtual void Accept(Visitor *v);
     };
