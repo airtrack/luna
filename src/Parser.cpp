@@ -129,23 +129,25 @@ namespace
 
         int GetOpPriority(const TokenDetail &t) const
         {
-            int token = t.token_;
-            if (token == '^')
-                return 100;
-            else if (token == '*' || token == '/' || token == '%')
-                return 80;
-            else if (token == '+' || token == '-')
-                return 70;
-            else if (token == Token_Concat)
-                return 60;
-            else if (token == '>' || token == '<' || token == Token_BigEqual ||
-                     token == Token_LessEqual || token == Token_Equal || token == Token_NotEqual)
-                return 50;
-            else if (token == Token_And)
-                return 40;
-            else if (token == Token_Or)
-                return 30;
-            return 0;
+            switch (t.token_)
+            {
+                case '^': return 100;
+                case '*':
+                case '/':
+                case '%': return 80;
+                case '+':
+                case '-': return 70;
+                case Token_Concat: return 60;
+                case '>':
+                case '<':
+                case Token_BigEqual:
+                case Token_LessEqual:
+                case Token_NotEqual:
+                case Token_Equal: return 50;
+                case Token_And: return 40;
+                case Token_Or: return 30;
+                default: return 0;
+            }
         }
 
         State *state_;
