@@ -39,7 +39,7 @@ namespace
             else if (IsMainExp(look_ahead_))
                 exp = ParseMainExp();
             else
-                throw ParseException();
+                throw ParseException("unexpect token for exp.", look_ahead_);
 
             while (true)
             {
@@ -53,14 +53,16 @@ namespace
                     if (left_priority == 0)
                         return exp;
                     assert(left);
-                    left = std::unique_ptr<BinaryExpression>(new BinaryExpression(std::move(left), std::move(exp), op));
+                    left = std::unique_ptr<BinaryExpression>(
+                        new BinaryExpression(std::move(left), std::move(exp), op));
                     op = NextToken();
                     exp = ParseMainExp();
                 }
                 else
                 {
                     if (left)
-                        exp = std::unique_ptr<BinaryExpression>(new BinaryExpression(std::move(left), std::move(exp), op));
+                        exp = std::unique_ptr<BinaryExpression>(
+                            new BinaryExpression(std::move(left), std::move(exp), op));
                     return exp;
                 }
             }
@@ -82,7 +84,7 @@ namespace
                     exp.reset(new Terminator(current_));
                     break;
                 default:
-                    throw ParseException();
+                    throw ParseException("unexpect token for exp.", current_);
             }
 
             return exp;

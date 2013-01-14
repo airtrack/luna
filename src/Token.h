@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <string>
+
 namespace luna
 {
     class String;
@@ -31,6 +33,8 @@ namespace luna
 
         TokenDetail() : str_(nullptr), module_(nullptr), line_(0), column_(0), token_(Token_EOF) { }
     };
+
+    std::string GetTokenStr(const TokenDetail &t);
 } // namespace luna
 
 #endif // TOKEN_H
