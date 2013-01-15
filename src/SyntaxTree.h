@@ -58,6 +58,22 @@ namespace luna
 
         virtual void Accept(Visitor *v);
     };
+
+    class FunctionBody : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> param_list_;
+        std::unique_ptr<SyntaxTree> block_;
+
+        FunctionBody() { }
+        FunctionBody(std::unique_ptr<SyntaxTree> param_list,
+                     std::unique_ptr<SyntaxTree> block)
+            : param_list_(std::move(param_list)), block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
 } // namespace luna
 
 #endif // SYNTAX_TREE_H

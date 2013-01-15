@@ -13,4 +13,8 @@ namespace luna
     void UnaryExpression::Accept(Visitor *v)
     {
     }
+
+    void FunctionBody::Accept(Visitor *v)
+    {
+    }
 } // namespace luna

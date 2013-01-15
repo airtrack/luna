@@ -107,6 +107,39 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseFunctionDef()
         {
+            NextToken();
+            assert(current_.token_ == Token_Function);
+            return ParseFunctionBody();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFunctionBody()
+        {
+            if (LookAhead().token_ != '(')
+                throw ParseException("unexpect token after 'function', expect '('", look_ahead_);
+
+            std::unique_ptr<SyntaxTree> param_list;
+
+            NextToken();        // for '('
+            if (LookAhead().token_ != ')')
+                param_list = ParseParamList();
+
+            std::unique_ptr<SyntaxTree> block;
+
+            NextToken();        // for ')'
+            if (LookAhead().token_ != Token_End)
+                block = ParseBlock();
+
+            NextToken();        // for 'end'            
+            return std::unique_ptr<SyntaxTree>(new FunctionBody(std::move(param_list), std::move(block)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseParamList()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseBlock()
+        {
             return std::unique_ptr<SyntaxTree>();
         }
 
