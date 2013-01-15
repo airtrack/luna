@@ -72,8 +72,8 @@ namespace
         {
             std::unique_ptr<SyntaxTree> exp;
 
-            NextToken();
-            switch (current_.token_)
+            LookAhead();
+            switch (look_ahead_.token_)
             {
                 case Token_Nil:
                 case Token_False:
@@ -81,13 +81,43 @@ namespace
                 case Token_Number:
                 case Token_String:
                 case Token_VarArg:
+                    NextToken();
                     exp.reset(new Terminator(current_));
                     break;
+
+                case Token_Function:
+                    exp = ParseFunctionDef();
+                    break;
+
+                case Token_Id:
+                case '(':
+                    exp = ParsePrefixExp();
+                    break;
+
+                case '{':
+                    exp = ParseTableConstructor();
+                    break;
+
                 default:
-                    throw ParseException("unexpect token for exp.", current_);
+                    throw ParseException("unexpect token for exp.", look_ahead_);
             }
 
             return exp;
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFunctionDef()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParsePrefixExp()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseTableConstructor()
+        {
+            return std::unique_ptr<SyntaxTree>();
         }
 
     private:
@@ -133,22 +163,22 @@ namespace
         {
             switch (t.token_)
             {
-                case '^': return 100;
+                case '^':               return 100;
                 case '*':
                 case '/':
-                case '%': return 80;
+                case '%':               return 80;
                 case '+':
-                case '-': return 70;
-                case Token_Concat: return 60;
+                case '-':               return 70;
+                case Token_Concat:      return 60;
                 case '>':
                 case '<':
                 case Token_BigEqual:
                 case Token_LessEqual:
                 case Token_NotEqual:
-                case Token_Equal: return 50;
-                case Token_And: return 40;
-                case Token_Or: return 30;
-                default: return 0;
+                case Token_Equal:       return 50;
+                case Token_And:         return 40;
+                case Token_Or:          return 30;
+                default:                return 0;
             }
         }
 
