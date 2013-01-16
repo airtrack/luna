@@ -8,12 +8,13 @@
 
 TEST_CASE(parser1)
 {
-    io::text::InStringStream iss("-123 ^ 2 * 1 / 2 % 2 * 2 ^ 10 + 10 - 5 .. 'str' == 'str' and true or false");
+    io::text::InStringStream iss("-123 ^ 2 ^ -2 * 1 / 2 % 2 * 2 ^ 10 + 10 - 5 .. 'str' == 'str' and true or false");
     luna::State state;
     luna::String name("parser");
     luna::Lexer lexer(&state, &name, std::bind(&io::text::InStringStream::GetChar, &iss));
     luna::Parser parser(&state);
+    luna::TokenDetail detail;
 
-    auto exp = parser.Parse(&lexer);
-    EXPECT_TRUE(exp);
+    EXPECT_TRUE(parser.Parse(&lexer));
+    EXPECT_TRUE(lexer.GetToken(&detail) == luna::Token_EOF);
 }

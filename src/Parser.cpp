@@ -44,7 +44,8 @@ namespace
             while (true)
             {
                 int right_priority = GetOpPriority(LookAhead());
-                if (left_priority < right_priority)
+                if (left_priority < right_priority ||
+                    (left_priority == right_priority && IsRightAssociation(LookAhead())))
                 {
                     exp = ParseExp(std::move(exp), NextToken(), right_priority);
                 }
@@ -190,6 +191,11 @@ namespace
                 token == Token_Id ||
                 token == '(' ||
                 token == '{';
+        }
+
+        bool IsRightAssociation(const TokenDetail &t) const
+        {
+            return t.token_ == '^';
         }
 
         int GetOpPriority(const TokenDetail &t) const
