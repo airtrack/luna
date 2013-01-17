@@ -142,29 +142,35 @@ namespace
 
             if (LookAhead().token_ == Token_Id)
             {
-                name_list = ParseNameList();
-                if (LookAhead().token_ == ',')
+                std::unique_ptr<NameList> names(new NameList);
+                names->names_.push_back(NextToken());
+
+                while (LookAhead().token_ == ',')
                 {
-                    NextToken();    // for ','
-                    if (NextToken().token_ != Token_VarArg)
-                        throw ParseException("unexpect token, expect '...'", current_);
-                    vararg = true;
+                    NextToken();        // skip ','
+                    if (LookAhead().token_ == Token_Id)
+                        names->names_.push_back(NextToken());
+                    else if (LookAhead().token_ == Token_VarArg)
+                    {
+                        NextToken();    // skip Token_VarArg
+                        vararg = true;
+                        break;
+                    }
+                    else
+                        throw ParseException("unexpect token", look_ahead_);
                 }
+
+                name_list = std::move(names);
             }
             else if (LookAhead().token_ == Token_VarArg)
             {
-                NextToken();
+                NextToken();            // skip Token_VarArg
                 vararg = true;
             }
             else
                 throw ParseException("unexpect token", look_ahead_);
 
             return std::unique_ptr<SyntaxTree>(new ParamList(std::move(name_list), vararg));
-        }
-
-        std::unique_ptr<SyntaxTree> ParseNameList()
-        {
-            return std::unique_ptr<SyntaxTree>();
         }
 
         std::unique_ptr<SyntaxTree> ParseBlock()
