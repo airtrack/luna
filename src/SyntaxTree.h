@@ -4,6 +4,7 @@
 #include "Token.h"
 #include "Visitor.h"
 #include <memory>
+#include <vector>
 
 namespace luna
 {
@@ -71,6 +72,30 @@ namespace luna
             : param_list_(std::move(param_list)), block_(std::move(block))
         {
         }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class ParamList : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> name_list_;
+        bool vararg_;
+
+        ParamList(std::unique_ptr<SyntaxTree> name_list, bool vararg)
+            : name_list_(std::move(name_list)), vararg_(vararg)
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class NameList : public SyntaxTree
+    {
+    public:
+        std::vector<TokenDetail> names_;
+
+        NameList() { }
 
         virtual void Accept(Visitor *v);
     };

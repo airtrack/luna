@@ -73,8 +73,7 @@ namespace
         {
             std::unique_ptr<SyntaxTree> exp;
 
-            LookAhead();
-            switch (look_ahead_.token_)
+            switch (LookAhead().token_)
             {
                 case Token_Nil:
                 case Token_False:
@@ -82,8 +81,7 @@ namespace
                 case Token_Number:
                 case Token_String:
                 case Token_VarArg:
-                    NextToken();
-                    exp.reset(new Terminator(current_));
+                    exp.reset(new Terminator(NextToken()));
                     break;
 
                 case Token_Function:
@@ -115,26 +113,56 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseFunctionBody()
         {
-            if (LookAhead().token_ != '(')
-                throw ParseException("unexpect token after 'function', expect '('", look_ahead_);
+            if (NextToken().token_ != '(')
+                throw ParseException("unexpect token after 'function', expect '('", current_);
 
             std::unique_ptr<SyntaxTree> param_list;
 
-            NextToken();        // for '('
             if (LookAhead().token_ != ')')
                 param_list = ParseParamList();
 
+            if (NextToken().token_ != ')')
+                throw ParseException("unexpect token after param list, expect ')'", current_);
+
             std::unique_ptr<SyntaxTree> block;
 
-            NextToken();        // for ')'
             if (LookAhead().token_ != Token_End)
                 block = ParseBlock();
 
-            NextToken();        // for 'end'            
+            if (NextToken().token_ != Token_End)
+                throw ParseException("unexpect token after function body, expect 'end'", current_);
+
             return std::unique_ptr<SyntaxTree>(new FunctionBody(std::move(param_list), std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseParamList()
+        {
+            bool vararg = false;
+            std::unique_ptr<SyntaxTree> name_list;
+
+            if (LookAhead().token_ == Token_Id)
+            {
+                name_list = ParseNameList();
+                if (LookAhead().token_ == ',')
+                {
+                    NextToken();    // for ','
+                    if (NextToken().token_ != Token_VarArg)
+                        throw ParseException("unexpect token, expect '...'", current_);
+                    vararg = true;
+                }
+            }
+            else if (LookAhead().token_ == Token_VarArg)
+            {
+                NextToken();
+                vararg = true;
+            }
+            else
+                throw ParseException("unexpect token", look_ahead_);
+
+            return std::unique_ptr<SyntaxTree>(new ParamList(std::move(name_list), vararg));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseNameList()
         {
             return std::unique_ptr<SyntaxTree>();
         }

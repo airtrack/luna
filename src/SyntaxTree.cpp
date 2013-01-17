@@ -17,4 +17,12 @@ namespace luna
     void FunctionBody::Accept(Visitor *v)
     {
     }
+
+    void ParamList::Accept(Visitor *v)
+    {
+    }
+
+    void NameList::Accept(Visitor *v)
+    {
+    }
 } // namespace luna
