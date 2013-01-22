@@ -25,4 +25,20 @@ namespace luna
     void NameList::Accept(Visitor *v)
     {
     }
+
+    void TableDefine::Accept(Visitor *v)
+    {
+    }
+
+    void TableIndexField::Accept(Visitor *v)
+    {
+    }
+
+    void TableNameField::Accept(Visitor *v)
+    {
+    }
+
+    void TableArrayField::Accept(Visitor *v)
+    {
+    }
 } // namespace luna

@@ -185,6 +185,45 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseTableConstructor()
         {
+            NextToken();
+            assert(current_.token_ == '{');
+
+            std::unique_ptr<TableDefine> table(new TableDefine);
+
+            while (LookAhead().token_ != '}')
+            {
+                if (LookAhead().token_ == '[')
+                    table->fields_.push_back(ParseTableIndexField());
+                else if (LookAhead().token_ == Token_Id && LookAhead2().token_ == '=')
+                    table->fields_.push_back(ParseTableNameField());
+                else
+                    table->fields_.push_back(ParseTableArrayField());
+
+                if (LookAhead().token_ != '}')
+                {
+                    NextToken();
+                    if (current_.token_ != ',' || current_.token_ != ';')
+                        throw ParseException("expect ',' or ';' to split table fields", current_);
+                }
+            }
+
+            if (NextToken().token_ != '}')
+                throw ParseException("expect '}' for table", current_);
+            return std::move(table);
+        }
+
+        std::unique_ptr<SyntaxTree> ParseTableIndexField()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseTableNameField()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseTableArrayField()
+        {
             return std::unique_ptr<SyntaxTree>();
         }
 
@@ -194,7 +233,14 @@ namespace
             if (look_ahead_.token_ != Token_EOF)
             {
                 current_ = look_ahead_;
-                look_ahead_ = TokenDetail();
+
+                if (look_ahead2_.token_ == Token_EOF)
+                    look_ahead_ = TokenDetail();
+                else
+                {
+                    look_ahead_ = look_ahead2_;
+                    look_ahead2_ = TokenDetail();
+                }
             }
             else
             {
@@ -209,6 +255,14 @@ namespace
             if (look_ahead_.token_ == Token_EOF)
                 lexer_->GetToken(&look_ahead_);
             return look_ahead_;
+        }
+
+        TokenDetail& LookAhead2()
+        {
+            LookAhead();
+            if (look_ahead2_.token_ == Token_EOF)
+                lexer_->GetToken(&look_ahead2_);
+            return look_ahead2_;
         }
 
         bool IsMainExp(const TokenDetail &t) const
@@ -259,6 +313,7 @@ namespace
         Lexer *lexer_;
         TokenDetail current_;
         TokenDetail look_ahead_;
+        TokenDetail look_ahead2_;
     };
 } // namespace
 

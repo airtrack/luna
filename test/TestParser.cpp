@@ -52,3 +52,11 @@ TEST_CASE(parser2)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser3)
+{
+    ParserWrapper parser("{}");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}

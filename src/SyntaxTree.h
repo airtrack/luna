@@ -99,6 +99,59 @@ namespace luna
 
         virtual void Accept(Visitor *v);
     };
+
+    class TableDefine : public SyntaxTree
+    {
+    public:
+        std::vector<std::unique_ptr<SyntaxTree>> fields_;
+
+        TableDefine() { }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class TableIndexField : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> index_;
+        std::unique_ptr<SyntaxTree> value_;
+
+        TableIndexField(std::unique_ptr<SyntaxTree> index,
+                        std::unique_ptr<SyntaxTree> value)
+            : index_(std::move(index)), value_(std::move(value))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class TableNameField : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> name_;
+        std::unique_ptr<SyntaxTree> value_;
+
+        TableNameField(std::unique_ptr<SyntaxTree> name,
+                       std::unique_ptr<SyntaxTree> value)
+            : name_(std::move(name)), value_(std::move(value))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class TableArrayField : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> value_;
+
+        explicit TableArrayField(std::unique_ptr<SyntaxTree> value)
+            : value_(std::move(value))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
 } // namespace luna
 
 #endif // SYNTAX_TREE_H
