@@ -55,7 +55,7 @@ TEST_CASE(parser2)
 
 TEST_CASE(parser3)
 {
-    ParserWrapper parser("{}");
+    ParserWrapper parser("{['str'] = 1 ^ 2, abc = 'str' .. 2, 1 + 2;}");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());

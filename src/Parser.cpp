@@ -202,7 +202,7 @@ namespace
                 if (LookAhead().token_ != '}')
                 {
                     NextToken();
-                    if (current_.token_ != ',' || current_.token_ != ';')
+                    if (current_.token_ != ',' && current_.token_ != ';')
                         throw ParseException("expect ',' or ';' to split table fields", current_);
                 }
             }
@@ -214,17 +214,38 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseTableIndexField()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();
+            assert(current_.token_ == '[');
+
+            std::unique_ptr<SyntaxTree> index = ParseExp();
+
+            if (NextToken().token_ != ']')
+                throw ParseException("expect ']'", current_);
+
+            if (NextToken().token_ != '=')
+                throw ParseException("expect '='", current_);
+
+            std::unique_ptr<SyntaxTree> value = ParseExp();
+
+            return std::unique_ptr<SyntaxTree>(new TableIndexField(std::move(index), std::move(value)));
         }
 
         std::unique_ptr<SyntaxTree> ParseTableNameField()
         {
-            return std::unique_ptr<SyntaxTree>();
+            TokenDetail name = NextToken();
+
+            NextToken();
+            assert(current_.token_ == '=');
+
+            std::unique_ptr<SyntaxTree> value = ParseExp();
+
+            return std::unique_ptr<SyntaxTree>(new TableNameField(name, std::move(value)));
         }
 
         std::unique_ptr<SyntaxTree> ParseTableArrayField()
         {
-            return std::unique_ptr<SyntaxTree>();
+            std::unique_ptr<SyntaxTree> value = ParseExp();
+            return std::unique_ptr<SyntaxTree>(new TableArrayField(std::move(value)));
         }
 
     private:

@@ -128,12 +128,12 @@ namespace luna
     class TableNameField : public SyntaxTree
     {
     public:
-        std::unique_ptr<SyntaxTree> name_;
+        TokenDetail name_;
         std::unique_ptr<SyntaxTree> value_;
 
-        TableNameField(std::unique_ptr<SyntaxTree> name,
+        TableNameField(const TokenDetail &name,
                        std::unique_ptr<SyntaxTree> value)
-            : name_(std::move(name)), value_(std::move(value))
+            : name_(name), value_(std::move(value))
         {
         }
 
