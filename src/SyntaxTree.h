@@ -152,6 +152,76 @@ namespace luna
 
         virtual void Accept(Visitor *v);
     };
+
+    class IndexAccessor : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> table_;
+        std::unique_ptr<SyntaxTree> index_;
+
+        IndexAccessor(std::unique_ptr<SyntaxTree> table,
+                      std::unique_ptr<SyntaxTree> index)
+            : table_(std::move(table)), index_(std::move(index))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class MemberAccessor : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> table_;
+        TokenDetail member_;
+
+        MemberAccessor(std::unique_ptr<SyntaxTree> table,
+                       const TokenDetail &member)
+            : table_(std::move(table)), member_(member)
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class NormalFuncCall : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> caller_;
+        std::unique_ptr<SyntaxTree> args_;
+
+        NormalFuncCall(std::unique_ptr<SyntaxTree> caller,
+                       std::unique_ptr<SyntaxTree> args)
+            : caller_(std::move(caller)), args_(std::move(args))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class MemberFuncCall : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> caller_;
+        TokenDetail member_;
+        std::unique_ptr<SyntaxTree> args_;
+
+        MemberFuncCall(std::unique_ptr<SyntaxTree> caller,
+                       const TokenDetail &member,
+                       std::unique_ptr<SyntaxTree> args)
+            : caller_(std::move(caller)), member_(member), args_(std::move(args))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class ExpressionList : public SyntaxTree
+    {
+    public:
+        std::vector<std::unique_ptr<SyntaxTree>> exp_list_;
+
+        virtual void Accept(Visitor *v);
+    };
 } // namespace luna
 
 #endif // SYNTAX_TREE_H

@@ -41,4 +41,24 @@ namespace luna
     void TableArrayField::Accept(Visitor *v)
     {
     }
+
+    void IndexAccessor::Accept(Visitor *v)
+    {
+    }
+
+    void MemberAccessor::Accept(Visitor *v)
+    {
+    }
+
+    void NormalFuncCall::Accept(Visitor *v)
+    {
+    }
+
+    void MemberFuncCall::Accept(Visitor *v)
+    {
+    }
+
+    void ExpressionList::Accept(Visitor *v)
+    {
+    }
 } // namespace luna

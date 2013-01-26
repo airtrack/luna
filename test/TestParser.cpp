@@ -55,7 +55,91 @@ TEST_CASE(parser2)
 
 TEST_CASE(parser3)
 {
-    ParserWrapper parser("{['str'] = 1 ^ 2, abc = 'str' .. 2, 1 + 2;}");
+    ParserWrapper parser("{['str'] = 1 ^ 2, abc = 'str' .. 2, id, 1 + 2;}");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser4)
+{
+    ParserWrapper parser("(1 + 2) * 3 / 4");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser5)
+{
+    ParserWrapper parser("name");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser6)
+{
+    ParserWrapper parser("table[index]");
+
+    auto var = parser.Parse();
+    EXPECT_TRUE(var);
+    EXPECT_TRUE(dynamic_cast<luna::IndexAccessor *>(var.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser7)
+{
+    ParserWrapper parser("t.a.b.c");
+
+    auto var = parser.Parse();
+    EXPECT_TRUE(var);
+    EXPECT_TRUE(dynamic_cast<luna::MemberAccessor *>(var.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser8)
+{
+    ParserWrapper parser("f(a, b, c)");
+
+    auto func_call = parser.Parse();
+    EXPECT_TRUE(func_call);
+    EXPECT_TRUE(dynamic_cast<luna::NormalFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser9)
+{
+    ParserWrapper parser("f:m()");
+
+    auto func_call = parser.Parse();
+    EXPECT_TRUE(func_call);
+    EXPECT_TRUE(dynamic_cast<luna::MemberFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser10)
+{
+    ParserWrapper parser("f{1, 2, 3}");
+
+    auto func_call = parser.Parse();
+    EXPECT_TRUE(func_call);
+    EXPECT_TRUE(dynamic_cast<luna::NormalFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser11)
+{
+    ParserWrapper parser("f:m'str'");
+
+    auto func_call = parser.Parse();
+    EXPECT_TRUE(func_call);
+    EXPECT_TRUE(dynamic_cast<luna::MemberFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.IsEOF());
+}
+
+TEST_CASE(parser12)
+{
+    ParserWrapper parser("f(1, 2, 3):m{1, 2, 3}.m[123].m");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());

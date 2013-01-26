@@ -8,6 +8,13 @@ namespace
 {
     using namespace luna;
 
+    enum PrefixExpType
+    {
+        PrefixExpType_Normal,
+        PrefixExpType_Var,
+        PrefixExpType_Functioncall,
+    };
+
     class ParserImpl
     {
     public:
@@ -178,9 +185,133 @@ namespace
             return std::unique_ptr<SyntaxTree>();
         }
 
-        std::unique_ptr<SyntaxTree> ParsePrefixExp()
+        std::unique_ptr<SyntaxTree> ParsePrefixExp(PrefixExpType *type = nullptr)
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();
+            assert(current_.token_ == Token_Id || current_.token_ == '(');
+
+            std::unique_ptr<SyntaxTree> exp;
+
+            if (current_.token_ == '(')
+            {
+                exp = ParseExp();
+                if (NextToken().token_ != ')')
+                    throw ParseException("expect ')'", current_);
+                if (type) *type = PrefixExpType_Normal;
+            }
+            else
+            {
+                exp.reset(new Terminator(current_));
+                if (type) *type = PrefixExpType_Var;
+            }
+
+            return ParsePrefixExpTail(std::move(exp), type);
+        }
+
+        std::unique_ptr<SyntaxTree> ParsePrefixExpTail(std::unique_ptr<SyntaxTree> exp,
+                                                       PrefixExpType *type)
+        {
+            if (LookAhead().token_ == '[' || LookAhead().token_ == '.')
+            {
+                if (type) *type = PrefixExpType_Var;
+                exp = ParseVar(std::move(exp));
+                return ParsePrefixExpTail(std::move(exp), type);
+            }
+            else if (LookAhead().token_ == ':' || LookAhead().token_ == '(' ||
+                     LookAhead().token_ == '{' || LookAhead().token_ == Token_String)
+            {
+                if (type) *type = PrefixExpType_Functioncall;
+                exp = ParseFunctionCall(std::move(exp));
+                return ParsePrefixExpTail(std::move(exp), type);
+            }
+            else
+            {
+                return exp;
+            }
+        }
+
+        std::unique_ptr<SyntaxTree> ParseVar(std::unique_ptr<SyntaxTree> table)
+        {
+            NextToken();
+            assert(current_.token_ == '[' || current_.token_ == '.');
+
+            if (current_.token_ == '[')
+            {
+                std::unique_ptr<SyntaxTree> exp = ParseExp();
+                if (NextToken().token_ != ']')
+                    throw ParseException("expect ']'", current_);
+                return std::unique_ptr<SyntaxTree>(new IndexAccessor(std::move(table), std::move(exp)));
+            }
+            else
+            {
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("expect 'id' after '.'", current_);
+                return std::unique_ptr<SyntaxTree>(new MemberAccessor(std::move(table), current_));
+            }
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFunctionCall(std::unique_ptr<SyntaxTree> caller)
+        {
+            if (LookAhead().token_ == ':')
+            {
+                NextToken();
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("expect 'id' after ':'", current_);
+
+                TokenDetail member = current_;
+                std::unique_ptr<SyntaxTree> args = ParseArgs();
+                return std::unique_ptr<SyntaxTree>(new MemberFuncCall(std::move(caller), member, std::move(args)));
+            }
+            else
+            {
+                std::unique_ptr<SyntaxTree> args = ParseArgs();
+                return std::unique_ptr<SyntaxTree>(new NormalFuncCall(std::move(caller), std::move(args)));
+            }
+        }
+
+        std::unique_ptr<SyntaxTree> ParseArgs()
+        {
+            assert(LookAhead().token_ == Token_String ||
+                   LookAhead().token_ == '{' ||
+                   LookAhead().token_ == '(');
+
+            if (LookAhead().token_ == Token_String)
+            {
+                return std::unique_ptr<SyntaxTree>(new Terminator(NextToken()));
+            }
+            else if (LookAhead().token_ == '{')
+            {
+                return ParseTableConstructor();
+            }
+            else
+            {
+                NextToken();        // skip '('
+                std::unique_ptr<SyntaxTree> exp_list;
+                if (LookAhead().token_ != ')')
+                    exp_list = ParseExpList();
+
+                if (NextToken().token_ != ')')
+                    throw ParseException("expect ')' to end function call args", current_);
+                return exp_list;
+            }
+        }
+
+        std::unique_ptr<SyntaxTree> ParseExpList()
+        {
+            std::unique_ptr<ExpressionList> exp_list(new ExpressionList);
+
+            bool anymore = true;
+            while (anymore)
+            {
+                exp_list->exp_list_.push_back(ParseExp());
+
+                if (LookAhead().token_ == ',')
+                    NextToken();
+                else
+                    anymore = false;
+            }
+
+            return std::move(exp_list);
         }
 
         std::unique_ptr<SyntaxTree> ParseTableConstructor()
