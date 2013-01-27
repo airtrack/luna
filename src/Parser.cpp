@@ -277,7 +277,20 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseWhileStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();            // skip 'while'
+            assert(current_.token_ == Token_While);
+
+            std::unique_ptr<SyntaxTree> exp = ParseExp();
+
+            if (NextToken().token_ != Token_Do)
+                throw ParseException("expect 'do' for while-statement", current_);
+
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+
+            if (NextToken().token_ != Token_End)
+                throw ParseException("expect 'end' for while-statement", current_);
+
+            return std::unique_ptr<SyntaxTree>(new WhileStatement(std::move(exp), std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseRepeatStatement()

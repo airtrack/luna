@@ -14,6 +14,10 @@ namespace luna
     {
     }
 
+    void WhileStatement::Accept(Visitor *v)
+    {
+    }
+
     void AssignmentStatement::Accept(Visitor *v)
     {
     }

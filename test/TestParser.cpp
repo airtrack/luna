@@ -152,3 +152,11 @@ TEST_CASE(parser13)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser14)
+{
+    ParserWrapper parser("function() while true do return end end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}
