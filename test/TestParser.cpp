@@ -47,7 +47,7 @@ TEST_CASE(parser1)
 
 TEST_CASE(parser2)
 {
-    ParserWrapper parser("function(a, b, c, ...) return a, b, c; end");
+    ParserWrapper parser("function(a, b, c, ...) f(a, b, c); t.a, t.b, t.c = a, b, c return a, b, c; end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());

@@ -10,6 +10,14 @@ namespace luna
     {
     }
 
+    void AssignmentStatement::Accept(Visitor *v)
+    {
+    }
+
+    void VarList::Accept(Visitor *v)
+    {
+    }
+
     void Terminator::Accept(Visitor *v)
     {
     }

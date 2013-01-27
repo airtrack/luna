@@ -36,6 +36,31 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class AssignmentStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> var_list_;
+        std::unique_ptr<SyntaxTree> exp_list_;
+
+        AssignmentStatement(std::unique_ptr<SyntaxTree> var_list,
+                            std::unique_ptr<SyntaxTree> exp_list)
+            : var_list_(std::move(var_list)), exp_list_(std::move(exp_list))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class VarList : public SyntaxTree
+    {
+    public:
+        std::vector<std::unique_ptr<SyntaxTree>> var_list_;
+
+        VarList() { }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class Terminator : public SyntaxTree
     {
     public:

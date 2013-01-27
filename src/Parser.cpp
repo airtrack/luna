@@ -300,6 +300,36 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseOtherStatement()
         {
+            PrefixExpType type;
+            std::unique_ptr<SyntaxTree> exp = ParsePrefixExp(&type);
+
+            if (type == PrefixExpType_Var)
+            {
+                std::unique_ptr<VarList> var_list(new VarList);
+                var_list->var_list_.push_back(std::move(exp));
+
+                while (LookAhead().token_ != '=')
+                {
+                    if (LookAhead().token_ != ',')
+                        throw ParseException("unexpect token", look_ahead_);
+                    NextToken();        // skip ','
+                    exp = ParsePrefixExp(&type);
+                    if (type != PrefixExpType_Var)
+                        throw ParseException("expect var here", current_);
+                    var_list->var_list_.push_back(std::move(exp));
+                }
+
+                NextToken();            // skip '='
+                std::unique_ptr<SyntaxTree> exp_list = ParseExpList();
+                return std::unique_ptr<SyntaxTree>(new AssignmentStatement(std::move(var_list),
+                                                                           std::move(exp_list)));
+            }
+            else if (type == PrefixExpType_Functioncall)
+                return exp;
+            else
+                throw ParseException("incomplete statement", current_);
+
+            assert(!"unreachable");
             return std::unique_ptr<SyntaxTree>();
         }
 
