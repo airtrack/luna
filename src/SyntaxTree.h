@@ -64,6 +64,21 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class RepeatStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> block_;
+        std::unique_ptr<SyntaxTree> exp_;
+
+        RepeatStatement(std::unique_ptr<SyntaxTree> block,
+                        std::unique_ptr<SyntaxTree> exp)
+            : block_(std::move(block)), exp_(std::move(exp))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class AssignmentStatement : public SyntaxTree
     {
     public:

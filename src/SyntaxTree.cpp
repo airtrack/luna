@@ -18,6 +18,10 @@ namespace luna
     {
     }
 
+    void RepeatStatement::Accept(Visitor *v)
+    {
+    }
+
     void AssignmentStatement::Accept(Visitor *v)
     {
     }

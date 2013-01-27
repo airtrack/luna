@@ -160,3 +160,11 @@ TEST_CASE(parser14)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser15)
+{
+    ParserWrapper parser("function() repeat return until (1 + 1) end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}

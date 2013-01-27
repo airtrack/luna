@@ -295,7 +295,17 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseRepeatStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();            // skip 'repeat'
+            assert(current_.token_ == Token_Repeat);
+
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+
+            if (NextToken().token_ != Token_Until)
+                throw ParseException("expect 'until' for repeat-statement", current_);
+
+            std::unique_ptr<SyntaxTree> exp = ParseExp();
+
+            return std::unique_ptr<SyntaxTree>(new RepeatStatement(std::move(block), std::move(exp)));
         }
 
         std::unique_ptr<SyntaxTree> ParseIfStatement()
