@@ -201,7 +201,9 @@ namespace
                 }
                 else
                 {
-                    block->statements_.push_back(ParseStatement());
+                    std::unique_ptr<SyntaxTree> statement = ParseStatement();
+                    if (statement)
+                        block->statements_.push_back(std::move(statement));
                 }
             }
 
@@ -234,6 +236,69 @@ namespace
         }
 
         std::unique_ptr<SyntaxTree> ParseStatement()
+        {
+            switch (LookAhead().token_)
+            {
+                case ';':
+                    NextToken();
+                    break;
+                case Token_Do:
+                    return ParseDoStatement();
+                case Token_While:
+                    return ParseWhileStatement();
+                case Token_Repeat:
+                    return ParseRepeatStatement();
+                case Token_If:
+                    return ParseIfStatement();
+                case Token_Function:
+                    return ParseFunctionStatement();
+                case Token_For:
+                    return ParseForStatement();
+                case Token_Local:
+                    return ParseLocalStatement();
+                default:
+                    return ParseOtherStatement();
+            }
+
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseDoStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseWhileStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseRepeatStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseIfStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFunctionStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseForStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseLocalStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseOtherStatement()
         {
             return std::unique_ptr<SyntaxTree>();
         }
