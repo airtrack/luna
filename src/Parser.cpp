@@ -210,7 +210,27 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseReturnStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();            // skip 'return'
+            assert(current_.token_ == Token_Return);
+
+            std::unique_ptr<ReturnStatement> return_stmt(new ReturnStatement);
+
+            if (LookAhead().token_ == Token_EOF ||
+                LookAhead().token_ == Token_End ||
+                LookAhead().token_ == Token_Until ||
+                LookAhead().token_ == Token_Elseif ||
+                LookAhead().token_ == Token_Else)
+            {
+                return std::move(return_stmt);
+            }
+
+            if (LookAhead().token_ != ';')
+                return_stmt->exp_list_ = ParseExpList();
+
+            if (LookAhead().token_ == ';')
+                NextToken();
+
+            return std::move(return_stmt);
         }
 
         std::unique_ptr<SyntaxTree> ParseStatement()

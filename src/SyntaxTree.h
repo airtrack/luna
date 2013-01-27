@@ -26,6 +26,16 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class ReturnStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> exp_list_;
+
+        ReturnStatement() { }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class Terminator : public SyntaxTree
     {
     public:

@@ -6,6 +6,10 @@ namespace luna
     {
     }
 
+    void ReturnStatement::Accept(Visitor *v)
+    {
+    }
+
     void Terminator::Accept(Visitor *v)
     {
     }
