@@ -2,6 +2,10 @@
 
 namespace luna
 {
+    void Block::Accept(Visitor *v)
+    {
+    }
+
     void Terminator::Accept(Visitor *v)
     {
     }

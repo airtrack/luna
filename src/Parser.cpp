@@ -182,6 +182,39 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseBlock()
         {
+            std::unique_ptr<Block> block(new Block);
+
+            bool has_return = false;
+            while (LookAhead().token_ != Token_EOF &&
+                   LookAhead().token_ != Token_End &&
+                   LookAhead().token_ != Token_Until &&
+                   LookAhead().token_ != Token_Elseif &&
+                   LookAhead().token_ != Token_Else)
+            {
+                if (has_return)
+                    throw ParseException("unexpect statement after return statement", look_ahead_);
+
+                if (LookAhead().token_ == Token_Return)
+                {
+                    block->return_stmt_ = ParseReturnStatement();
+                    has_return = true;
+                }
+                else
+                {
+                    block->statements_.push_back(ParseStatement());
+                }
+            }
+
+            return std::move(block);
+        }
+
+        std::unique_ptr<SyntaxTree> ParseReturnStatement()
+        {
+            return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseStatement()
+        {
             return std::unique_ptr<SyntaxTree>();
         }
 

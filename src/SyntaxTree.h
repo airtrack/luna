@@ -15,6 +15,17 @@ namespace luna
         virtual void Accept(Visitor *v) = 0;
     };
 
+    class Block : public SyntaxTree
+    {
+    public:
+        std::vector<std::unique_ptr<SyntaxTree>> statements_;
+        std::unique_ptr<SyntaxTree> return_stmt_;
+
+        Block() { }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class Terminator : public SyntaxTree
     {
     public:
