@@ -265,7 +265,14 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseDoStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();            // skip 'do'
+            assert(current_.token_ == Token_Do);
+
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+            if (NextToken().token_ != Token_End)
+                throw ParseException("expect 'end' for do-statement", current_);
+
+            return std::unique_ptr<SyntaxTree>(new DoStatement(std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseWhileStatement()

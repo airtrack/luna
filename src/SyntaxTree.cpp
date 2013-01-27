@@ -10,6 +10,10 @@ namespace luna
     {
     }
 
+    void DoStatement::Accept(Visitor *v)
+    {
+    }
+
     void AssignmentStatement::Accept(Visitor *v)
     {
     }

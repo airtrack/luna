@@ -36,6 +36,19 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class DoStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> block_;
+
+        explicit DoStatement(std::unique_ptr<SyntaxTree> block)
+            : block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class AssignmentStatement : public SyntaxTree
     {
     public:
