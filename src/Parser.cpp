@@ -353,7 +353,70 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseForStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();                // skip 'for'
+            assert(current_.token_ == Token_For);
+
+            if (LookAhead().token_ != Token_Id)
+                throw ParseException("expect 'id' after 'for'", look_ahead_);
+
+            if (LookAhead2().token_ == '=')
+                return ParseNumericForStatement();
+            else
+                return ParseGenericForStatement();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseNumericForStatement()
+        {
+            TokenDetail name = NextToken();
+            assert(current_.token_ == Token_Id);
+
+            NextToken();                // skip '='
+            assert(current_.token_ == '=');
+
+            std::unique_ptr<SyntaxTree> exp1 = ParseExp();
+            if (NextToken().token_ != ',')
+                throw ParseException("expect ',' in numeric-for", current_);
+
+            std::unique_ptr<SyntaxTree> exp2 = ParseExp();
+            std::unique_ptr<SyntaxTree> exp3;
+
+            if (LookAhead().token_ == ',')
+            {
+                NextToken();            // skip ','
+                exp3 = ParseExp();
+            }
+
+            if (NextToken().token_ != Token_Do)
+                throw ParseException("expect 'do' to start numeric-for body", current_);
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+
+            if (NextToken().token_ != Token_End)
+                throw ParseException("expect 'end' to complete numeric-for", current_);
+            return std::unique_ptr<SyntaxTree>(new NumericForStatement(name,
+                                                                       std::move(exp1), std::move(exp2),
+                                                                       std::move(exp3), std::move(block)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseGenericForStatement()
+        {
+            std::unique_ptr<SyntaxTree> name_list = ParseNameList();
+
+            if (NextToken().token_ != Token_In)
+                throw ParseException("expect 'in' in generic-for", current_);
+
+            std::unique_ptr<SyntaxTree> exp_list = ParseExpList();
+
+            if (NextToken().token_ != Token_Do)
+                throw ParseException("expect 'do' to start generic-for body", current_);
+
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+
+            if (NextToken().token_ != Token_End)
+                throw ParseException("expect 'end' to complete generic-for", current_);
+
+            return std::unique_ptr<SyntaxTree>(new GenericForStatement(std::move(name_list),
+                                                                       std::move(exp_list),
+                                                                       std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseLocalStatement()
@@ -388,17 +451,8 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseLocalNameList()
         {
-            std::unique_ptr<NameList> name_list(new NameList);
+            std::unique_ptr<SyntaxTree> name_list = ParseNameList();
             std::unique_ptr<SyntaxTree> exp_list;
-
-            name_list->names_.push_back(NextToken());
-            while (LookAhead().token_ == ',')
-            {
-                NextToken();            // skip ','
-                if (NextToken().token_ != Token_Id)
-                    throw ParseException("expect 'id' after ','", current_);
-                name_list->names_.push_back(current_);
-            }
 
             if (LookAhead().token_ == '=')
             {
@@ -408,6 +462,25 @@ namespace
 
             return std::unique_ptr<SyntaxTree>(new LocalNameListStatement(std::move(name_list),
                                                                           std::move(exp_list)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseNameList()
+        {
+            if (NextToken().token_ != Token_Id)
+                throw ParseException("expect 'id'", current_);
+
+            std::unique_ptr<NameList> name_list(new NameList);
+
+            name_list->names_.push_back(current_);
+            while (LookAhead().token_ == ',')
+            {
+                NextToken();            // skip ','
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("expect 'id' after ','", current_);
+                name_list->names_.push_back(current_);
+            }
+
+            return std::move(name_list);
         }
 
         std::unique_ptr<SyntaxTree> ParseOtherStatement()

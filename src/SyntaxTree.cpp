@@ -22,6 +22,14 @@ namespace luna
     {
     }
 
+    void NumericForStatement::Accept(Visitor *v)
+    {
+    }
+
+    void GenericForStatement::Accept(Visitor *v)
+    {
+    }
+
     void FunctionStatement::Accept(Visitor *v)
     {
     }

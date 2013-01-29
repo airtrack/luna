@@ -184,3 +184,11 @@ TEST_CASE(parser17)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser18)
+{
+    ParserWrapper parser("function() for a = 1, 2, 3 do end for a, b in pairs(t) do end end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}

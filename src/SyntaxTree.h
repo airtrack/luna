@@ -79,6 +79,50 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class NumericForStatement : public SyntaxTree
+    {
+    public:
+        TokenDetail name_;
+        std::unique_ptr<SyntaxTree> exp1_;
+        std::unique_ptr<SyntaxTree> exp2_;
+        std::unique_ptr<SyntaxTree> exp3_;
+        std::unique_ptr<SyntaxTree> block_;
+
+        NumericForStatement(const TokenDetail &name,
+                            std::unique_ptr<SyntaxTree> exp1,
+                            std::unique_ptr<SyntaxTree> exp2,
+                            std::unique_ptr<SyntaxTree> exp3,
+                            std::unique_ptr<SyntaxTree> block)
+            : name_(name),
+              exp1_(std::move(exp1)),
+              exp2_(std::move(exp2)),
+              exp3_(std::move(exp3)),
+              block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class GenericForStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> name_list_;
+        std::unique_ptr<SyntaxTree> exp_list_;
+        std::unique_ptr<SyntaxTree> block_;
+
+        GenericForStatement(std::unique_ptr<SyntaxTree> name_list,
+                            std::unique_ptr<SyntaxTree> exp_list,
+                            std::unique_ptr<SyntaxTree> block)
+            : name_list_(std::move(name_list)),
+              exp_list_(std::move(exp_list)),
+              block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class FunctionStatement : public SyntaxTree
     {
     public:
