@@ -168,3 +168,11 @@ TEST_CASE(parser15)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser16)
+{
+    ParserWrapper parser("function() local function f() end local a, b, c = 1, 2 end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}

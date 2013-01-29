@@ -22,6 +22,14 @@ namespace luna
     {
     }
 
+    void LocalFunction::Accept(Visitor *v)
+    {
+    }
+
+    void LocalNameList::Accept(Visitor *v)
+    {
+    }
+
     void AssignmentStatement::Accept(Visitor *v)
     {
     }

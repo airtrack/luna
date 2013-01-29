@@ -325,7 +325,55 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseLocalStatement()
         {
+            NextToken();                // skip 'local'
+            assert(current_.token_ == Token_Local);
+
+            if (LookAhead().token_ == Token_Function)
+                return ParseLocalFunction();
+            else if (LookAhead().token_ == Token_Id)
+                return ParseLocalNameList();
+            else
+                throw ParseException("unexpect token after 'local'", look_ahead_);
+
+            assert(!"unreachable");
             return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseLocalFunction()
+        {
+            NextToken();                // skip 'function'
+            assert(current_.token_ == Token_Function);
+
+            if (NextToken().token_ != Token_Id)
+                throw ParseException("expect 'id' after 'local function'", current_);
+
+            TokenDetail name = current_;
+            std::unique_ptr<SyntaxTree> body = ParseFunctionBody();
+
+            return std::unique_ptr<SyntaxTree>(new LocalFunction(name, std::move(body)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseLocalNameList()
+        {
+            std::unique_ptr<NameList> name_list(new NameList);
+            std::unique_ptr<SyntaxTree> exp_list;
+
+            name_list->names_.push_back(NextToken());
+            while (LookAhead().token_ == ',')
+            {
+                NextToken();            // skip ','
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("expect 'id' after ','", current_);
+                name_list->names_.push_back(current_);
+            }
+
+            if (LookAhead().token_ == '=')
+            {
+                NextToken();            // skip '='
+                exp_list = ParseExpList();
+            }
+
+            return std::unique_ptr<SyntaxTree>(new LocalNameList(std::move(name_list), std::move(exp_list)));
         }
 
         std::unique_ptr<SyntaxTree> ParseOtherStatement()

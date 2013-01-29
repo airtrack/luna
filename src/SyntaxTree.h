@@ -79,6 +79,36 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class LocalFunction : public SyntaxTree
+    {
+    public:
+        TokenDetail name_;
+        std::unique_ptr<SyntaxTree> func_body_;
+
+        LocalFunction(const TokenDetail &name,
+                      std::unique_ptr<SyntaxTree> func_body)
+            : name_(name), func_body_(std::move(func_body))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class LocalNameList : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> name_list_;
+        std::unique_ptr<SyntaxTree> exp_list_;
+
+        LocalNameList(std::unique_ptr<SyntaxTree> name_list,
+                      std::unique_ptr<SyntaxTree> exp_list)
+            : name_list_(std::move(name_list)), exp_list_(std::move(exp_list))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class AssignmentStatement : public SyntaxTree
     {
     public:
