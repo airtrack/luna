@@ -350,7 +350,7 @@ namespace
             TokenDetail name = current_;
             std::unique_ptr<SyntaxTree> body = ParseFunctionBody();
 
-            return std::unique_ptr<SyntaxTree>(new LocalFunction(name, std::move(body)));
+            return std::unique_ptr<SyntaxTree>(new LocalFunctionStatement(name, std::move(body)));
         }
 
         std::unique_ptr<SyntaxTree> ParseLocalNameList()
@@ -373,7 +373,7 @@ namespace
                 exp_list = ParseExpList();
             }
 
-            return std::unique_ptr<SyntaxTree>(new LocalNameList(std::move(name_list), std::move(exp_list)));
+            return std::unique_ptr<SyntaxTree>(new LocalNameListStatement(std::move(name_list), std::move(exp_list)));
         }
 
         std::unique_ptr<SyntaxTree> ParseOtherStatement()
