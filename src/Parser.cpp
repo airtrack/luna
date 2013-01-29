@@ -315,7 +315,40 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseFunctionStatement()
         {
-            return std::unique_ptr<SyntaxTree>();
+            NextToken();                // skip 'function'
+            assert(current_.token_ == Token_Function);
+
+            std::unique_ptr<SyntaxTree> func_name = ParseFunctionName();
+            std::unique_ptr<SyntaxTree> func_body = ParseFunctionBody();
+            return std::unique_ptr<SyntaxTree>(new FunctionStatement(std::move(func_name),
+                                                                     std::move(func_body)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFunctionName()
+        {
+            if (NextToken().token_ != Token_Id)
+                throw ParseException("unexpect token after 'function'", current_);
+
+            std::unique_ptr<FunctionName> func_name(new FunctionName);
+            func_name->names_.push_back(current_);
+
+            while (LookAhead().token_ == '.')
+            {
+                NextToken();            // skip '.'
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("unexpect token in function name after '.'", current_);
+                func_name->names_.push_back(current_);
+            }
+
+            if (LookAhead().token_ == ':')
+            {
+                NextToken();            // skip ':'
+                if (NextToken().token_ != Token_Id)
+                    throw ParseException("unexpect token in function name after ':'", current_);
+                func_name->member_name_ = current_;
+            }
+
+            return std::move(func_name);
         }
 
         std::unique_ptr<SyntaxTree> ParseForStatement()
@@ -373,7 +406,8 @@ namespace
                 exp_list = ParseExpList();
             }
 
-            return std::unique_ptr<SyntaxTree>(new LocalNameListStatement(std::move(name_list), std::move(exp_list)));
+            return std::unique_ptr<SyntaxTree>(new LocalNameListStatement(std::move(name_list),
+                                                                          std::move(exp_list)));
         }
 
         std::unique_ptr<SyntaxTree> ParseOtherStatement()

@@ -176,3 +176,11 @@ TEST_CASE(parser16)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser17)
+{
+    ParserWrapper parser("function() function a.b.c:d() return end end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}
