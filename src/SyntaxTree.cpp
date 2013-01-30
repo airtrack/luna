@@ -22,6 +22,18 @@ namespace luna
     {
     }
 
+    void IfStatement::Accept(Visitor *v)
+    {
+    }
+
+    void ElseIfStatement::Accept(Visitor *v)
+    {
+    }
+
+    void ElseStatement::Accept(Visitor *v)
+    {
+    }
+
     void NumericForStatement::Accept(Visitor *v)
     {
     }

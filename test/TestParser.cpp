@@ -192,3 +192,11 @@ TEST_CASE(parser18)
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
+
+TEST_CASE(parser19)
+{
+    ParserWrapper parser("function() if 1 + 1 then elseif not true then else end end");
+
+    EXPECT_TRUE(parser.Parse());
+    EXPECT_TRUE(parser.IsEOF());
+}

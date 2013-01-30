@@ -79,6 +79,57 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class IfStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> exp_;
+        std::unique_ptr<SyntaxTree> true_branch_;
+        std::unique_ptr<SyntaxTree> false_branch_;
+
+        IfStatement(std::unique_ptr<SyntaxTree> exp,
+                    std::unique_ptr<SyntaxTree> true_branch,
+                    std::unique_ptr<SyntaxTree> false_branch)
+            : exp_(std::move(exp)),
+              true_branch_(std::move(true_branch)),
+              false_branch_(std::move(false_branch))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class ElseIfStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> exp_;
+        std::unique_ptr<SyntaxTree> true_branch_;
+        std::unique_ptr<SyntaxTree> false_branch_;
+
+        ElseIfStatement(std::unique_ptr<SyntaxTree> exp,
+                        std::unique_ptr<SyntaxTree> true_branch,
+                        std::unique_ptr<SyntaxTree> false_branch)
+            : exp_(std::move(exp)),
+              true_branch_(std::move(true_branch)),
+              false_branch_(std::move(false_branch))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
+    class ElseStatement : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> block_;
+
+        ElseStatement(std::unique_ptr<SyntaxTree> block)
+            : block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class NumericForStatement : public SyntaxTree
     {
     public:

@@ -212,7 +212,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseReturnStatement()
         {
-            NextToken();            // skip 'return'
+            NextToken();                // skip 'return'
             assert(current_.token_ == Token_Return);
 
             std::unique_ptr<ReturnStatement> return_stmt(new ReturnStatement);
@@ -265,7 +265,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseDoStatement()
         {
-            NextToken();            // skip 'do'
+            NextToken();                // skip 'do'
             assert(current_.token_ == Token_Do);
 
             std::unique_ptr<SyntaxTree> block = ParseBlock();
@@ -277,7 +277,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseWhileStatement()
         {
-            NextToken();            // skip 'while'
+            NextToken();                // skip 'while'
             assert(current_.token_ == Token_While);
 
             std::unique_ptr<SyntaxTree> exp = ParseExp();
@@ -295,7 +295,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseRepeatStatement()
         {
-            NextToken();            // skip 'repeat'
+            NextToken();                // skip 'repeat'
             assert(current_.token_ == Token_Repeat);
 
             std::unique_ptr<SyntaxTree> block = ParseBlock();
@@ -310,7 +310,64 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseIfStatement()
         {
+            NextToken();                // skip 'if'
+            assert(current_.token_ == Token_If);
+
+            std::unique_ptr<SyntaxTree> exp = ParseExp();
+
+            if (NextToken().token_ != Token_Then)
+                throw ParseException("expect 'then' for if", current_);
+
+            std::unique_ptr<SyntaxTree> true_branch = ParseBlock();
+            std::unique_ptr<SyntaxTree> false_branch = ParseFalseBranchStatement();
+
+            return std::unique_ptr<SyntaxTree>(new IfStatement(std::move(exp),
+                                                               std::move(true_branch),
+                                                               std::move(false_branch)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseElseIfStatement()
+        {
+            NextToken();                // skip 'elseif'
+            assert(current_.token_ == Token_Elseif);
+
+            std::unique_ptr<SyntaxTree> exp = ParseExp();
+
+            if (NextToken().token_ != Token_Then)
+                throw ParseException("expect 'then' for elseif", current_);
+
+            std::unique_ptr<SyntaxTree> true_branch = ParseBlock();
+            std::unique_ptr<SyntaxTree> false_branch = ParseFalseBranchStatement();
+
+            return std::unique_ptr<SyntaxTree>(new ElseIfStatement(std::move(exp),
+                                                                   std::move(true_branch),
+                                                                   std::move(false_branch)));
+        }
+
+        std::unique_ptr<SyntaxTree> ParseFalseBranchStatement()
+        {
+            if (LookAhead().token_ == Token_Elseif)
+                return ParseElseIfStatement();
+            else if (LookAhead().token_ == Token_Else)
+                return ParseElseStatement();
+            else if (LookAhead().token_ == Token_End)
+                NextToken();            // skip 'end'
+            else
+                throw ParseException("expect 'end' for if", look_ahead_);
+
             return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseElseStatement()
+        {
+            NextToken();                // skip 'else'
+            assert(current_.token_ == Token_Else);
+
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+            if (NextToken().token_ != Token_End)
+                throw ParseException("expect 'end' for else", current_);
+
+            return std::unique_ptr<SyntaxTree>(new ElseStatement(std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseFunctionStatement()
@@ -618,7 +675,7 @@ namespace
             }
             else
             {
-                NextToken();        // skip '('
+                NextToken();            // skip '('
                 std::unique_ptr<SyntaxTree> exp_list;
                 if (LookAhead().token_ != ')')
                     exp_list = ParseExpList();
