@@ -25,7 +25,16 @@ namespace
 
         std::unique_ptr<SyntaxTree> Parse()
         {
-            return ParseExp();
+            return ParseChunk();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseChunk()
+        {
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
+            if (NextToken().token_ != Token_EOF)
+                throw ParseException("expect <eof>", current_);
+
+            return std::unique_ptr<SyntaxTree>(new Chunk(std::move(block)));
         }
 
         std::unique_ptr<SyntaxTree> ParseExp(std::unique_ptr<SyntaxTree> left = std::unique_ptr<SyntaxTree>(),

@@ -39,7 +39,7 @@ namespace
 
 TEST_CASE(parser1)
 {
-    ParserWrapper parser("-123 ^ 2 ^ -2 * 1 / 2 % 2 * 2 ^ 10 + 10 - 5 .. 'str' == 'str' and true or false");
+    ParserWrapper parser("a = -123 ^ 2 ^ -2 * 1 / 2 % 2 * 2 ^ 10 + 10 - 5 .. 'str' == 'str' and true or false");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -47,7 +47,7 @@ TEST_CASE(parser1)
 
 TEST_CASE(parser2)
 {
-    ParserWrapper parser("function(a, b, c, ...) f(a, b, c); t.a, t.b, t.c = a, b, c return a, b, c; end");
+    ParserWrapper parser("function f(a, b, c, ...) f(a, b, c); t.a, t.b, t.c = a, b, c return a, b, c; end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -55,7 +55,7 @@ TEST_CASE(parser2)
 
 TEST_CASE(parser3)
 {
-    ParserWrapper parser("{['str'] = 1 ^ 2, abc = 'str' .. 2, id, 1 + 2;}");
+    ParserWrapper parser("t = {['str'] = 1 ^ 2, abc = 'str' .. 2, id, 1 + 2;}");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -63,7 +63,7 @@ TEST_CASE(parser3)
 
 TEST_CASE(parser4)
 {
-    ParserWrapper parser("(1 + 2) * 3 / 4");
+    ParserWrapper parser("a = (1 + 2) * 3 / 4");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -71,7 +71,7 @@ TEST_CASE(parser4)
 
 TEST_CASE(parser5)
 {
-    ParserWrapper parser("name");
+    ParserWrapper parser("local name");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -79,21 +79,17 @@ TEST_CASE(parser5)
 
 TEST_CASE(parser6)
 {
-    ParserWrapper parser("table[index]");
+    ParserWrapper parser("table[index] = 1");
 
-    auto var = parser.Parse();
-    EXPECT_TRUE(var);
-    EXPECT_TRUE(dynamic_cast<luna::IndexAccessor *>(var.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
 TEST_CASE(parser7)
 {
-    ParserWrapper parser("t.a.b.c");
+    ParserWrapper parser("t.a.b.c = 1");
 
-    auto var = parser.Parse();
-    EXPECT_TRUE(var);
-    EXPECT_TRUE(dynamic_cast<luna::MemberAccessor *>(var.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
@@ -101,9 +97,7 @@ TEST_CASE(parser8)
 {
     ParserWrapper parser("f(a, b, c)");
 
-    auto func_call = parser.Parse();
-    EXPECT_TRUE(func_call);
-    EXPECT_TRUE(dynamic_cast<luna::NormalFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
@@ -111,9 +105,7 @@ TEST_CASE(parser9)
 {
     ParserWrapper parser("f:m()");
 
-    auto func_call = parser.Parse();
-    EXPECT_TRUE(func_call);
-    EXPECT_TRUE(dynamic_cast<luna::MemberFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
@@ -121,9 +113,7 @@ TEST_CASE(parser10)
 {
     ParserWrapper parser("f{1, 2, 3}");
 
-    auto func_call = parser.Parse();
-    EXPECT_TRUE(func_call);
-    EXPECT_TRUE(dynamic_cast<luna::NormalFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
@@ -131,15 +121,13 @@ TEST_CASE(parser11)
 {
     ParserWrapper parser("f:m'str'");
 
-    auto func_call = parser.Parse();
-    EXPECT_TRUE(func_call);
-    EXPECT_TRUE(dynamic_cast<luna::MemberFuncCall *>(func_call.get()));
+    EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
 }
 
 TEST_CASE(parser12)
 {
-    ParserWrapper parser("f(1, 2, 3):m{1, 2, 3}.m[123].m");
+    ParserWrapper parser("f(1, 2, 3):m{1, 2, 3}.m[123].m = 1");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -147,7 +135,7 @@ TEST_CASE(parser12)
 
 TEST_CASE(parser13)
 {
-    ParserWrapper parser("function() do end end");
+    ParserWrapper parser("function f() do end end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -155,7 +143,7 @@ TEST_CASE(parser13)
 
 TEST_CASE(parser14)
 {
-    ParserWrapper parser("function() while true do return end end");
+    ParserWrapper parser("function f() while true do return end end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -163,7 +151,7 @@ TEST_CASE(parser14)
 
 TEST_CASE(parser15)
 {
-    ParserWrapper parser("function() repeat return until (1 + 1) end");
+    ParserWrapper parser("function f() repeat return until (1 + 1) end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -171,7 +159,7 @@ TEST_CASE(parser15)
 
 TEST_CASE(parser16)
 {
-    ParserWrapper parser("function() local function f() end local a, b, c = 1, 2 end");
+    ParserWrapper parser("function f() local function f() end local a, b, c = 1, 2 end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -179,7 +167,7 @@ TEST_CASE(parser16)
 
 TEST_CASE(parser17)
 {
-    ParserWrapper parser("function() function a.b.c:d() return end end");
+    ParserWrapper parser("function f() function a.b.c:d() return end end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -187,7 +175,7 @@ TEST_CASE(parser17)
 
 TEST_CASE(parser18)
 {
-    ParserWrapper parser("function() for a = 1, 2, 3 do end for a, b in pairs(t) do end end");
+    ParserWrapper parser("function f() for a = 1, 2, 3 do end for a, b in pairs(t) do end end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());
@@ -195,7 +183,7 @@ TEST_CASE(parser18)
 
 TEST_CASE(parser19)
 {
-    ParserWrapper parser("function() if 1 + 1 then elseif not true then else end end");
+    ParserWrapper parser("function f() if 1 + 1 then elseif not true then else end end");
 
     EXPECT_TRUE(parser.Parse());
     EXPECT_TRUE(parser.IsEOF());

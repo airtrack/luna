@@ -15,6 +15,19 @@ namespace luna
         virtual void Accept(Visitor *v) = 0;
     };
 
+    class Chunk : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> block_;
+
+        explicit Chunk(std::unique_ptr<SyntaxTree> block)
+            : block_(std::move(block))
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class Block : public SyntaxTree
     {
     public:

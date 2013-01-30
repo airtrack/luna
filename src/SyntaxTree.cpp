@@ -2,6 +2,10 @@
 
 namespace luna
 {
+    void Chunk::Accept(Visitor *v)
+    {
+    }
+
     void Block::Accept(Visitor *v)
     {
     }
