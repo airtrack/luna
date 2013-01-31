@@ -2,12 +2,13 @@
 #define SYNTAX_TREE_H
 
 #include "Token.h"
-#include "Visitor.h"
 #include <memory>
 #include <vector>
 
 namespace luna
 {
+    class Visitor;
+
     class SyntaxTree
     {
     public:
