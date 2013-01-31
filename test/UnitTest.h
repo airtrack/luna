@@ -49,4 +49,17 @@ protected:
             Error("'" #expr "'");                           \
     } while (0)
 
+#define EXPECT_EXCEPTION(exception, stmt)                   \
+    do                                                      \
+    {                                                       \
+        try                                                 \
+        {                                                   \
+            {stmt}                                          \
+            Error("'" #stmt "' has no " #exception);        \
+        }                                                   \
+        catch (const exception&)                            \
+        {                                                   \
+        }                                                   \
+    } while (0)
+
 #endif // UNIT_TEST_H
