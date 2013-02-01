@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
+		CE1302D316BC2E0400DC6A08 /* LunaC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1302D216BC2E0400DC6A08 /* LunaC.cpp */; };
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
@@ -27,10 +28,19 @@
 		CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC60A2C1690792A00E15ADE /* SyntaxTree.cpp */; };
 		CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A2D1690792A00E15ADE /* SyntaxTree.h */; };
 		CEC60A3116907B8700E15ADE /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A3016907B8700E15ADE /* Visitor.h */; };
+		CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
+		CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		CE1DC680168A0602004EAEBC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE2EA6EF16763B0500E59BBC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE8F1AF816875AE6001FBAA6;
+			remoteInfo = luna;
+		};
+		CEE7D93316BC24520049BDAE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CE2EA6EF16763B0500E59BBC /* Project object */;
 			proxyType = 1;
@@ -49,12 +59,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		CEE7D92516BC23D00049BDAE /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		CE0884341688845E00E05968 /* UnitTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UnitTest.h; path = ../test/UnitTest.h; sourceTree = "<group>"; };
 		CE0884351688981400E05968 /* UnitTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnitTest.cpp; path = ../test/UnitTest.cpp; sourceTree = "<group>"; };
 		CE08844616889AA400E05968 /* unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE1302D216BC2E0400DC6A08 /* LunaC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LunaC.cpp; path = ../src/LunaC.cpp; sourceTree = "<group>"; };
 		CE19539216835C0400504CCD /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = String.h; path = ../src/String.h; sourceTree = "<group>"; };
 		CE1953941683648900504CCD /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = "<group>"; };
 		CE19539516836BC100504CCD /* ModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModuleManager.h; path = ../src/ModuleManager.h; sourceTree = "<group>"; };
@@ -80,6 +100,8 @@
 		CEC60A2C1690792A00E15ADE /* SyntaxTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SyntaxTree.cpp; path = ../src/SyntaxTree.cpp; sourceTree = "<group>"; };
 		CEC60A2D1690792A00E15ADE /* SyntaxTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyntaxTree.h; path = ../src/SyntaxTree.h; sourceTree = "<group>"; };
 		CEC60A3016907B8700E15ADE /* Visitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = ../src/Visitor.h; sourceTree = "<group>"; };
+		CEE7D92716BC23D00049BDAE /* lunac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lunac; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModuleManager.cpp; path = ../src/ModuleManager.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,18 +120,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CEE7D92416BC23D00049BDAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		CE0884321688834E00E05968 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CE1302D216BC2E0400DC6A08 /* LunaC.cpp */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
 				CE597F34169DC0F700407019 /* Function.h */,
 				CE597F30169DBFB000407019 /* GCObject.cpp */,
 				CE597F2D169DBF3B00407019 /* GCObject.h */,
 				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
 				CE2EA6F616763B2700E59BBC /* Lex.h */,
+				CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */,
 				CE19539516836BC100504CCD /* ModuleManager.h */,
 				CEC60A271690121500E15ADE /* Parser.cpp */,
 				CEC60A24169011B700E15ADE /* Parser.h */,
@@ -155,6 +187,7 @@
 			children = (
 				CE8F1AF916875AE6001FBAA6 /* libluna.a */,
 				CE08844616889AA400E05968 /* unittest */,
+				CEE7D92716BC23D00049BDAE /* lunac */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -215,6 +248,24 @@
 			productReference = CE8F1AF916875AE6001FBAA6 /* libluna.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		CEE7D92616BC23D00049BDAE /* lunac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEE7D92F16BC23D10049BDAE /* Build configuration list for PBXNativeTarget "lunac" */;
+			buildPhases = (
+				CEE7D92316BC23D00049BDAE /* Sources */,
+				CEE7D92416BC23D00049BDAE /* Frameworks */,
+				CEE7D92516BC23D00049BDAE /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CEE7D93416BC24520049BDAE /* PBXTargetDependency */,
+			);
+			name = lunac;
+			productName = lunac;
+			productReference = CEE7D92716BC23D00049BDAE /* lunac */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -237,6 +288,7 @@
 			targets = (
 				CE8F1AF816875AE6001FBAA6 /* luna */,
 				CE08844516889AA400E05968 /* unittest */,
+				CEE7D92616BC23D00049BDAE /* lunac */,
 			);
 		};
 /* End PBXProject section */
@@ -264,6 +316,15 @@
 				CE597F31169DBFB000407019 /* GCObject.cpp in Sources */,
 				CE597F39169DC30700407019 /* StringPool.cpp in Sources */,
 				CEB6C99216A432AC007E72D9 /* Token.cpp in Sources */,
+				CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEE7D92316BC23D00049BDAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE1302D316BC2E0400DC6A08 /* LunaC.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +335,11 @@
 			isa = PBXTargetDependency;
 			target = CE8F1AF816875AE6001FBAA6 /* luna */;
 			targetProxy = CE1DC680168A0602004EAEBC /* PBXContainerItemProxy */;
+		};
+		CEE7D93416BC24520049BDAE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE8F1AF816875AE6001FBAA6 /* luna */;
+			targetProxy = CEE7D93316BC24520049BDAE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -411,6 +477,63 @@
 			};
 			name = Release;
 		};
+		CEE7D92D16BC23D10049BDAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CEE7D92E16BC23D10049BDAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -437,6 +560,15 @@
 			buildConfigurations = (
 				CE8F1AFB16875AE6001FBAA6 /* Debug */,
 				CE8F1AFC16875AE6001FBAA6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CEE7D92F16BC23D10049BDAE /* Build configuration list for PBXNativeTarget "lunac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CEE7D92D16BC23D10049BDAE /* Debug */,
+				CEE7D92E16BC23D10049BDAE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

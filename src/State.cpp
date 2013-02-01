@@ -6,9 +6,9 @@
 namespace luna
 {
     State::State()
-        : module_manager_(new ModuleManager),
-          string_pool_(new StringPool)
+        : string_pool_(new StringPool)
     {
+        module_manager_.reset(new ModuleManager(this));
     }
 
     void State::AddModulePath(const std::string &path)
