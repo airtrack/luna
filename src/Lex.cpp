@@ -10,7 +10,7 @@
 namespace
 {
     const char *keyword[] = {
-        "and", "do", "else", "elseif", "end",
+        "and", "break", "do", "else", "elseif", "end",
         "false", "for", "function", "if", "in",
         "local", "nil", "not", "or", "repeat",
         "return", "then", "true", "until", "while"

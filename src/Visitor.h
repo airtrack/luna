@@ -11,6 +11,7 @@ namespace luna
         virtual void Visit(Chunk *) = 0;
         virtual void Visit(Block *) = 0;
         virtual void Visit(ReturnStatement *) = 0;
+        virtual void Visit(BreakStatement *) = 0;
         virtual void Visit(DoStatement *) = 0;
         virtual void Visit(WhileStatement *) = 0;
         virtual void Visit(RepeatStatement *) = 0;

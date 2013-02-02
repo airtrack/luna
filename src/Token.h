@@ -9,7 +9,7 @@ namespace luna
 
     enum Token
     {
-        Token_And = 256, Token_Do, Token_Else, Token_Elseif, Token_End,
+        Token_And = 256, Token_Break, Token_Do, Token_Else, Token_Elseif, Token_End,
         Token_False, Token_For, Token_Function, Token_If, Token_In,
         Token_Local, Token_Nil, Token_Not, Token_Or, Token_Repeat,
         Token_Return, Token_Then, Token_True, Token_Until, Token_While,

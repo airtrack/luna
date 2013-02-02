@@ -50,6 +50,19 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class BreakStatement : public SyntaxTree
+    {
+    public:
+        TokenDetail break_;
+
+        explicit BreakStatement(const TokenDetail &b)
+            : break_(b)
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class DoStatement : public SyntaxTree
     {
     public:

@@ -18,6 +18,11 @@ namespace luna
         v->Visit(this);
     }
 
+    void BreakStatement::Accept(Visitor *v)
+    {
+        v->Visit(this);
+    }
+
     void DoStatement::Accept(Visitor *v)
     {
         v->Visit(this);

@@ -251,6 +251,8 @@ namespace
                 case ';':
                     NextToken();
                     break;
+                case Token_Break:
+                    return ParseBreakStatement();
                 case Token_Do:
                     return ParseDoStatement();
                 case Token_While:
@@ -270,6 +272,11 @@ namespace
             }
 
             return std::unique_ptr<SyntaxTree>();
+        }
+
+        std::unique_ptr<SyntaxTree> ParseBreakStatement()
+        {
+            return std::unique_ptr<SyntaxTree>(new BreakStatement(NextToken()));
         }
 
         std::unique_ptr<SyntaxTree> ParseDoStatement()
