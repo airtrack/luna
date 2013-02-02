@@ -398,7 +398,8 @@ namespace luna
             }
             else
             {
-                LexStringChar();
+                token_buffer_.push_back(current_);
+                current_ = Next();
             }
         }
 
