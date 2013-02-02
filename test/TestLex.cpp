@@ -42,9 +42,9 @@ TEST_CASE(lex1)
 TEST_CASE(lex2)
 {
     LexerWrapper lexer("-- this is comment\n"
-                       "--[this is long\n comment--]"
+                       "--[[this is long\n comment]]"
                        "--[[this is long\n comment too--]]"
-                       "--[[incomplete comment--]");
+                       "--[[incomplete comment]");
     try
     {
         lexer.GetToken();

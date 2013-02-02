@@ -189,42 +189,29 @@ namespace luna
     {
         current_ = Next();
         if (current_ == '[')
-            LexMultiLineComment();
+        {
+            current_ = Next();
+            if (current_ == '[')
+                LexMultiLineComment();
+            else
+                LexSingleLineComment();
+        }
         else
             LexSingleLineComment();
     }
 
     void Lexer::LexMultiLineComment()
     {
-        int bracket = 1;
-        current_ = Next();
-        if (current_ == '[')
-        {
-            bracket = 2;
-            current_ = Next();
-        }
-
         bool is_comment_end = false;
         while (!is_comment_end)
         {
-            if (current_ == '-')
+            if (current_ == ']')
             {
                 current_ = Next();
-                if (current_ == '-')
+                if (current_ == ']')
                 {
-                    int i = 0;
-                    for (; i < bracket; ++i)
-                    {
-                        current_ = Next();
-                        if (current_ != ']')
-                            break;
-                    }
-
-                    if (i == bracket)
-                    {
-                        is_comment_end = true;
-                        current_ = Next();
-                    }
+                    is_comment_end = true;
+                    current_ = Next();
                 }
             }
             else if (current_ == EOF)
