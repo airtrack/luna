@@ -73,7 +73,7 @@ namespace
                     left = std::unique_ptr<BinaryExpression>(
                         new BinaryExpression(std::move(left), std::move(exp), op));
                     op = NextToken();
-                    exp = ParseMainExp();
+                    exp = ParseExp();
                 }
                 else
                 {
@@ -173,7 +173,7 @@ namespace
                         break;
                     }
                     else
-                        throw ParseException("unexpect token", look_ahead_);
+                        throw ParseException("unexpect token in param list", look_ahead_);
                 }
 
                 name_list = std::move(names);
@@ -184,7 +184,7 @@ namespace
                 vararg = true;
             }
             else
-                throw ParseException("unexpect token", look_ahead_);
+                throw ParseException("unexpect token in param list", look_ahead_);
 
             return std::unique_ptr<SyntaxTree>(new ParamList(std::move(name_list), vararg));
         }
@@ -562,7 +562,7 @@ namespace
                 while (LookAhead().token_ != '=')
                 {
                     if (LookAhead().token_ != ',')
-                        throw ParseException("unexpect token", look_ahead_);
+                        throw ParseException("expect ',' to split var", look_ahead_);
                     NextToken();        // skip ','
                     exp = ParsePrefixExp(&type);
                     if (type != PrefixExpType_Var)
