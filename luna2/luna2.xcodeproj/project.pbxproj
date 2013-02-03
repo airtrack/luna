@@ -21,7 +21,7 @@
 		CE8F1AFF168760EA001FBAA6 /* Lex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6FB16763D9A00E59BBC /* Lex.cpp */; };
 		CE8F1B00168760EA001FBAA6 /* State.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1953941683648900504CCD /* State.cpp */; };
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
-		CEA5E6B216BEB52900B81DA1 /* Type.h in Headers */ = {isa = PBXBuildFile; fileRef = CEA5E6B116BEB52900B81DA1 /* Type.h */; };
+		CEA5E6B216BEB52900B81DA1 /* Value.h in Headers */ = {isa = PBXBuildFile; fileRef = CEA5E6B116BEB52900B81DA1 /* Value.h */; };
 		CEA5E6B416BEB7C900B81DA1 /* Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEA5E6B316BEB7C900B81DA1 /* Table.cpp */; };
 		CEB6C99216A432AC007E72D9 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEB6C99116A432AC007E72D9 /* Token.cpp */; };
 		CEC60A25169011B700E15ADE /* Parser.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A24169011B700E15ADE /* Parser.h */; };
@@ -95,7 +95,7 @@
 		CE597F36169DC25F00407019 /* StringPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringPool.h; path = ../src/StringPool.h; sourceTree = "<group>"; };
 		CE597F38169DC30700407019 /* StringPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringPool.cpp; path = ../src/StringPool.cpp; sourceTree = "<group>"; };
 		CE8F1AF916875AE6001FBAA6 /* libluna.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libluna.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		CEA5E6B116BEB52900B81DA1 /* Type.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Type.h; path = ../src/Type.h; sourceTree = "<group>"; };
+		CEA5E6B116BEB52900B81DA1 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../src/Value.h; sourceTree = "<group>"; };
 		CEA5E6B316BEB7C900B81DA1 /* Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Table.cpp; path = ../src/Table.cpp; sourceTree = "<group>"; };
 		CEB6C99116A432AC007E72D9 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Token.cpp; path = ../src/Token.cpp; sourceTree = "<group>"; };
 		CEC60A24169011B700E15ADE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
@@ -162,7 +162,7 @@
 				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
 				CEB6C99116A432AC007E72D9 /* Token.cpp */,
 				CE1E694916941F940060DE44 /* Token.h */,
-				CEA5E6B116BEB52900B81DA1 /* Type.h */,
+				CEA5E6B116BEB52900B81DA1 /* Value.h */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
 			);
 			name = src;
@@ -213,7 +213,7 @@
 				CE597F33169DC07E00407019 /* Table.h in Headers */,
 				CE597F35169DC0F700407019 /* Function.h in Headers */,
 				CE597F37169DC25F00407019 /* StringPool.h in Headers */,
-				CEA5E6B216BEB52900B81DA1 /* Type.h in Headers */,
+				CEA5E6B216BEB52900B81DA1 /* Value.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

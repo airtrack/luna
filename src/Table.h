@@ -1,7 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "Type.h"
+#include "Value.h"
 #include "GCObject.h"
 #include <vector>
 #include <unordered_map>
@@ -14,8 +14,8 @@ namespace luna
         Table();
 
     private:
-        typedef std::vector<Type> Array;
-        typedef std::unordered_map<Type, Type> Hash;
+        typedef std::vector<Value> Array;
+        typedef std::unordered_map<Value, Value> Hash;
 
         Array *array_;              // array part of table
         Hash *hash_;                // hash table part of table
