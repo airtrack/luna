@@ -15,6 +15,7 @@ namespace luna
         ValueT_Obj,
     };
 
+    // Value type of lua
     struct Value
     {
         union

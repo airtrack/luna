@@ -9,6 +9,8 @@ namespace luna
 {
     class Visitor;
 
+    // AST base class, all AST node derived from this class and
+    // provide Visitor to Accept itself.
     class SyntaxTree
     {
     public:

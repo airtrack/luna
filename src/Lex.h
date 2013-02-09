@@ -20,6 +20,8 @@ namespace luna
         Lexer(const Lexer&) = delete;
         void operator = (const Lexer&) = delete;
 
+        // Get next token, 'detail' store next token detail information,
+        // return value is next token type.
         int GetToken(TokenDetail *detail);
 
     private:

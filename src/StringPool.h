@@ -7,6 +7,7 @@
 
 namespace luna
 {
+    // String pool, all strings alloc from this pool class.
     class StringPool
     {
     public:
