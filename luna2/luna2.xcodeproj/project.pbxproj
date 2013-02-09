@@ -12,6 +12,7 @@
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
+		CE58112516C69B09008F6566 /* TestTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE58112316C69B09008F6566 /* TestTable.cpp */; };
 		CE597F2E169DBF3B00407019 /* GCObject.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F2D169DBF3B00407019 /* GCObject.h */; };
 		CE597F31169DBFB000407019 /* GCObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE597F30169DBFB000407019 /* GCObject.cpp */; };
 		CE597F33169DC07E00407019 /* Table.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F32169DC07E00407019 /* Table.h */; };
@@ -88,6 +89,7 @@
 		CE2EA6FB16763D9A00E59BBC /* Lex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Lex.cpp; path = ../src/Lex.cpp; sourceTree = "<group>"; };
 		CE36379A167C5B97009E2D95 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Exception.h; path = ../src/Exception.h; sourceTree = "<group>"; };
 		CE36379C167C6345009E2D95 /* State.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
+		CE58112316C69B09008F6566 /* TestTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestTable.cpp; path = ../test/TestTable.cpp; sourceTree = "<group>"; };
 		CE597F2D169DBF3B00407019 /* GCObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCObject.h; path = ../src/GCObject.h; sourceTree = "<group>"; };
 		CE597F30169DBFB000407019 /* GCObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCObject.cpp; path = ../src/GCObject.cpp; sourceTree = "<group>"; };
 		CE597F32169DC07E00407019 /* Table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Table.h; path = ../src/Table.h; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				CE0884351688981400E05968 /* UnitTest.cpp */,
 				CE1DC67D168A0595004EAEBC /* TestLex.cpp */,
 				CEC60A291690429C00E15ADE /* TestParser.cpp */,
+				CE58112316C69B09008F6566 /* TestTable.cpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 				CE08845016889B1400E05968 /* UnitTest.cpp in Sources */,
 				CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */,
 				CEC60A2B1690429C00E15ADE /* TestParser.cpp in Sources */,
+				CE58112516C69B09008F6566 /* TestTable.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
