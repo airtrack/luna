@@ -33,6 +33,7 @@
 		CEC60A3116907B8700E15ADE /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A3016907B8700E15ADE /* Visitor.h */; };
 		CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CEDBE61216C8D9D1005FDB2A /* OpCode.h */; };
 		CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61416C8DF73005FDB2A /* Function.cpp */; };
+		CEDBE61716C8F133005FDB2A /* Visitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61616C8F133005FDB2A /* Visitor.cpp */; };
 		CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
 		CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */; };
 /* End PBXBuildFile section */
@@ -110,6 +111,7 @@
 		CEC60A3016907B8700E15ADE /* Visitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = ../src/Visitor.h; sourceTree = "<group>"; };
 		CEDBE61216C8D9D1005FDB2A /* OpCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpCode.h; path = ../src/OpCode.h; sourceTree = "<group>"; };
 		CEDBE61416C8DF73005FDB2A /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../src/Function.cpp; sourceTree = "<group>"; };
+		CEDBE61616C8F133005FDB2A /* Visitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Visitor.cpp; path = ../src/Visitor.cpp; sourceTree = "<group>"; };
 		CEE7D92716BC23D00049BDAE /* lunac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lunac; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModuleManager.cpp; path = ../src/ModuleManager.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -171,6 +173,7 @@
 				CEB6C99116A432AC007E72D9 /* Token.cpp */,
 				CE1E694916941F940060DE44 /* Token.h */,
 				CEA5E6B116BEB52900B81DA1 /* Value.h */,
+				CEDBE61616C8F133005FDB2A /* Visitor.cpp */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
 			);
 			name = src;
@@ -337,6 +340,7 @@
 				CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */,
 				CEA5E6B416BEB7C900B81DA1 /* Table.cpp in Sources */,
 				CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */,
+				CEDBE61716C8F133005FDB2A /* Visitor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
