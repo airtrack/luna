@@ -20,6 +20,18 @@ namespace luna
         const Instruction * GetOpCodes() const;
         std::size_t OpCodeSize() const;
 
+        // Add instruction, 'line' is line number of the instruction 'i'
+        void AddInstruction(Instruction i, int line);
+
+        // Set this function has vararg
+        void SetHasVararg();
+
+        // Set fixed arg count
+        void SetFixedArgCount(int count);
+
+        // Set module and function define start line
+        void SetBaseInfo(String *module, int line);
+
     private:
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
