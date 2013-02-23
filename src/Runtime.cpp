@@ -6,4 +6,12 @@ namespace luna
         : stack_(kBaseStackSize)
     {
     }
+
+    CallInfo::CallInfo()
+        : pre_callinfo_(nullptr),
+          next_callinfo_(nullptr),
+          register_begin_(nullptr),
+          register_end_(nullptr)
+    {
+    }
 } // namespace luna

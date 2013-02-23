@@ -17,6 +17,20 @@ namespace luna
         Stack(const Stack&) = delete;
         void operator = (const Stack&) = delete;
     };
+
+    // Function call stack info
+    struct CallInfo
+    {
+        // pointer previous and next function call info
+        CallInfo *pre_callinfo_;
+        CallInfo *next_callinfo_;
+
+        // register range(register_begin_, register_end_) pointer to Stack
+        Value *register_begin_;
+        Value *register_end_;
+
+        CallInfo();
+    };
 } // namespace luna
 
 #endif // RUNTIME_H
