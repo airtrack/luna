@@ -4,6 +4,7 @@
 #include "GCObject.h"
 #include "OpCode.h"
 #include "String.h"
+#include "Value.h"
 #include <vector>
 
 namespace luna
@@ -45,6 +46,23 @@ namespace luna
         int args_;
         // has '...' param or not
         bool is_vararg_;
+    };
+
+    // All runtime function are closure, this class object point to a
+    // prototype Function object and add upvalues.
+    class Closure : public GCObject
+    {
+    public:
+        Closure();
+
+        // Get closure prototype Function
+        Function * GetPrototype() const;
+
+    private:
+        // prototype Function
+        Function *prototype_;
+        // upvalues
+        std::vector<Upvalue> upvalues_;
     };
 } // namespace luna
 

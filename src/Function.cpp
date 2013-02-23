@@ -38,4 +38,14 @@ namespace luna
         module_ = module;
         line_ = line;
     }
+
+    Closure::Closure()
+        : prototype_(nullptr)
+    {
+    }
+
+    Function * Closure::GetPrototype() const
+    {
+        return prototype_;
+    }
 } // namespace luna

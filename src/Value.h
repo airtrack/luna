@@ -43,6 +43,32 @@ namespace luna
     {
         return !(left == right);
     }
+
+    // Shared Upvalue used by Upvalue
+    struct SharedUpvalue
+    {
+        Value value_;
+        int shared_;
+
+        SharedUpvalue() : shared_(0) { }
+
+        void IncreaseShared() { ++shared_; }
+        void DecreaseShared() { --shared_; }
+    };
+
+    // Upvalue type for Closure
+    struct Upvalue
+    {
+        union
+        {
+            Value *stack_value_;
+            SharedUpvalue *shared_;
+        };
+
+        enum { Stack, Shared } type_;
+
+        Upvalue() : stack_value_(nullptr), type_(Stack) { }
+    };
 } // namespace luna
 
 namespace std

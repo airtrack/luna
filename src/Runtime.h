@@ -6,6 +6,8 @@
 
 namespace luna
 {
+    class Closure;
+
     // Runtime stack, registers of each function is one part of stack.
     struct Stack
     {
@@ -21,14 +23,17 @@ namespace luna
     // Function call stack info
     struct CallInfo
     {
-        // pointer previous and next function call info
+        // points to previous and next function CallInfo
         CallInfo *pre_callinfo_;
         CallInfo *next_callinfo_;
 
-        // register range(register_begin_, register_end_) pointer to Stack
+        // register range(register_begin_, register_end_) points to Stack
         Value *register_begin_;
         Value *register_end_;
 
+        // current closure
+        Closure *func_;
+        
         CallInfo();
     };
 } // namespace luna

@@ -11,7 +11,8 @@ namespace luna
         : pre_callinfo_(nullptr),
           next_callinfo_(nullptr),
           register_begin_(nullptr),
-          register_end_(nullptr)
+          register_end_(nullptr),
+          func_(nullptr)
     {
     }
 } // namespace luna
