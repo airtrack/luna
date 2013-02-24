@@ -6,6 +6,8 @@
 
 namespace luna
 {
+    class State;
+
     class Visitor
     {
     public:
@@ -45,7 +47,7 @@ namespace luna
         virtual void Visit(ExpressionList *) = 0;
     };
 
-    std::unique_ptr<Visitor> GenerateVisitor();
+    std::unique_ptr<Visitor> GenerateVisitor(State *state);
 } // namespace luna
 
 #endif // VISITOR_H

@@ -1,10 +1,13 @@
 #include "Visitor.h"
+#include "State.h"
 
 namespace luna
 {
     class CodeGenerateVisitor : public Visitor
     {
     public:
+        explicit CodeGenerateVisitor(State *state);
+
         virtual void Visit(Chunk *);
         virtual void Visit(Block *);
         virtual void Visit(ReturnStatement *);
@@ -38,10 +41,18 @@ namespace luna
         virtual void Visit(NormalFuncCall *);
         virtual void Visit(MemberFuncCall *);
         virtual void Visit(ExpressionList *);
+
+    private:
+        State *state_;
     };
 
-    std::unique_ptr<Visitor> GenerateVisitor()
+    CodeGenerateVisitor::CodeGenerateVisitor(State *state)
+        : state_(state)
     {
-        return std::unique_ptr<Visitor>(new CodeGenerateVisitor);
+    }
+
+    std::unique_ptr<Visitor> GenerateVisitor(State *state)
+    {
+        return std::unique_ptr<Visitor>(new CodeGenerateVisitor(state));
     }
 } // namespace luna

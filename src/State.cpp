@@ -1,6 +1,9 @@
 #include "State.h"
 #include "Lex.h"
+#include "GCObject.h"
 #include "String.h"
+#include "Function.h"
+#include "Table.h"
 #include "TextInStream.h"
 
 namespace luna
@@ -9,6 +12,12 @@ namespace luna
         : string_pool_(new StringPool)
     {
         module_manager_.reset(new ModuleManager(this));
+    }
+
+    State::~State()
+    {
+        for (auto o : gclist_)
+            delete o;
     }
 
     void State::AddModulePath(const std::string &path)
@@ -28,5 +37,26 @@ namespace luna
     String * State::GetString(const std::string &str)
     {
         return string_pool_->AllocString(str);
+    }
+
+    Function * State::NewFunction()
+    {
+        auto f = new Function;
+        gclist_.push_back(f);
+        return f;
+    }
+
+    Closure * State::NewClosure()
+    {
+        auto c = new Closure;
+        gclist_.push_back(c);
+        return c;
+    }
+
+    Table * State::NewTable()
+    {
+        auto t = new Table;
+        gclist_.push_back(t);
+        return t;
     }
 } // namespace luna
