@@ -7,6 +7,7 @@
 
 namespace luna
 {
+    class String;
     class Visitor;
 
     // AST base class, all AST node derived from this class and
@@ -22,9 +23,12 @@ namespace luna
     {
     public:
         std::unique_ptr<SyntaxTree> block_;
+        String *module_;
 
-        explicit Chunk(std::unique_ptr<SyntaxTree> block)
-            : block_(std::move(block))
+        Chunk(std::unique_ptr<SyntaxTree> block,
+              String *module)
+            : block_(std::move(block)),
+              module_(module)
         {
         }
 

@@ -1,5 +1,6 @@
 #include "Visitor.h"
 #include "State.h"
+#include "Function.h"
 
 namespace luna
 {
@@ -44,11 +45,21 @@ namespace luna
 
     private:
         State *state_;
+
+        // current function
+        Function *func_;
     };
 
     CodeGenerateVisitor::CodeGenerateVisitor(State *state)
-        : state_(state)
+        : state_(state),
+          func_(nullptr)
     {
+    }
+
+    void CodeGenerateVisitor::Visit(Chunk *chunk)
+    {
+        func_ = state_->NewFunction();
+        func_->SetBaseInfo(chunk->module_, 0);
     }
 
     std::unique_ptr<Visitor> GenerateVisitor(State *state)

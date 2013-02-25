@@ -24,6 +24,12 @@ namespace luna
         // return value is next token type.
         int GetToken(TokenDetail *detail);
 
+        // Get current lex module name.
+        String * GetLexModule() const
+        {
+            return module_;
+        }
+
     private:
         int Next()
         {

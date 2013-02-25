@@ -34,7 +34,8 @@ namespace
             if (NextToken().token_ != Token_EOF)
                 throw ParseException("expect <eof>", current_);
 
-            return std::unique_ptr<SyntaxTree>(new Chunk(std::move(block)));
+            return std::unique_ptr<SyntaxTree>(new Chunk(std::move(block),
+                                                         lexer_->GetLexModule()));
         }
 
         std::unique_ptr<SyntaxTree> ParseExp(std::unique_ptr<SyntaxTree> left = std::unique_ptr<SyntaxTree>(),
