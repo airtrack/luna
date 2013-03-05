@@ -33,6 +33,9 @@ namespace luna
         // Set module and function define start line
         void SetBaseInfo(String *module, int line);
 
+        // Set superior function
+        void SetSuperior(Function *superior);
+
     private:
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
@@ -46,6 +49,8 @@ namespace luna
         int args_;
         // has '...' param or not
         bool is_vararg_;
+        // superior function pointer
+        Function *superior_;
     };
 
     // All runtime function are closure, this class object point to a

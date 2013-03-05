@@ -58,8 +58,23 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Chunk *chunk)
     {
-        func_ = state_->NewFunction();
-        func_->SetBaseInfo(chunk->module_, 0);
+        auto func = state_->NewFunction();
+        func->SetBaseInfo(chunk->module_, 0);
+        func->SetSuperior(func_);
+        func_ = func;
+
+        chunk->block_->Accept(this);
+    }
+
+    void CodeGenerateVisitor::Visit(Block *block)
+    {
+        // Visit all statements
+        for (auto &s : block->statements_)
+            s->Accept(this);
+
+        // Visit return statement when existed
+        if (block->return_stmt_)
+            block->return_stmt_->Accept(this);
     }
 
     std::unique_ptr<Visitor> GenerateVisitor(State *state)

@@ -3,7 +3,7 @@
 namespace luna
 {
     Function::Function()
-        : module_(nullptr), line_(0), args_(0), is_vararg_(false)
+        : module_(nullptr), line_(0), args_(0), is_vararg_(false), superior_(nullptr)
     {
     }
 
@@ -37,6 +37,11 @@ namespace luna
     {
         module_ = module;
         line_ = line;
+    }
+
+    void Function::SetSuperior(Function *superior)
+    {
+        superior_ = superior;
     }
 
     Closure::Closure()
