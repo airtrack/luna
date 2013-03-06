@@ -2,34 +2,41 @@
 #include "State.h"
 #include "Function.h"
 #include <vector>
+#include <utility>
 
 namespace luna
 {
-    class ScopeNameLevel;
+    class NameScope;
 
     struct ScopeNameList
     {
         std::vector<String *> name_list_;
-        ScopeNameLevel *current_level_;
+        NameScope *current_scope_;
 
-        ScopeNameList() : current_level_(nullptr) { }
+        ScopeNameList() : current_scope_(nullptr) { }
     };
 
-    class ScopeNameLevel
+    class NameScope
     {
     public:
-        explicit ScopeNameLevel(ScopeNameList &name_list)
+        explicit NameScope(ScopeNameList &name_list, Function *owner = nullptr)
             : name_list_(&name_list),
-              previous_(name_list.current_level_),
-              start_(name_list.name_list_.size())
+              previous_(name_list.current_scope_),
+              start_(name_list.name_list_.size()),
+              owner_(nullptr)
         {
-            name_list_->current_level_ = this;
+            name_list_->current_scope_ = this;
+
+            if (owner)
+                owner_ = owner;
+            else
+                owner_ = previous_->owner_;
         }
 
-        ~ScopeNameLevel()
+        ~NameScope()
         {
             name_list_->name_list_.resize(start_);
-            name_list_->current_level_ = previous_;
+            name_list_->current_scope_ = previous_;
         }
 
         // Get current scope level name by current name level index
@@ -46,15 +53,51 @@ namespace luna
             name_list_->name_list_.push_back(name);
         }
 
+        // Get previous ScopeNameLevel
+        NameScope * GetPrevious() const
+        {
+            return previous_;
+        }
+
+        // Is name in this scope
+        bool IsBelongsToScope(const String *name) const
+        {
+            std::size_t end = name_list_->name_list_.size();
+            for (std::size_t i = start_; i < end; ++i)
+                if (name_list_->name_list_[i] == name)
+                    return true;
+            return false;
+        }
+
+        // Get the NameScope which the name belongs to
+        std::pair<const NameScope *,
+                  const Function *> GetBlongsToScope(const String *name) const
+        {
+            const NameScope *current = this;
+            while (current)
+            {
+                if (current->IsBelongsToScope(name))
+                    break;
+                else
+                    current = current->previous_;
+            }
+
+            const Function *func = current ? current->owner_ : nullptr;
+            return std::make_pair(current, func);
+        }
+
     private:
         // scope name list
         ScopeNameList *name_list_;
 
         // previous scope
-        ScopeNameLevel *previous_;
+        NameScope *previous_;
 
         // start index in name_list_
         std::size_t start_;
+
+        // scope owner function
+        Function *owner_;
     };
 
     class CodeGenerateVisitor : public Visitor
@@ -98,6 +141,7 @@ namespace luna
 
     private:
         State *state_;
+        ScopeNameList name_list_;
 
         // current function
         Function *func_;
@@ -121,6 +165,8 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Block *block)
     {
+        NameScope current(name_list_, func_);
+
         // Visit all statements
         for (auto &s : block->statements_)
             s->Accept(this);
