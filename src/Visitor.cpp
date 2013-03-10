@@ -207,6 +207,7 @@ namespace luna
     void CodeGenerateVisitor::Visit(Terminator *term)
     {
         const TokenDetail &t = term->token_;
+
         int index = 0;
         if (t.token_ == Token_Number)
             index = func_->AddConstNumber(t.number_);
@@ -214,6 +215,10 @@ namespace luna
             index = func_->AddConstString(t.str_);
         else
             assert(!"maybe miss some term type");
+
+        int reg = func_->AllocaNextRegister();
+        func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
+                                                  reg, index), t.line_);
     }
 
     void CodeGenerateVisitor::Visit(NameList *name_list)
