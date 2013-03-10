@@ -36,17 +36,31 @@ namespace luna
         // Set superior function
         void SetSuperior(Function *superior);
 
-        // Get next register id, but do not real alloca it
+        // Get next register index, but do not real alloca it
         int GetNextRegister() const;
 
         // Alloca next register
         int AllocaNextRegister();
+
+        // Set next register
+        void SetNextRegister(int reg);
+
+        // Add const number and return index of the const value
+        int AddConstNumber(double num);
+
+        // Add const String and return index of the const value
+        int AddConstString(String *str);
+
+        // Add const Value and return index of the const value
+        int AddConstValue(const Value &v);
 
     private:
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
         // opcodes' line number
         std::vector<int> opcode_lines_;
+        // const values in function
+        std::vector<Value> const_values_;
         // function define module name
         String *module_;
         // function define line at module

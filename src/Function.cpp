@@ -61,6 +61,35 @@ namespace luna
         return reg;
     }
 
+    void Function::SetNextRegister(int reg)
+    {
+        reg_allocator_ = reg;
+        if (reg_allocator_ > reg_count_)
+            reg_count_ = reg_allocator_;
+    }
+
+    int Function::AddConstNumber(double num)
+    {
+        Value v;
+        v.type_ = ValueT_Number;
+        v.num_ = num;
+        return AddConstValue(v);
+    }
+
+    int Function::AddConstString(String *str)
+    {
+        Value v;
+        v.type_ = ValueT_String;
+        v.str_ = str;
+        return AddConstValue(v);
+    }
+
+    int Function::AddConstValue(const Value &v)
+    {
+        const_values_.push_back(v);
+        return const_values_.size() - 1;
+    }
+
     Closure::Closure()
         : prototype_(nullptr)
     {

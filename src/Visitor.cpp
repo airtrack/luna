@@ -206,6 +206,14 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Terminator *term)
     {
+        const TokenDetail &t = term->token_;
+        int index = 0;
+        if (t.token_ == Token_Number)
+            index = func_->AddConstNumber(t.number_);
+        else if (t.token_ == Token_String)
+            index = func_->AddConstString(t.str_);
+        else
+            assert(!"maybe miss some term type");
     }
 
     void CodeGenerateVisitor::Visit(NameList *name_list)
@@ -222,9 +230,16 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
     {
+        int reg = func_->GetNextRegister();
+
         // Visit each expression
         for (auto &exp : exp_list->exp_list_)
+        {
+            // Set start register for each expression
+            func_->SetNextRegister(reg);
             exp->Accept(this);
+            ++reg;
+        }
     }
 
     std::unique_ptr<Visitor> GenerateVisitor(State *state)

@@ -6,6 +6,7 @@
 namespace luna
 {
     class GCObject;
+    class String;
 
     enum ValueT
     {
@@ -13,6 +14,7 @@ namespace luna
         ValueT_Bool,
         ValueT_Number,
         ValueT_Obj,
+        ValueT_String,
     };
 
     // Value type of lua
@@ -21,6 +23,7 @@ namespace luna
         union
         {
             GCObject *obj_;
+            String *str_;
             double num_;
             bool bvalue_;
         };
@@ -36,7 +39,8 @@ namespace luna
                 ((left.type_ == ValueT_Nil) ||
                  (left.type_ == ValueT_Bool && left.bvalue_ == right.bvalue_) ||
                  (left.type_ == ValueT_Number && left.num_ == right.num_) ||
-                 (left.type_ == ValueT_Obj && left.obj_ == right.obj_));
+                 (left.type_ == ValueT_Obj && left.obj_ == right.obj_) ||
+                 (left.type_ == ValueT_String && left.str_ == right.str_));
     }
 
     inline bool operator != (const Value &left, const Value &right)
@@ -84,6 +88,8 @@ namespace std
                 return hash<bool>()(t.bvalue_);
             else if (t.type_ == luna::ValueT_Number)
                 return hash<double>()(t.num_);
+            else if (t.type_ == luna::ValueT_String)
+                return hash<void *>()(t.str_);
             else
                 return hash<void *>()(t.obj_);
         }
