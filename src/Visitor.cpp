@@ -9,9 +9,20 @@ namespace luna
 {
     class NameScope;
 
+    struct ScopeName
+    {
+        // name
+        String *name_;
+        // register index in function
+        int register_;
+
+        ScopeName() : name_(nullptr), register_(0) { }
+        ScopeName(String *name, int reg) : name_(name), register_(reg) { }
+    };
+
     struct ScopeNameList
     {
-        std::vector<String *> name_list_;
+        std::vector<ScopeName> name_list_;
         NameScope *current_scope_;
 
         ScopeNameList() : current_scope_(nullptr) { }
@@ -41,18 +52,23 @@ namespace luna
         }
 
         // Get current scope level name by current name level index
-        String * GetScopeName(std::size_t index) const
+        const ScopeName * GetScopeName(std::size_t index) const
         {
             if (start_ + index < name_list_->name_list_.size())
-                return name_list_->name_list_[start_ + index];
+                return &name_list_->name_list_[start_ + index];
             return nullptr;
         }
 
         // Add name to scope if the name is not existed before
-        void AddScopeName(String *name)
+        bool AddScopeName(String *name, int reg)
         {
             if (!IsBelongsToScope(name))
-                name_list_->name_list_.push_back(name);
+            {
+                name_list_->name_list_.push_back(ScopeName(name, reg));
+                return true;
+            }
+
+            return false;
         }
 
         // Get previous ScopeNameLevel
@@ -66,7 +82,7 @@ namespace luna
         {
             std::size_t end = name_list_->name_list_.size();
             for (std::size_t i = start_; i < end; ++i)
-                if (name_list_->name_list_[i] == name)
+                if (name_list_->name_list_[i].name_ == name)
                     return true;
             return false;
         }
@@ -198,7 +214,9 @@ namespace luna
         for (auto &n : name_list->names_)
         {
             assert(n.token_ == Token_Id);
-            scope_name_list_.current_scope_->AddScopeName(n.str_);
+            if (scope_name_list_.current_scope_->AddScopeName(
+                    n.str_, func_->GetNextRegister()))
+                func_->AllocaNextRegister();
         }
     }
 

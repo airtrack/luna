@@ -36,6 +36,12 @@ namespace luna
         // Set superior function
         void SetSuperior(Function *superior);
 
+        // Get next register id, but do not real alloca it
+        int GetNextRegister() const;
+
+        // Alloca next register
+        int AllocaNextRegister();
+
     private:
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
@@ -49,6 +55,10 @@ namespace luna
         int args_;
         // has '...' param or not
         bool is_vararg_;
+        // register allocator
+        int reg_allocator_;
+        // total register count
+        int reg_count_;
         // superior function pointer
         Function *superior_;
     };
