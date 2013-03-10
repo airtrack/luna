@@ -3,6 +3,7 @@
 #include "Function.h"
 #include <vector>
 #include <utility>
+#include <assert.h>
 
 namespace luna
 {
@@ -47,10 +48,11 @@ namespace luna
             return nullptr;
         }
 
-        // Add name to scope
+        // Add name to scope if the name is not existed before
         void AddScopeName(String *name)
         {
-            name_list_->name_list_.push_back(name);
+            if (!IsBelongsToScope(name))
+                name_list_->name_list_.push_back(name);
         }
 
         // Get previous ScopeNameLevel
@@ -141,7 +143,7 @@ namespace luna
 
     private:
         State *state_;
-        ScopeNameList name_list_;
+        ScopeNameList scope_name_list_;
 
         // current function
         Function *func_;
@@ -165,7 +167,7 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Block *block)
     {
-        NameScope current(name_list_, func_);
+        NameScope current(scope_name_list_, func_);
 
         // Visit all statements
         for (auto &s : block->statements_)
@@ -174,6 +176,37 @@ namespace luna
         // Visit return statement when existed
         if (block->return_stmt_)
             block->return_stmt_->Accept(this);
+    }
+
+    void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name)
+    {
+        // Visit local names
+        local_name->name_list_->Accept(this);
+
+        // Visit exp list
+        if (local_name->exp_list_)
+            local_name->exp_list_->Accept(this);
+    }
+
+    void CodeGenerateVisitor::Visit(Terminator *term)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(NameList *name_list)
+    {
+        // Add all names to local scope
+        for (auto &n : name_list->names_)
+        {
+            assert(n.token_ == Token_Id);
+            scope_name_list_.current_scope_->AddScopeName(n.str_);
+        }
+    }
+
+    void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
+    {
+        // Visit each expression
+        for (auto &exp : exp_list->exp_list_)
+            exp->Accept(this);
     }
 
     std::unique_ptr<Visitor> GenerateVisitor(State *state)
