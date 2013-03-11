@@ -45,6 +45,12 @@ namespace luna
         // Set next register
         void SetNextRegister(int reg);
 
+        // Get register count
+        int GetRegisterCount() const;
+
+        // Set register count
+        void SetRegisterCount(int count);
+
         // Add const number and return index of the const value
         int AddConstNumber(double num);
 

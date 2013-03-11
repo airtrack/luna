@@ -6,6 +6,7 @@ namespace luna
     enum OpType
     {
         OpType_LoadConst = 1,           // AB A: register B: const index
+        OpType_Move,                    // AB A: register B: register    B -> A
     };
 
     struct Instruction

@@ -59,12 +59,14 @@ namespace luna
             return nullptr;
         }
 
-        // Add name to scope if the name is not existed before
-        bool AddScopeName(String *name, int reg)
+        // Add name to scope if the name is not existed before,
+        // '*reg' store the 'name' register if return false.
+        bool AddScopeName(String *name, int *reg)
         {
-            if (!IsBelongsToScope(name))
+            assert(reg);
+            if (!IsBelongsToScope(name, reg))
             {
-                name_list_->name_list_.push_back(ScopeName(name, reg));
+                name_list_->name_list_.push_back(ScopeName(name, *reg));
                 return true;
             }
 
@@ -77,13 +79,18 @@ namespace luna
             return previous_;
         }
 
-        // Is name in this scope
-        bool IsBelongsToScope(const String *name) const
+        // Is name in this scope, if 'name' exist, then '*reg' store the register
+        bool IsBelongsToScope(const String *name, int *reg = nullptr) const
         {
             std::size_t end = name_list_->name_list_.size();
             for (std::size_t i = start_; i < end; ++i)
+            {
                 if (name_list_->name_list_[i].name_ == name)
+                {
+                    if (reg) *reg = name_list_->name_list_[i].register_;
                     return true;
+                }
+            }
             return false;
         }
 
@@ -161,6 +168,17 @@ namespace luna
         State *state_;
         ScopeNameList scope_name_list_;
 
+        struct NameReg
+        {
+            int register_;
+            const TokenDetail *token_;
+
+            NameReg(int reg, const TokenDetail &t)
+                : register_(reg), token_(&t) { }
+        };
+
+        std::vector<NameReg> names_register_;
+
         // current function
         Function *func_;
     };
@@ -199,9 +217,26 @@ namespace luna
         // Visit local names
         local_name->name_list_->Accept(this);
 
+        int exp_reg = func_->GetNextRegister();
+        int reg_count = func_->GetRegisterCount();
+
         // Visit exp list
         if (local_name->exp_list_)
             local_name->exp_list_->Accept(this);
+
+        int names = names_register_.size();
+        func_->SetRegisterCount(reg_count + names);
+
+        // Set local name init value
+        for (int i = 0; i < names; ++i, ++exp_reg)
+        {
+            int name_reg = names_register_[i].register_;
+            func_->AddInstruction(Instruction::ABCode(OpType_Move,
+                                                      name_reg, exp_reg),
+                                  names_register_[i].token_->line_);
+        }
+
+        names_register_.clear();
     }
 
     void CodeGenerateVisitor::Visit(Terminator *term)
@@ -227,9 +262,12 @@ namespace luna
         for (auto &n : name_list->names_)
         {
             assert(n.token_ == Token_Id);
-            if (scope_name_list_.current_scope_->AddScopeName(
-                    n.str_, func_->GetNextRegister()))
+            int reg = func_->GetNextRegister();
+            if (scope_name_list_.current_scope_->AddScopeName(n.str_, &reg))
                 func_->AllocaNextRegister();
+
+            // Add name register, used by other Visit function to generate code
+            names_register_.push_back(NameReg(reg, n));
         }
     }
 

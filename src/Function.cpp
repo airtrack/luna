@@ -68,6 +68,17 @@ namespace luna
             reg_count_ = reg_allocator_;
     }
 
+    int Function::GetRegisterCount() const
+    {
+        return reg_count_;
+    }
+
+    void Function::SetRegisterCount(int count)
+    {
+        if (count > reg_count_)
+            reg_count_ = count;
+    }
+
     int Function::AddConstNumber(double num)
     {
         Value v;
