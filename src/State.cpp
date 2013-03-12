@@ -59,4 +59,11 @@ namespace luna
         gclist_.push_back(t);
         return t;
     }
+
+    CallInfo * State::GetCurrentCall()
+    {
+        if (calls_.empty())
+            return nullptr;
+        return &calls_.back();
+    }
 } // namespace luna

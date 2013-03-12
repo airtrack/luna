@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "Runtime.h"
 #include "ModuleManager.h"
 #include "StringPool.h"
 #include <string>
@@ -13,9 +14,11 @@ namespace luna
     class Function;
     class Closure;
     class Table;
+    class VM;
 
     class State
     {
+        friend class VM;
     public:
         State();
         ~State();
@@ -36,10 +39,17 @@ namespace luna
         Closure *NewClosure();
         Table *NewTable();
 
+        // Get current CallInfo
+        CallInfo * GetCurrentCall();
+
     private:
         std::unique_ptr<ModuleManager> module_manager_;
         std::unique_ptr<StringPool> string_pool_;
         std::vector<GCObject *> gclist_;
+
+        // for VM
+        Stack stack_;
+        std::vector<CallInfo> calls_;
     };
 } // namespace luna
 

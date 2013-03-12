@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */ = {isa = PBXBuildFile; fileRef = CE05E05D16EF7E2D00D1F623 /* VM.h */; };
+		CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE05E05F16EF7EBF00D1F623 /* VM.cpp */; };
 		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
 		CE1302D316BC2E0400DC6A08 /* LunaC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1302D216BC2E0400DC6A08 /* LunaC.cpp */; };
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
@@ -79,6 +81,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE05E05D16EF7E2D00D1F623 /* VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VM.h; path = ../src/VM.h; sourceTree = "<group>"; };
+		CE05E05F16EF7EBF00D1F623 /* VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VM.cpp; path = ../src/VM.cpp; sourceTree = "<group>"; };
 		CE0884341688845E00E05968 /* UnitTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UnitTest.h; path = ../test/UnitTest.h; sourceTree = "<group>"; };
 		CE0884351688981400E05968 /* UnitTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnitTest.cpp; path = ../test/UnitTest.cpp; sourceTree = "<group>"; };
 		CE08844616889AA400E05968 /* unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,6 +185,8 @@
 				CEA5E6B116BEB52900B81DA1 /* Value.h */,
 				CEDBE61616C8F133005FDB2A /* Visitor.cpp */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
+				CE05E05F16EF7EBF00D1F623 /* VM.cpp */,
+				CE05E05D16EF7E2D00D1F623 /* VM.h */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -234,6 +240,7 @@
 				CEA5E6B216BEB52900B81DA1 /* Value.h in Headers */,
 				CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */,
 				CE75E31716D6769B00A008A8 /* Runtime.h in Headers */,
+				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +356,7 @@
 				CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */,
 				CEDBE61716C8F133005FDB2A /* Visitor.cpp in Sources */,
 				CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */,
+				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,6 +7,7 @@
 namespace luna
 {
     class Closure;
+    class Instruction;
 
     // Runtime stack, registers of each function is one part of stack.
     struct Stack
@@ -31,9 +32,11 @@ namespace luna
         Value *register_begin_;
         Value *register_end_;
 
-        // current closure
-        Closure *func_;
-        
+        // current closure, pointer to stack Value
+        Value *func_;
+        // current Instruction
+        Instruction *instruction_;
+
         CallInfo();
     };
 } // namespace luna

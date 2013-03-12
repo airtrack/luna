@@ -7,6 +7,8 @@ namespace luna
 {
     class GCObject;
     class String;
+    class Closure;
+    class Table;
 
     enum ValueT
     {
@@ -15,6 +17,8 @@ namespace luna
         ValueT_Number,
         ValueT_Obj,
         ValueT_String,
+        ValueT_Closure,
+        ValueT_Table,
     };
 
     // Value type of lua
@@ -24,6 +28,8 @@ namespace luna
         {
             GCObject *obj_;
             String *str_;
+            Closure *closure_;
+            Table *table_;
             double num_;
             bool bvalue_;
         };
@@ -40,7 +46,9 @@ namespace luna
                  (left.type_ == ValueT_Bool && left.bvalue_ == right.bvalue_) ||
                  (left.type_ == ValueT_Number && left.num_ == right.num_) ||
                  (left.type_ == ValueT_Obj && left.obj_ == right.obj_) ||
-                 (left.type_ == ValueT_String && left.str_ == right.str_));
+                 (left.type_ == ValueT_String && left.str_ == right.str_) ||
+                 (left.type_ == ValueT_Closure && left.closure_ == right.closure_) ||
+                 (left.type_ == ValueT_Table && left.table_ == right.table_));
     }
 
     inline bool operator != (const Value &left, const Value &right)
@@ -90,6 +98,10 @@ namespace std
                 return hash<double>()(t.num_);
             else if (t.type_ == luna::ValueT_String)
                 return hash<void *>()(t.str_);
+            else if (t.type_ == luna::ValueT_Closure)
+                return hash<void *>()(t.closure_);
+            else if (t.type_ == luna::ValueT_Table)
+                return hash<void *>()(t.table_);
             else
                 return hash<void *>()(t.obj_);
         }
