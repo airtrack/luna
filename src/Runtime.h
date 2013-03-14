@@ -35,7 +35,7 @@ namespace luna
         // current closure, pointer to stack Value
         Value *func_;
         // current Instruction
-        Instruction *instruction_;
+        const Instruction *instruction_;
 
         CallInfo();
     };

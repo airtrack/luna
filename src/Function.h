@@ -60,6 +60,9 @@ namespace luna
         // Add const Value and return index of the const value
         int AddConstValue(const Value &v);
 
+        // Get const Value by index
+        Value * GetConstValue(int i);
+
     private:
         // function instruction opcodes
         std::vector<Instruction> opcodes_;

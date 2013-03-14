@@ -101,6 +101,11 @@ namespace luna
         return const_values_.size() - 1;
     }
 
+    Value * Function::GetConstValue(int i)
+    {
+        return &const_values_[i];
+    }
+
     Closure::Closure()
         : prototype_(nullptr)
     {

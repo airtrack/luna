@@ -18,6 +18,21 @@ namespace luna
             opcode_ = (opcode_ << 24) | (a << 16) | b;
         }
 
+        static int GetOpCode(Instruction i)
+        {
+            return (i.opcode_ >> 24) & 0xFF;
+        }
+
+        static int GetParamA(Instruction i)
+        {
+            return (i.opcode_ >> 16) & 0xFF;
+        }
+
+        static int GetParamB(Instruction i)
+        {
+            return i.opcode_ & 0xFFFF;
+        }
+
         static Instruction ABCode(OpType op, int a, int b)
         {
             return Instruction(op, a, b);
