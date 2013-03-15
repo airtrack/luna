@@ -24,13 +24,8 @@ namespace luna
     // Function call stack info
     struct CallInfo
     {
-        // points to previous and next function CallInfo
-        CallInfo *pre_callinfo_;
-        CallInfo *next_callinfo_;
-
-        // register range(register_begin_, register_end_) points to Stack
-        Value *register_begin_;
-        Value *register_end_;
+        // register base pointer which points to Stack
+        Value *register_;
 
         // current closure, pointer to stack Value
         Value *func_;

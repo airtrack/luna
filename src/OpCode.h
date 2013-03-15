@@ -7,6 +7,7 @@ namespace luna
     {
         OpType_LoadConst = 1,           // AB A: register B: const index
         OpType_Move,                    // AB A: register B: register    B -> A
+        OpType_Call,                    // A  A: register of closure
     };
 
     struct Instruction

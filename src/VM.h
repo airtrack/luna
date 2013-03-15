@@ -13,6 +13,8 @@ namespace luna
         void Execute();
 
     private:
+        void ExecuteFrame();
+
         State *state_;
     };
 } // namespace luna
