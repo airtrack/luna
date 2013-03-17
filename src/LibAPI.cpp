@@ -1,17 +1,18 @@
 #include "LibAPI.h"
 #include "State.h"
 #include "Runtime.h"
+#include "Table.h"
 #include <assert.h>
 
 namespace luna
 {
-    LibAPI::LibAPI(State *state)
+    StackAPI::StackAPI(State *state)
         : state_(state),
           stack_(&state->stack_)
     {
     }
 
-    ValueT LibAPI::GetValueType(int index)
+    ValueT StackAPI::GetValueType(int index)
     {
         Value *v = GetValue(index);
         if (v)
@@ -20,7 +21,7 @@ namespace luna
             return ValueT_Nil;
     }
 
-    double LibAPI::GetNumber(int index)
+    double StackAPI::GetNumber(int index)
     {
         Value *v = GetValue(index);
         if (v)
@@ -29,7 +30,7 @@ namespace luna
             return 0.0;
     }
 
-    const char * LibAPI::GetString(int index)
+    const char * StackAPI::GetString(int index)
     {
         Value *v = GetValue(index);
         if (v)
@@ -38,21 +39,21 @@ namespace luna
             return "";
     }
 
-    void LibAPI::PushNumber(double num)
+    void StackAPI::PushNumber(double num)
     {
         Value *v = PushValue();
         v->type_ = ValueT_Number;
         v->num_ = num;
     }
 
-    void LibAPI::PushString(const char *string)
+    void StackAPI::PushString(const char *string)
     {
         Value *v = PushValue();
         v->type_ = ValueT_String;
         v->str_ = state_->GetString(string);
     }
 
-    Value * LibAPI::GetValue(int index)
+    Value * StackAPI::GetValue(int index)
     {
         assert(!state_->calls_.empty());
         Value *v = nullptr;
@@ -67,8 +68,26 @@ namespace luna
             return v;
     }
 
-    Value * LibAPI::PushValue()
+    Value * StackAPI::PushValue()
     {
         return stack_->top_++;
+    }
+
+    Library::Library(State *state)
+        : state_(state),
+          global_(state->global_)
+    {
+    }
+
+    void Library::RegisterFunc(const char *name, CFunctionType func)
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = state_->GetString(name);
+
+        Value v;
+        v.type_ = ValueT_CFunction;
+        v.cfunc_ = func;
+        global_->SetValue(k, v);
     }
 } // namespace luna

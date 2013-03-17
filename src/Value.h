@@ -9,6 +9,9 @@ namespace luna
     class String;
     class Closure;
     class Table;
+    class State;
+
+    typedef int (*CFunctionType)(State *);
 
     enum ValueT
     {
@@ -19,9 +22,10 @@ namespace luna
         ValueT_String,
         ValueT_Closure,
         ValueT_Table,
+        ValueT_CFunction,
     };
 
-    // Value type of lua
+    // Value type of luna
     struct Value
     {
         union
@@ -30,6 +34,7 @@ namespace luna
             String *str_;
             Closure *closure_;
             Table *table_;
+            CFunctionType cfunc_;
             double num_;
             bool bvalue_;
         };
@@ -48,7 +53,8 @@ namespace luna
                  (left.type_ == ValueT_Obj && left.obj_ == right.obj_) ||
                  (left.type_ == ValueT_String && left.str_ == right.str_) ||
                  (left.type_ == ValueT_Closure && left.closure_ == right.closure_) ||
-                 (left.type_ == ValueT_Table && left.table_ == right.table_));
+                 (left.type_ == ValueT_Table && left.table_ == right.table_) ||
+                 (left.type_ == ValueT_CFunction && left.cfunc_ == right.cfunc_));
     }
 
     inline bool operator != (const Value &left, const Value &right)
@@ -102,6 +108,8 @@ namespace std
                 return hash<void *>()(t.closure_);
             else if (t.type_ == luna::ValueT_Table)
                 return hash<void *>()(t.table_);
+            else if (t.type_ == luna::ValueT_CFunction)
+                return hash<void *>()(reinterpret_cast<void *>(t.cfunc_));
             else
                 return hash<void *>()(t.obj_);
         }

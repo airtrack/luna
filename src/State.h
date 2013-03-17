@@ -19,7 +19,8 @@ namespace luna
     class State
     {
         friend class VM;
-        friend class LibAPI;
+        friend class StackAPI;
+        friend class Library;
     public:
         State();
         ~State();

@@ -7,15 +7,16 @@ namespace luna
 {
     class State;
     class Stack;
+    class Table;
 
     // This class is API for library to manipulate stack,
     // stack index value is:
     // -1 ~ -n is top to bottom,
     // 0 ~ n is bottom to top.
-    class LibAPI
+    class StackAPI
     {
     public:
-        explicit LibAPI(State *state);
+        explicit StackAPI(State *state);
 
         // Get value type by index from stack
         ValueT GetValueType(int index);
@@ -36,6 +37,20 @@ namespace luna
 
         State *state_;
         Stack *stack_;
+    };
+
+    // This class register C function to luna
+    class Library
+    {
+    public:
+        explicit Library(State *state);
+
+        // Register global function 'func' as 'name'
+        void RegisterFunc(const char *name, CFunctionType func);
+
+    private:
+        State *state_;
+        Table *global_;
     };
 } // namespace luna
 
