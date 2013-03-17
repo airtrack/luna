@@ -34,7 +34,7 @@ namespace luna
             bool bvalue_;
         };
 
-        int type_;
+        ValueT type_;
 
         Value() : obj_(nullptr), type_(ValueT_Nil) { }
     };
