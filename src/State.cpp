@@ -9,9 +9,11 @@
 namespace luna
 {
     State::State()
-        : string_pool_(new StringPool)
+        : string_pool_(new StringPool),
+          global_(nullptr)
     {
         module_manager_.reset(new ModuleManager(this));
+        global_ = NewTable();
     }
 
     State::~State()
@@ -65,5 +67,10 @@ namespace luna
         if (calls_.empty())
             return nullptr;
         return &calls_.back();
+    }
+
+    Table * State::GetGlobal()
+    {
+        return global_;
     }
 } // namespace luna

@@ -42,6 +42,9 @@ namespace luna
         // Get current CallInfo
         CallInfo * GetCurrentCall();
 
+        // Get global Table
+        Table * GetGlobal();
+
     private:
         std::unique_ptr<ModuleManager> module_manager_;
         std::unique_ptr<StringPool> string_pool_;
@@ -50,6 +53,7 @@ namespace luna
         // for VM
         Stack stack_;
         std::vector<CallInfo> calls_;
+        Table *global_;
     };
 } // namespace luna
 
