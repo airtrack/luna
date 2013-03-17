@@ -202,14 +202,18 @@ namespace luna
     void CodeGenerateVisitor::Visit(Block *block)
     {
         NameScope current(scope_name_list_, func_);
+        int reg = func_->GetNextRegister();
 
         // Visit all statements
         for (auto &s : block->statements_)
             s->Accept(this);
 
-        // Visit return statement when existed
+        // Visit return statement if exist
         if (block->return_stmt_)
             block->return_stmt_->Accept(this);
+
+        // Restore register
+        func_->SetNextRegister(reg);
     }
 
     void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name)
@@ -217,7 +221,7 @@ namespace luna
         // Visit local names
         local_name->name_list_->Accept(this);
 
-        int exp_reg = func_->GetNextRegister();
+        int reg = func_->GetNextRegister();
         int reg_count = func_->GetRegisterCount();
 
         // Visit exp list
@@ -228,6 +232,7 @@ namespace luna
         func_->SetRegisterCount(reg_count + names);
 
         // Set local name init value
+        int exp_reg = reg;
         for (int i = 0; i < names; ++i, ++exp_reg)
         {
             int name_reg = names_register_[i].register_;
@@ -237,6 +242,9 @@ namespace luna
         }
 
         names_register_.clear();
+
+        // Restore register
+        func_->SetNextRegister(reg);
     }
 
     void CodeGenerateVisitor::Visit(Terminator *term)

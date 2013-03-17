@@ -67,6 +67,7 @@ namespace luna
             }
         }
 
+        state_->stack_.top_ = call->func_;
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
     }

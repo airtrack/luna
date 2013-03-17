@@ -3,8 +3,10 @@
 namespace luna
 {
     Stack::Stack()
-        : stack_(kBaseStackSize)
+        : stack_(kBaseStackSize),
+          top_(nullptr)
     {
+        top_ = &stack_[0];
     }
 
     CallInfo::CallInfo()

@@ -15,6 +15,7 @@ namespace luna
         static const int kBaseStackSize = 10000;
 
         std::vector<Value> stack_;
+        Value *top_;
 
         Stack();
         Stack(const Stack&) = delete;
