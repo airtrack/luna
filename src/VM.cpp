@@ -8,6 +8,7 @@ namespace luna
 #define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamB(i)))
 #define GET_REGISTER_A(i)       (call->register_ + Instruction::GetParamA(i))
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
+#define SET_MAX_TOP(r)          (state_->stack_.top_ = state_->stack_.top_ <= r ? r + 1 : state_->stack_.top_)
 
     VM::VM(State *state) : state_(state)
     {
@@ -40,11 +41,13 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
                     *a = *b;
+                    SET_MAX_TOP(a);
                     break;
                 case OpType_Move:
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
                     *a = *b;
+                    SET_MAX_TOP(a);
                     break;
                 case OpType_Call:
                 {
