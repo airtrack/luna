@@ -12,6 +12,11 @@ namespace luna
     {
     }
 
+    int StackAPI::GetStackSize() const
+    {
+        return stack_->top_ - state_->calls_.back().register_;
+    }
+
     ValueT StackAPI::GetValueType(int index)
     {
         Value *v = GetValue(index);
@@ -37,6 +42,42 @@ namespace luna
             return v->str_->GetStdString().c_str();
         else
             return "";
+    }
+
+    bool StackAPI::GetBool(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->bvalue_;
+        else
+            return false;
+    }
+
+    Closure * StackAPI::GetClosure(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->closure_;
+        else
+            return nullptr;
+    }
+
+    Table * StackAPI::GetTable(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->table_;
+        else
+            return nullptr;
+    }
+
+    CFunctionType StackAPI::GetCFunction(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->cfunc_;
+        else
+            return nullptr;
     }
 
     void StackAPI::PushNumber(double num)

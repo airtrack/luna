@@ -14,6 +14,8 @@
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
+		CE30E90116F75B7A006CB767 /* BaseLib.h in Headers */ = {isa = PBXBuildFile; fileRef = CE30E90016F75B7A006CB767 /* BaseLib.h */; };
+		CE30E90316F75C06006CB767 /* BaseLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE30E90216F75C06006CB767 /* BaseLib.cpp */; };
 		CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = CE477AF016F5E588001F2B0A /* LibAPI.h */; };
 		CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE477AF216F5E5D6001F2B0A /* LibAPI.cpp */; };
 		CE58112516C69B09008F6566 /* TestTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE58112316C69B09008F6566 /* TestTable.cpp */; };
@@ -98,6 +100,8 @@
 		CE2EA6F716763B2700E59BBC /* TextInStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextInStream.cpp; path = ../src/TextInStream.cpp; sourceTree = "<group>"; };
 		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
 		CE2EA6FB16763D9A00E59BBC /* Lex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Lex.cpp; path = ../src/Lex.cpp; sourceTree = "<group>"; };
+		CE30E90016F75B7A006CB767 /* BaseLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseLib.h; path = ../src/BaseLib.h; sourceTree = "<group>"; };
+		CE30E90216F75C06006CB767 /* BaseLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseLib.cpp; path = ../src/BaseLib.cpp; sourceTree = "<group>"; };
 		CE36379A167C5B97009E2D95 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Exception.h; path = ../src/Exception.h; sourceTree = "<group>"; };
 		CE36379C167C6345009E2D95 /* State.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = State.h; path = ../src/State.h; sourceTree = "<group>"; };
 		CE477AF016F5E588001F2B0A /* LibAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibAPI.h; path = ../src/LibAPI.h; sourceTree = "<group>"; };
@@ -158,6 +162,8 @@
 		CE0884321688834E00E05968 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CE30E90216F75C06006CB767 /* BaseLib.cpp */,
+				CE30E90016F75B7A006CB767 /* BaseLib.h */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
 				CEDBE61416C8DF73005FDB2A /* Function.cpp */,
 				CE597F34169DC0F700407019 /* Function.h */,
@@ -248,6 +254,7 @@
 				CE75E31716D6769B00A008A8 /* Runtime.h in Headers */,
 				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
 				CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */,
+				CE30E90116F75B7A006CB767 /* BaseLib.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,6 +372,7 @@
 				CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */,
 				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
 				CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */,
+				CE30E90316F75C06006CB767 /* BaseLib.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

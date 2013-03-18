@@ -8,6 +8,7 @@ namespace luna
     class State;
     class Stack;
     class Table;
+    class Closure;
 
     // This class is API for library to manipulate stack,
     // stack index value is:
@@ -18,12 +19,19 @@ namespace luna
     public:
         explicit StackAPI(State *state);
 
+        // Get count of value in this function stack
+        int GetStackSize() const;
+
         // Get value type by index from stack
         ValueT GetValueType(int index);
 
         // Get value from stack by index
         double GetNumber(int index);
         const char * GetString(int index);
+        bool GetBool(int index);
+        Closure * GetClosure(int index);
+        Table * GetTable(int index);
+        CFunctionType GetCFunction(int index);
 
         // Push value to stack
         void PushNumber(double num);
