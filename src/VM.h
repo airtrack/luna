@@ -1,6 +1,8 @@
 #ifndef VM_H
 #define VM_H
 
+#include "Value.h"
+
 namespace luna
 {
     class State;
@@ -14,6 +16,8 @@ namespace luna
 
     private:
         void ExecuteFrame();
+        void CallClosure(Value *a);
+        void CallCFunction(Value *a);
 
         State *state_;
     };

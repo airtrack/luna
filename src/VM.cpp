@@ -52,26 +52,64 @@ namespace luna
                 case OpType_Call:
                 {
                     a = GET_REGISTER_A(i);
-                    if (a->type_ != ValueT_Closure)
+                    if (a->type_ == ValueT_Closure)
+                    {
+                        CallClosure(a);
+                        // Return, then we enter next ExecuteFrame
+                        return ;
+                    }
+                    else if (a->type_ == ValueT_CFunction)
+                    {
+                        CallCFunction(a);
+                    }
+                    else
                     {
                         // TODO: report error
                         return ;
                     }
-
-                    CallInfo callee;
-                    Function *callee_proto = a->closure_->GetPrototype();
-
-                    callee.register_ = a + 1;
-                    callee.func_ = a;
-                    callee.instruction_ = callee_proto->GetOpCodes();
-                    state_->calls_.push_back(callee);
-                    return ;
+                    break;
                 }
             }
         }
 
         state_->stack_.top_ = call->func_;
         // Pop current CallInfo, and return to last CallInfo
+        state_->calls_.pop_back();
+    }
+
+    void VM::CallClosure(Value *a)
+    {
+        CallInfo callee;
+        Function *callee_proto = a->closure_->GetPrototype();
+
+        callee.register_ = a + 1;
+        callee.func_ = a;
+        callee.instruction_ = callee_proto->GetOpCodes();
+        state_->calls_.push_back(callee);
+    }
+
+    void VM::CallCFunction(Value *a)
+    {
+        // Push the c function CallInfo
+        CallInfo callee;
+        callee.register_ = a + 1;
+        callee.func_ = a;
+        state_->calls_.push_back(callee);
+
+        // Call c function
+        CFunctionType cfunc = a->cfunc_;
+        int res_count = cfunc(state_);
+
+        // Copy c function result to caller stack
+        if (res_count > 0)
+        {
+            Value *res = state_->stack_.top_ - res_count;
+            state_->stack_.top_ = a;
+            for (int i = 0; i < res_count; ++i)
+                *state_->stack_.top_++ = *res++;
+        }
+
+        // Pop the c function CallInfo
         state_->calls_.pop_back();
     }
 } // namespace luna
