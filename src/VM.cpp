@@ -8,7 +8,7 @@ namespace luna
 #define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamB(i)))
 #define GET_REGISTER_A(i)       (call->register_ + Instruction::GetParamA(i))
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
-#define SET_MAX_TOP(r)          (state_->stack_.top_ = state_->stack_.top_ <= r ? r + 1 : state_->stack_.top_)
+#define SET_NEW_TOP(a)          (state_->stack_.IncToNewTop(a + 1))
 
     VM::VM(State *state) : state_(state)
     {
@@ -41,13 +41,13 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
                     *a = *b;
-                    SET_MAX_TOP(a);
+                    SET_NEW_TOP(a);
                     break;
                 case OpType_Move:
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
                     *a = *b;
-                    SET_MAX_TOP(a);
+                    SET_NEW_TOP(a);
                     break;
                 case OpType_Call:
                 {
@@ -69,10 +69,16 @@ namespace luna
                     }
                     break;
                 }
+                case OpType_SetTop:
+                    a = GET_REGISTER_A(i);
+                    state_->stack_.SetNewTop(a);
+                    break;
             }
         }
 
-        state_->stack_.top_ = call->func_;
+        // Reset top value
+        state_->stack_.SetNewTop(call->func_);
+
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
     }
@@ -100,14 +106,16 @@ namespace luna
         CFunctionType cfunc = a->cfunc_;
         int res_count = cfunc(state_);
 
-        // Copy c function result to caller stack
+        Value *src = nullptr;
         if (res_count > 0)
-        {
-            Value *res = state_->stack_.top_ - res_count;
-            state_->stack_.top_ = a;
-            for (int i = 0; i < res_count; ++i)
-                *state_->stack_.top_++ = *res++;
-        }
+            src = state_->stack_.top_ - res_count;
+
+        // Copy c function result to caller stack
+        Value *dst = a;
+        for (int i = 0; i < res_count; ++i)
+            *dst++ = *src++;
+
+        state_->stack_.SetNewTop(dst);
 
         // Pop the c function CallInfo
         state_->calls_.pop_back();

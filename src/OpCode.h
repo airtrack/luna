@@ -8,6 +8,7 @@ namespace luna
         OpType_LoadConst = 1,           // AB A: register B: const index
         OpType_Move,                    // AB A: register B: register    B -> A
         OpType_Call,                    // A  A: register of closure
+        OpType_SetTop,                  // A  A: index of new top
     };
 
     struct Instruction
@@ -37,6 +38,11 @@ namespace luna
         static Instruction ABCode(OpType op, int a, int b)
         {
             return Instruction(op, a, b);
+        }
+
+        static Instruction ACode(OpType op, int a)
+        {
+            return Instruction(op, a, 0);
         }
     };
 } // namespace luna

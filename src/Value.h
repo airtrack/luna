@@ -42,6 +42,8 @@ namespace luna
         ValueT type_;
 
         Value() : obj_(nullptr), type_(ValueT_Nil) { }
+
+        void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
     };
 
     inline bool operator == (const Value &left, const Value &right)

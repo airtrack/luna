@@ -20,6 +20,11 @@ namespace luna
         Stack();
         Stack(const Stack&) = delete;
         void operator = (const Stack&) = delete;
+
+        // Set new top pointer, and [new top, old top) will be set nil
+        void SetNewTop(Value *top);
+        // Set new top pointer if top > top_
+        void IncToNewTop(Value *top) { if (top > top_) top_ = top; }
     };
 
     // Function call stack info

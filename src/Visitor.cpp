@@ -214,6 +214,7 @@ namespace luna
 
         // Restore register
         func_->SetNextRegister(reg);
+        func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
     }
 
     void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name)
@@ -245,6 +246,7 @@ namespace luna
 
         // Restore register
         func_->SetNextRegister(reg);
+        func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
     }
 
     void CodeGenerateVisitor::Visit(Terminator *term)
@@ -279,6 +281,24 @@ namespace luna
         }
     }
 
+    void CodeGenerateVisitor::Visit(NormalFuncCall *func_call)
+    {
+        int reg = func_->GetNextRegister();
+
+        // Load function
+        func_call->caller_->Accept(this);
+
+        // Set the first register for args
+        func_->SetNextRegister(reg + 1);
+        func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg + 1), 0);
+
+        // Prepare args
+        if (func_call->args_)
+            func_call->args_->Accept(this);
+
+        func_->AddInstruction(Instruction::ACode(OpType_Call, reg), 0);
+    }
+
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
     {
         int reg = func_->GetNextRegister();
@@ -288,6 +308,7 @@ namespace luna
         {
             // Set start register for each expression
             func_->SetNextRegister(reg);
+            func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
             exp->Accept(this);
             ++reg;
         }
