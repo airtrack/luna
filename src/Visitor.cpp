@@ -2,8 +2,11 @@
 #include "State.h"
 #include "Function.h"
 #include <vector>
+#include <stack>
 #include <utility>
 #include <assert.h>
+
+#define EXP_VALUE_COUNT_ANY -1
 
 namespace luna
 {
@@ -125,6 +128,79 @@ namespace luna
         Function *owner_;
     };
 
+    // Local name and its register pair in function
+    struct NameReg
+    {
+        int register_;
+        const TokenDetail *token_;
+
+        NameReg(int reg, const TokenDetail &t)
+        : register_(reg), token_(&t) { }
+    };
+
+    // Code generate state for each function
+    struct FunctionGenerateState
+    {
+        std::vector<NameReg> names_register_;
+        std::stack<int> exp_value_count_;
+        std::stack<int> exp_list_value_count_;
+
+        void PushExpValueCount(int count)
+        {
+            exp_value_count_.push(count);
+        }
+
+        int PopExpValueCount()
+        {
+            int result = exp_value_count_.top();
+            exp_value_count_.pop();
+            return result;
+        }
+
+        void PushExpListValueCount(int count)
+        {
+            exp_list_value_count_.push(count);
+        }
+
+        int PopExpListValueCount()
+        {
+            int result = exp_list_value_count_.top();
+            exp_list_value_count_.pop();
+            return result;
+        }
+    };
+
+    class GenerateState
+    {
+    public:
+        GenerateState() { }
+        GenerateState(const GenerateState&) = delete;
+        void operator = (const GenerateState&) = delete;
+
+        FunctionGenerateState * PushFunctionState()
+        {
+            std::unique_ptr<FunctionGenerateState> fgs(new FunctionGenerateState);
+            func_states_.push_back(std::move(fgs));
+            return fgs.get();
+        }
+
+        FunctionGenerateState * CurrentFunctionState()
+        {
+            if (func_states_.empty())
+                return nullptr;
+            else
+                return func_states_.back().get();
+        }
+
+        void PopFunctionState()
+        {
+            func_states_.pop_back();
+        }
+
+    private:
+        std::vector<std::unique_ptr<FunctionGenerateState>> func_states_;
+    };
+
     class CodeGenerateVisitor : public Visitor
     {
     public:
@@ -166,26 +242,22 @@ namespace luna
 
     private:
         State *state_;
+
+        // total name list
         ScopeNameList scope_name_list_;
-
-        struct NameReg
-        {
-            int register_;
-            const TokenDetail *token_;
-
-            NameReg(int reg, const TokenDetail &t)
-                : register_(reg), token_(&t) { }
-        };
-
-        std::vector<NameReg> names_register_;
+        // generate state
+        GenerateState gen_state_;
 
         // current function
         Function *func_;
+        // current function generate state
+        FunctionGenerateState *func_state_;
     };
 
     CodeGenerateVisitor::CodeGenerateVisitor(State *state)
         : state_(state),
-          func_(nullptr)
+          func_(nullptr),
+          func_state_(nullptr)
     {
     }
 
@@ -195,6 +267,8 @@ namespace luna
         func->SetBaseInfo(chunk->module_, 0);
         func->SetSuperior(func_);
         func_ = func;
+
+        func_state_ = gen_state_.PushFunctionState();
 
         chunk->block_->Accept(this);
     }
@@ -223,26 +297,26 @@ namespace luna
         local_name->name_list_->Accept(this);
 
         int reg = func_->GetNextRegister();
-        int reg_count = func_->GetRegisterCount();
+        int names = func_state_->names_register_.size();
 
         // Visit exp list
         if (local_name->exp_list_)
+        {
+            func_state_->PushExpListValueCount(names);
             local_name->exp_list_->Accept(this);
-
-        int names = names_register_.size();
-        func_->SetRegisterCount(reg_count + names);
+        }
 
         // Set local name init value
         int exp_reg = reg;
         for (int i = 0; i < names; ++i, ++exp_reg)
         {
-            int name_reg = names_register_[i].register_;
+            int name_reg = func_state_->names_register_[i].register_;
             func_->AddInstruction(Instruction::ABCode(OpType_Move,
                                                       name_reg, exp_reg),
-                                  names_register_[i].token_->line_);
+                                  func_state_->names_register_[i].token_->line_);
         }
 
-        names_register_.clear();
+        func_state_->names_register_.clear();
 
         // Restore register
         func_->SetNextRegister(reg);
@@ -252,6 +326,7 @@ namespace luna
     void CodeGenerateVisitor::Visit(Terminator *term)
     {
         const TokenDetail &t = term->token_;
+        int value_count = func_state_->PopExpValueCount();
 
         int index = 0;
         if (t.token_ == Token_Number)
@@ -261,9 +336,12 @@ namespace luna
         else
             assert(!"maybe miss some term type");
 
-        int reg = func_->AllocaNextRegister();
-        func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
-                                                  reg, index), t.line_);
+        if (value_count != 0)
+        {
+            int reg = func_->AllocaNextRegister();
+            func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
+                                                      reg, index), t.line_);
+        }
     }
 
     void CodeGenerateVisitor::Visit(NameList *name_list)
@@ -277,7 +355,7 @@ namespace luna
                 func_->AllocaNextRegister();
 
             // Add name register, used by other Visit function to generate code
-            names_register_.push_back(NameReg(reg, n));
+            func_state_->names_register_.push_back(NameReg(reg, n));
         }
     }
 
@@ -286,11 +364,8 @@ namespace luna
         int reg = func_->GetNextRegister();
 
         // Load function
+        func_state_->PushExpValueCount(1);
         func_call->caller_->Accept(this);
-
-        // Set the first register for args
-        func_->SetNextRegister(reg + 1);
-        func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg + 1), 0);
 
         // Prepare args
         if (func_call->args_)
@@ -301,16 +376,29 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
     {
-        int reg = func_->GetNextRegister();
+        int value_count = func_state_->PopExpListValueCount();
 
         // Visit each expression
-        for (auto &exp : exp_list->exp_list_)
+        int exp_count = exp_list->exp_list_.size();
+        for (int i = 0; i < exp_count; ++i)
         {
-            // Set start register for each expression
-            func_->SetNextRegister(reg);
-            func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
+            auto &exp = exp_list->exp_list_[i];
+
+            if (value_count == 0)
+            {
+                func_state_->PushExpValueCount(0);
+            }
+            else
+            {
+                // Lastest exp set all remain value_count
+                int count = i == exp_count - 1 ? value_count : 1;
+                func_state_->PushExpValueCount(count);
+
+                if (value_count != EXP_VALUE_COUNT_ANY)
+                    value_count -= count;
+            }
+
             exp->Accept(this);
-            ++reg;
         }
     }
 

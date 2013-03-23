@@ -79,6 +79,11 @@ namespace luna
             reg_count_ = count;
     }
 
+    int Function::GetFreeRegisterCount() const
+    {
+        return kMaxRegisterCount - reg_allocator_;
+    }
+
     int Function::AddConstNumber(double num)
     {
         Value v;

@@ -51,6 +51,9 @@ namespace luna
         // Set register count
         void SetRegisterCount(int count);
 
+        // Get remain free register count
+        int GetFreeRegisterCount() const;
+
         // Add const number and return index of the const value
         int AddConstNumber(double num);
 
@@ -64,6 +67,8 @@ namespace luna
         Value * GetConstValue(int i);
 
     private:
+        static const int kMaxRegisterCount = 250;
+
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
         // opcodes' line number
