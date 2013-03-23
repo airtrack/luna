@@ -22,7 +22,8 @@ namespace luna
     CallInfo::CallInfo()
         : register_(nullptr),
           func_(nullptr),
-          instruction_(nullptr)
+          instruction_(nullptr),
+          expect_result(0)
     {
     }
 } // namespace luna

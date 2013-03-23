@@ -24,11 +24,13 @@ namespace luna
         // Add instruction, 'line' is line number of the instruction 'i'
         void AddInstruction(Instruction i, int line);
 
-        // Set this function has vararg
+        // Set and get this function has vararg
         void SetHasVararg();
+        bool HasVararg() const;
 
-        // Set fixed arg count
+        // Set and get fixed arg count
         void SetFixedArgCount(int count);
+        int FixedArgCount() const;
 
         // Set module and function define start line
         void SetBaseInfo(String *module, int line);

@@ -16,8 +16,8 @@ namespace luna
 
     private:
         void ExecuteFrame();
-        void CallClosure(Value *a);
-        void CallCFunction(Value *a);
+        void CallClosure(Value *a, int expect_result);
+        void CallCFunction(Value *a, int expect_result);
 
         State *state_;
     };

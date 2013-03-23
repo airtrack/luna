@@ -32,11 +32,12 @@ namespace luna
     {
         // register base pointer which points to Stack
         Value *register_;
-
         // current closure, pointer to stack Value
         Value *func_;
         // current Instruction
         const Instruction *instruction_;
+        // expect result of this function call
+        int expect_result;
 
         CallInfo();
     };

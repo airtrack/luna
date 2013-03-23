@@ -52,15 +52,16 @@ namespace luna
                 case OpType_Call:
                 {
                     a = GET_REGISTER_A(i);
+                    int expect_result = Instruction::GetParamsBx(i);
                     if (a->type_ == ValueT_Closure)
                     {
-                        CallClosure(a);
+                        CallClosure(a, expect_result);
                         // Return, then we enter next ExecuteFrame
                         return ;
                     }
                     else if (a->type_ == ValueT_CFunction)
                     {
-                        CallCFunction(a);
+                        CallCFunction(a, expect_result);
                     }
                     else
                     {
@@ -78,23 +79,45 @@ namespace luna
 
         // Reset top value
         state_->stack_.SetNewTop(call->func_);
+        // Set expect result
+        if (call->expect_result != EXP_VALUE_COUNT_ANY)
+            state_->stack_.SetNewTop(call->func_ + call->expect_result);
 
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
     }
 
-    void VM::CallClosure(Value *a)
+    void VM::CallClosure(Value *a, int expect_result)
     {
         CallInfo callee;
         Function *callee_proto = a->closure_->GetPrototype();
 
-        callee.register_ = a + 1;
         callee.func_ = a;
         callee.instruction_ = callee_proto->GetOpCodes();
+        callee.expect_result = expect_result;
+
+        Value *arg = a + 1;
+        Value *top = state_->stack_.top_;
+        int fixed_args = callee_proto->FixedArgCount();
+
+        // Fixed arg start from base register
+        if (callee_proto->HasVararg())
+        {
+            callee.register_ = top;
+            int count = top - arg;
+            for (int i = 0; i < count && i < fixed_args; ++i)
+                *top++ = *arg++;
+        }
+        else
+        {
+            callee.register_ = arg;
+        }
+
+        state_->stack_.SetNewTop(callee.register_ + fixed_args);
         state_->calls_.push_back(callee);
     }
 
-    void VM::CallCFunction(Value *a)
+    void VM::CallCFunction(Value *a, int expect_result)
     {
         // Push the c function CallInfo
         CallInfo callee;
@@ -112,10 +135,12 @@ namespace luna
 
         // Copy c function result to caller stack
         Value *dst = a;
-        for (int i = 0; i < res_count; ++i)
+        for (int i = 0; i < res_count && i < expect_result; ++i)
             *dst++ = *src++;
 
+        // Set all register nil after dst and set new stack top pointer
         state_->stack_.SetNewTop(dst);
+        state_->stack_.SetNewTop(a + expect_result);
 
         // Pop the c function CallInfo
         state_->calls_.pop_back();

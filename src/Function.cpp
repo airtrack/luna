@@ -29,9 +29,19 @@ namespace luna
         is_vararg_ = true;
     }
 
+    bool Function::HasVararg() const
+    {
+        return is_vararg_;
+    }
+
     void Function::SetFixedArgCount(int count)
     {
         args_ = count;
+    }
+
+    int Function::FixedArgCount() const
+    {
+        return args_;
     }
 
     void Function::SetBaseInfo(String *module, int line)

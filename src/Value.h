@@ -5,6 +5,8 @@
 
 namespace luna
 {
+#define EXP_VALUE_COUNT_ANY -1
+
     class GCObject;
     class String;
     class Closure;

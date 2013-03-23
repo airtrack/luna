@@ -6,8 +6,6 @@
 #include <utility>
 #include <assert.h>
 
-#define EXP_VALUE_COUNT_ANY -1
-
 namespace luna
 {
     class NameScope;
@@ -362,6 +360,7 @@ namespace luna
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call)
     {
         int reg = func_->GetNextRegister();
+        int result_count = func_state_->PopExpValueCount();
 
         // Load function
         func_state_->PushExpValueCount(1);
@@ -371,7 +370,7 @@ namespace luna
         if (func_call->args_)
             func_call->args_->Accept(this);
 
-        func_->AddInstruction(Instruction::ACode(OpType_Call, reg), 0);
+        func_->AddInstruction(Instruction::AsBxCode(OpType_Call, reg, result_count), 0);
     }
 
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
