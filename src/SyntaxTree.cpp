@@ -163,6 +163,11 @@ namespace luna
         v->Visit(this);
     }
 
+    void FuncCallArgs::Accept(Visitor *v)
+    {
+        v->Visit(this);
+    }
+
     void ExpressionList::Accept(Visitor *v)
     {
         v->Visit(this);

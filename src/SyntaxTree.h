@@ -488,6 +488,21 @@ namespace luna
         virtual void Accept(Visitor *v);
     };
 
+    class FuncCallArgs : public SyntaxTree
+    {
+    public:
+        std::unique_ptr<SyntaxTree> arg_;
+        enum ArgType { ExpList, Table, String } type_;
+
+        FuncCallArgs(std::unique_ptr<SyntaxTree> arg,
+                     ArgType type)
+            : arg_(std::move(arg)), type_(type)
+        {
+        }
+
+        virtual void Accept(Visitor *v);
+    };
+
     class ExpressionList : public SyntaxTree
     {
     public:

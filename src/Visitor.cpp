@@ -236,6 +236,7 @@ namespace luna
         virtual void Visit(MemberAccessor *);
         virtual void Visit(NormalFuncCall *);
         virtual void Visit(MemberFuncCall *);
+        virtual void Visit(FuncCallArgs *);
         virtual void Visit(ExpressionList *);
 
     private:
@@ -367,10 +368,29 @@ namespace luna
         func_call->caller_->Accept(this);
 
         // Prepare args
-        if (func_call->args_)
-            func_call->args_->Accept(this);
+        func_call->args_->Accept(this);
 
         func_->AddInstruction(Instruction::AsBxCode(OpType_Call, reg, result_count), 0);
+    }
+
+    void CodeGenerateVisitor::Visit(FuncCallArgs *arg)
+    {
+        if (arg->type_ == FuncCallArgs::String ||
+            arg->type_ == FuncCallArgs::Table)
+        {
+            func_state_->PushExpValueCount(1);
+            arg->arg_->Accept(this);
+        }
+        else
+        {
+            // FuncCallArgs::ExpList
+            assert(arg->type_ == FuncCallArgs::ExpList);
+            if (arg->arg_)
+            {
+                func_state_->PushExpListValueCount(EXP_VALUE_COUNT_ANY);
+                arg->arg_->Accept(this);
+            }
+        }
     }
 
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list)

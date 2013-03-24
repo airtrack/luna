@@ -44,6 +44,7 @@ namespace luna
         virtual void Visit(MemberAccessor *) = 0;
         virtual void Visit(NormalFuncCall *) = 0;
         virtual void Visit(MemberFuncCall *) = 0;
+        virtual void Visit(FuncCallArgs *) = 0;
         virtual void Visit(ExpressionList *) = 0;
     };
 

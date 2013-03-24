@@ -682,25 +682,31 @@ namespace
                    LookAhead().token_ == '{' ||
                    LookAhead().token_ == '(');
 
+            std::unique_ptr<SyntaxTree> arg;
+            FuncCallArgs::ArgType type;
+
             if (LookAhead().token_ == Token_String)
             {
-                return std::unique_ptr<SyntaxTree>(new Terminator(NextToken()));
+                type = FuncCallArgs::String;
+                arg.reset(new Terminator(NextToken()));
             }
             else if (LookAhead().token_ == '{')
             {
-                return ParseTableConstructor();
+                type = FuncCallArgs::Table;
+                arg = ParseTableConstructor();
             }
             else
             {
+                type = FuncCallArgs::ExpList;
                 NextToken();            // skip '('
-                std::unique_ptr<SyntaxTree> exp_list;
                 if (LookAhead().token_ != ')')
-                    exp_list = ParseExpList();
+                    arg = ParseExpList();
 
                 if (NextToken().token_ != ')')
                     throw ParseException("expect ')' to end function call args", current_);
-                return exp_list;
             }
+
+            return std::unique_ptr<SyntaxTree>(new FuncCallArgs(std::move(arg), type));
         }
 
         std::unique_ptr<SyntaxTree> ParseExpList()
