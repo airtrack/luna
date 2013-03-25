@@ -17,8 +17,12 @@ namespace luna
 
     private:
         void ExecuteFrame();
+
+        // Execute next frame if return true
+        bool Call(Value *a, Instruction i);
         void CallClosure(Value *a, int expect_result);
         void CallCFunction(Value *a, int expect_result);
+
         void GetUpTable(Value *dst, Value *t, Value *k);
 
         State *state_;

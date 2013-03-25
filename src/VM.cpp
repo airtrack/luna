@@ -53,26 +53,9 @@ namespace luna
                     SET_NEW_TOP(a);
                     break;
                 case OpType_Call:
-                {
                     a = GET_REGISTER_A(i);
-                    int expect_result = Instruction::GetParamsBx(i);
-                    if (a->type_ == ValueT_Closure)
-                    {
-                        CallClosure(a, expect_result);
-                        // Return, then we enter next ExecuteFrame
-                        return ;
-                    }
-                    else if (a->type_ == ValueT_CFunction)
-                    {
-                        CallCFunction(a, expect_result);
-                    }
-                    else
-                    {
-                        // TODO: report error
-                        return ;
-                    }
+                    if (Call(a, i)) return ;
                     break;
-                }
                 case OpType_SetTop:
                     a = GET_REGISTER_A(i);
                     state_->stack_.SetNewTop(a);
@@ -91,6 +74,27 @@ namespace luna
 
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
+    }
+
+    bool VM::Call(Value *a, Instruction i)
+    {
+        int expect_result = Instruction::GetParamsBx(i);
+        if (a->type_ == ValueT_Closure)
+        {
+            // We need enter next ExecuteFrame
+            CallClosure(a, expect_result);
+            return true;
+        }
+        else if (a->type_ == ValueT_CFunction)
+        {
+            CallCFunction(a, expect_result);
+            return false;
+        }
+        else
+        {
+            // TODO: report error
+            return true;
+        }
     }
 
     void VM::CallClosure(Value *a, int expect_result)
