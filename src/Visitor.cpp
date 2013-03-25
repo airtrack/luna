@@ -327,20 +327,48 @@ namespace luna
         const TokenDetail &t = term->token_;
         int value_count = func_state_->PopExpValueCount();
 
-        int index = 0;
-        if (t.token_ == Token_Number)
-            index = func_->AddConstNumber(t.number_);
-        else if (t.token_ == Token_String)
-            index = func_->AddConstString(t.str_);
+        if (t.token_ == Token_Number ||
+            t.token_ == Token_String)
+        {
+            int index = 0;
+            if (t.token_ == Token_Number)
+                index = func_->AddConstNumber(t.number_);
+            else
+                index = func_->AddConstString(t.str_);
+
+            if (value_count != 0)
+            {
+                int reg = func_->AllocaNextRegister();
+                func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
+                                                          reg, index), t.line_);
+            }
+        }
+        else if (t.token_ == Token_Id)
+        {
+            auto s = scope_name_list_.current_scope_->GetBlongsToScope(t.str_);
+
+            // Token_Id not in scope, then this id is in env table
+            if (!s.first)
+            {
+                int index = func_->AddConstString(t.str_);
+                if (value_count != 0)
+                {
+                    int reg = func_->AllocaNextRegister();
+                    // Load key
+                    func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
+                                                              reg, index), t.line_);
+                    // Get value from uptable
+                    func_->AddInstruction(Instruction::ABCCode(OpType_GetUpTable,
+                                                               reg, ENV_TABLE_INDEX, reg), t.line_);
+                }
+            }
+            else
+            {
+                assert(!"TODO: add local id and upvalue id");
+            }
+        }
         else
             assert(!"maybe miss some term type");
-
-        if (value_count != 0)
-        {
-            int reg = func_->AllocaNextRegister();
-            func_->AddInstruction(Instruction::ABCode(OpType_LoadConst,
-                                                      reg, index), t.line_);
-        }
     }
 
     void CodeGenerateVisitor::Visit(NameList *name_list)

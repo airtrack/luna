@@ -6,6 +6,7 @@
 namespace luna
 {
 #define EXP_VALUE_COUNT_ANY -1
+#define ENV_TABLE_INDEX 0
 
     class GCObject;
     class String;

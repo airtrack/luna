@@ -1,5 +1,6 @@
 #include "VM.h"
 #include "State.h"
+#include "Table.h"
 #include "Function.h"
 #include <assert.h>
 
@@ -8,6 +9,8 @@ namespace luna
 #define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamB(i)))
 #define GET_REGISTER_A(i)       (call->register_ + Instruction::GetParamA(i))
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
+#define GET_REGISTER_C(i)       (call->register_ + Instruction::GetParamC(i))
+#define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
 #define SET_NEW_TOP(a)          (state_->stack_.IncToNewTop(a + 1))
 
     VM::VM(State *state) : state_(state)
@@ -73,6 +76,9 @@ namespace luna
                 case OpType_SetTop:
                     a = GET_REGISTER_A(i);
                     state_->stack_.SetNewTop(a);
+                    break;
+                case OpType_GetUpTable:
+                    GetUpTable(GET_REGISTER_A(i), GET_REGISTER_B(i), GET_REGISTER_C(i));
                     break;
             }
         }
@@ -144,5 +150,16 @@ namespace luna
 
         // Pop the c function CallInfo
         state_->calls_.pop_back();
+    }
+
+    void VM::GetUpTable(Value *dst, Value *t, Value *k)
+    {
+        if (t->type_ != ValueT_Table)
+        {
+            // TODO: report error
+            return ;
+        }
+
+        *dst = t->table_->GetValue(*k);
     }
 } // namespace luna

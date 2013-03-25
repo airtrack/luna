@@ -103,6 +103,9 @@ namespace luna
         // Get closure prototype Function
         Function * GetPrototype() const;
 
+        // Get upvalue by index
+        Value * GetUpvalue(int index) const;
+
     private:
         // prototype Function
         Function *prototype_;

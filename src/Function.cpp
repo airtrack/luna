@@ -130,4 +130,17 @@ namespace luna
     {
         return prototype_;
     }
+
+    Value * Closure::GetUpvalue(int index) const
+    {
+        int size = upvalues_.size();
+        if (index < size)
+        {
+            auto &upvalue = upvalues_[index];
+            return upvalue.type_ == Upvalue::Stack ?
+                upvalue.stack_value_ : &upvalue.shared_->value_;
+        }
+
+        return nullptr;
+    }
 } // namespace luna
