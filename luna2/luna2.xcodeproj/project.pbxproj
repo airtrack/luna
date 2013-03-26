@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE0242301701EF1800CC59BE /* Bootstrap.h in Headers */ = {isa = PBXBuildFile; fileRef = CE02422F1701EF1800CC59BE /* Bootstrap.h */; };
+		CE0242321701EF6200CC59BE /* Bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0242311701EF6200CC59BE /* Bootstrap.cpp */; };
 		CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */ = {isa = PBXBuildFile; fileRef = CE05E05D16EF7E2D00D1F623 /* VM.h */; };
 		CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE05E05F16EF7EBF00D1F623 /* VM.cpp */; };
 		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
@@ -85,6 +87,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE02422F1701EF1800CC59BE /* Bootstrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Bootstrap.h; path = ../src/Bootstrap.h; sourceTree = "<group>"; };
+		CE0242311701EF6200CC59BE /* Bootstrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Bootstrap.cpp; path = ../src/Bootstrap.cpp; sourceTree = "<group>"; };
 		CE05E05D16EF7E2D00D1F623 /* VM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VM.h; path = ../src/VM.h; sourceTree = "<group>"; };
 		CE05E05F16EF7EBF00D1F623 /* VM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VM.cpp; path = ../src/VM.cpp; sourceTree = "<group>"; };
 		CE0884341688845E00E05968 /* UnitTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UnitTest.h; path = ../test/UnitTest.h; sourceTree = "<group>"; };
@@ -164,6 +168,8 @@
 			children = (
 				CE30E90216F75C06006CB767 /* BaseLib.cpp */,
 				CE30E90016F75B7A006CB767 /* BaseLib.h */,
+				CE0242311701EF6200CC59BE /* Bootstrap.cpp */,
+				CE02422F1701EF1800CC59BE /* Bootstrap.h */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
 				CEDBE61416C8DF73005FDB2A /* Function.cpp */,
 				CE597F34169DC0F700407019 /* Function.h */,
@@ -255,6 +261,7 @@
 				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
 				CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */,
 				CE30E90116F75B7A006CB767 /* BaseLib.h in Headers */,
+				CE0242301701EF1800CC59BE /* Bootstrap.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +380,7 @@
 				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
 				CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */,
 				CE30E90316F75C06006CB767 /* BaseLib.cpp in Sources */,
+				CE0242321701EF6200CC59BE /* Bootstrap.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -16,6 +16,8 @@ namespace luna
     {
         unsigned int opcode_;
 
+        Instruction() : opcode_(0) { }
+
         Instruction(OpType op, int a, int b, int c) : opcode_(op)
         {
             opcode_ = (opcode_ << 24) | (a << 16) | (b << 8) | c;

@@ -1,4 +1,6 @@
 #include "State.h"
+#include "VM.h"
+#include "Bootstrap.h"
 #include "Exception.h"
 #include <stdio.h>
 
@@ -13,8 +15,14 @@ int main(int argc, const char **argv)
     try
     {
         luna::State state;
+        luna::VM vm(&state);
+        luna::Bootstrap bootstrap(&state);
+
         state.LoadModule(argv[1]);
-        printf("load %s ok.\n", argv[1]);
+        bootstrap.Prepare();
+        vm.Execute();
+
+        printf("Execute %s ok.\n", argv[1]);
     }
     catch (const luna::Exception &exp)
     {

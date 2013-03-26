@@ -28,14 +28,12 @@ namespace luna
     void VM::ExecuteFrame()
     {
         CallInfo *call = &state_->calls_.back();
-        Closure *cl = call->func_->closure_;
-        Function *proto = cl->GetPrototype();
-        const Instruction *instr_begin = proto->GetOpCodes();
-        const Instruction *instr_end = instr_begin + proto->OpCodeSize();
+        Closure *cl = call->func_ ? call->func_->closure_ : nullptr;
+        Function *proto = cl ? cl->GetPrototype() : nullptr;
         Value *a = nullptr;
         Value *b = nullptr;
 
-        while (call->instruction_ < instr_end)
+        while (call->instruction_ < call->end_)
         {
             Instruction i = *call->instruction_++;
 
@@ -104,6 +102,7 @@ namespace luna
 
         callee.func_ = a;
         callee.instruction_ = callee_proto->GetOpCodes();
+        callee.end_ = callee.instruction_ + callee_proto->OpCodeSize();
         callee.expect_result = expect_result;
 
         Value *arg = a + 1;
@@ -133,6 +132,7 @@ namespace luna
         CallInfo callee;
         callee.register_ = a + 1;
         callee.func_ = a;
+        callee.expect_result = expect_result;
         state_->calls_.push_back(callee);
 
         // Call c function

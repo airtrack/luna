@@ -36,6 +36,8 @@ namespace luna
         Value *func_;
         // current Instruction
         const Instruction *instruction_;
+        // Instruction end
+        const Instruction *end_;
         // expect result of this function call
         int expect_result;
 

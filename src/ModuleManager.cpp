@@ -2,6 +2,7 @@
 #include "Lex.h"
 #include "Parser.h"
 #include "State.h"
+#include "Visitor.h"
 #include "TextInStream.h"
 #include <functional>
 
@@ -16,9 +17,14 @@ namespace luna
     {
         io::text::InStream is(module_name);
         Lexer lexer(state_, state_->GetString(module_name),
-                    std::bind(&io::text::InStream::GetChar, &is));
+                    [&is] () { return is.GetChar(); });
 
+        // Parse to AST
         Parser parser(state_);
-        parser.Parse(&lexer);
+        auto ast = parser.Parse(&lexer);
+
+        // AST generate code
+        auto visitor = GenerateVisitor(state_);
+        ast->Accept(visitor.get());
     }
 } // namespace luna

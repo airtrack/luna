@@ -302,6 +302,58 @@ namespace luna
         func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
     }
 
+    void CodeGenerateVisitor::Visit(ReturnStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(BreakStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(DoStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(WhileStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(RepeatStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(IfStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(ElseIfStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(ElseStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(NumericForStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(GenericForStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(FunctionStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(FunctionName *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(LocalFunctionStatement *)
+    {
+    }
+
     void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name)
     {
         // Visit local names
@@ -332,6 +384,14 @@ namespace luna
         // Restore register
         func_->SetNextRegister(reg);
         func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
+    }
+
+    void CodeGenerateVisitor::Visit(AssignmentStatement *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(VarList *)
+    {
     }
 
     void CodeGenerateVisitor::Visit(Terminator *term)
@@ -383,6 +443,22 @@ namespace luna
             assert(!"maybe miss some term type");
     }
 
+    void CodeGenerateVisitor::Visit(BinaryExpression *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(UnaryExpression *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(FunctionBody *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(ParamList *)
+    {
+    }
+
     void CodeGenerateVisitor::Visit(NameList *name_list)
     {
         // Add all names to local scope
@@ -398,6 +474,30 @@ namespace luna
         }
     }
 
+    void CodeGenerateVisitor::Visit(TableDefine *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(TableIndexField *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(TableNameField *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(TableArrayField *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(IndexAccessor *)
+    {
+    }
+
+    void CodeGenerateVisitor::Visit(MemberAccessor *)
+    {
+    }
+
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call)
     {
         int reg = func_->GetNextRegister();
@@ -411,6 +511,10 @@ namespace luna
         func_call->args_->Accept(this);
 
         func_->AddInstruction(Instruction::AsBxCode(OpType_Call, reg, result_count), 0);
+    }
+
+    void CodeGenerateVisitor::Visit(MemberFuncCall *)
+    {
     }
 
     void CodeGenerateVisitor::Visit(FuncCallArgs *arg)

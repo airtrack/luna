@@ -21,6 +21,7 @@ namespace luna
         friend class VM;
         friend class StackAPI;
         friend class Library;
+        friend class Bootstrap;
         friend class CodeGenerateVisitor;
     public:
         State();
