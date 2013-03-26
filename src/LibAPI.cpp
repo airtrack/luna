@@ -116,7 +116,7 @@ namespace luna
 
     Library::Library(State *state)
         : state_(state),
-          global_(state->global_)
+          global_(state->global_.table_)
     {
     }
 

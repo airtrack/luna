@@ -21,6 +21,7 @@ namespace luna
         friend class VM;
         friend class StackAPI;
         friend class Library;
+        friend class CodeGenerateVisitor;
     public:
         State();
         ~State();
@@ -44,8 +45,8 @@ namespace luna
         // Get current CallInfo
         CallInfo * GetCurrentCall();
 
-        // Get global Table
-        Table * GetGlobal();
+        // Get global table value
+        Value * GetGlobal();
 
     private:
         std::unique_ptr<ModuleManager> module_manager_;
@@ -55,7 +56,7 @@ namespace luna
         // for VM
         Stack stack_;
         std::vector<CallInfo> calls_;
-        Table *global_;
+        Value global_;
     };
 } // namespace luna
 

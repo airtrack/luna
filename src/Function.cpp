@@ -131,6 +131,11 @@ namespace luna
         return prototype_;
     }
 
+    void Closure::SetPrototype(Function *prototype)
+    {
+        prototype_ = prototype;
+    }
+
     Value * Closure::GetUpvalue(int index) const
     {
         int size = upvalues_.size();
@@ -142,5 +147,14 @@ namespace luna
         }
 
         return nullptr;
+    }
+
+    int Closure::AddUpvalue(Value *value, Upvalue::Type type)
+    {
+        Upvalue upvalue;
+        upvalue.stack_value_ = value;
+        upvalue.type_ = type;
+        upvalues_.push_back(upvalue);
+        return upvalues_.size() - 1;
     }
 } // namespace luna

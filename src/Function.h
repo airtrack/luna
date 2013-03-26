@@ -100,11 +100,15 @@ namespace luna
     public:
         Closure();
 
-        // Get closure prototype Function
+        // Get and set closure prototype Function
         Function * GetPrototype() const;
+        void SetPrototype(Function *prototype);
 
         // Get upvalue by index
         Value * GetUpvalue(int index) const;
+
+        // Add upvalue by type, return upvalue index
+        int AddUpvalue(Value *value, Upvalue::Type type);
 
     private:
         // prototype Function

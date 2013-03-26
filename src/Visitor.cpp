@@ -262,6 +262,7 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Chunk *chunk)
     {
+        // Generate function
         auto func = state_->NewFunction();
         func->SetBaseInfo(chunk->module_, 0);
         func->SetSuperior(func_);
@@ -270,6 +271,17 @@ namespace luna
         func_state_ = gen_state_.PushFunctionState();
 
         chunk->block_->Accept(this);
+
+        // Generate closure
+        auto cl = state_->NewClosure();
+        cl->SetPrototype(func);
+        // Add Env as closure upvalue
+        cl->AddUpvalue(state_->GetGlobal(), Upvalue::Stack);
+
+        // Add closure to stack
+        state_->stack_.top_->closure_ = cl;
+        state_->stack_.top_->type_ = ValueT_Closure;
+        state_->stack_.top_++;
     }
 
     void CodeGenerateVisitor::Visit(Block *block)

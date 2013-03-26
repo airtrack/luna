@@ -88,7 +88,7 @@ namespace luna
             SharedUpvalue *shared_;
         };
 
-        enum { Stack, Shared } type_;
+        enum Type { Stack, Shared } type_;
 
         Upvalue() : stack_value_(nullptr), type_(Stack) { }
     };
