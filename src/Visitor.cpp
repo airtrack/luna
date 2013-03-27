@@ -150,6 +150,9 @@ namespace luna
 
         int PopExpValueCount()
         {
+            if (exp_value_count_.empty())
+                return 0;
+
             int result = exp_value_count_.top();
             exp_value_count_.pop();
             return result;
@@ -162,6 +165,9 @@ namespace luna
 
         int PopExpListValueCount()
         {
+            if (exp_list_value_count_.empty())
+                return 0;
+
             int result = exp_list_value_count_.top();
             exp_list_value_count_.pop();
             return result;
@@ -179,7 +185,7 @@ namespace luna
         {
             std::unique_ptr<FunctionGenerateState> fgs(new FunctionGenerateState);
             func_states_.push_back(std::move(fgs));
-            return fgs.get();
+            return func_states_.back().get();
         }
 
         FunctionGenerateState * CurrentFunctionState()

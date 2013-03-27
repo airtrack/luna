@@ -20,17 +20,17 @@ namespace luna
 
         Instruction(OpType op, int a, int b, int c) : opcode_(op)
         {
-            opcode_ = (opcode_ << 24) | (a << 16) | (b << 8) | c;
+            opcode_ = (opcode_ << 24) | ((a & 0xFF) << 16) | ((b & 0xFF) << 8) | (c & 0xFF);
         }
 
         Instruction(OpType op, int a, short b) : opcode_(op)
         {
-            opcode_ = (opcode_ << 24) | (a << 16) | b;
+            opcode_ = (opcode_ << 24) | ((a & 0xFF) << 16) | (static_cast<int>(b) & 0xFFFF);
         }
 
         Instruction(OpType op, int a, unsigned short b) : opcode_(op)
         {
-            opcode_ = (opcode_ << 24) | (a << 16) | b;
+            opcode_ = (opcode_ << 24) | ((a & 0xFF) << 16) | (static_cast<int>(b) & 0xFFFF);
         }
 
         static int GetOpCode(Instruction i)

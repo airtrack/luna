@@ -7,6 +7,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <list>
 
 namespace luna
 {
@@ -56,7 +57,7 @@ namespace luna
 
         // for VM
         Stack stack_;
-        std::vector<CallInfo> calls_;
+        std::list<CallInfo> calls_;
         Value global_;
     };
 } // namespace luna

@@ -59,16 +59,18 @@ namespace luna
                     state_->stack_.SetNewTop(a);
                     break;
                 case OpType_GetUpTable:
-                    GetUpTable(GET_REGISTER_A(i), GET_REGISTER_B(i), GET_REGISTER_C(i));
+                    GetUpTable(GET_REGISTER_A(i), GET_UPVALUE_B(i), GET_REGISTER_C(i));
                     break;
             }
         }
 
+        // For bootstrap CallInfo, we use call->register_ as new top
+        Value *new_top = call->func_ ? call->func_ : call->register_;
         // Reset top value
-        state_->stack_.SetNewTop(call->func_);
+        state_->stack_.SetNewTop(new_top);
         // Set expect result
         if (call->expect_result != EXP_VALUE_COUNT_ANY)
-            state_->stack_.SetNewTop(call->func_ + call->expect_result);
+            state_->stack_.SetNewTop(new_top + call->expect_result);
 
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
