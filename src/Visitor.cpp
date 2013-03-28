@@ -52,12 +52,12 @@ namespace luna
             name_list_->current_scope_ = previous_;
         }
 
-        // Get current scope level name by current name level index
-        const ScopeName * GetScopeName(std::size_t index) const
+        // Get name register, if 'name' is not in this scope, then return -1
+        int GetNameRegister(const String *name) const
         {
-            if (start_ + index < name_list_->name_list_.size())
-                return &name_list_->name_list_[start_ + index];
-            return nullptr;
+            int reg = -1;
+            IsBelongsToScope(name, &reg);
+            return reg;
         }
 
         // Add name to scope if the name is not existed before,
@@ -110,6 +110,12 @@ namespace luna
 
             const Function *func = current ? current->owner_ : nullptr;
             return std::make_pair(current, func);
+        }
+
+        // Get scope owner function
+        Function * GetOwnerFunction() const
+        {
+            return owner_;
         }
 
     private:
@@ -442,11 +448,24 @@ namespace luna
             }
             else
             {
-                assert(!"TODO: add local id and upvalue id");
+                if (s.second == scope_name_list_.current_scope_->GetOwnerFunction())
+                {
+                    int src_reg = s.first->GetNameRegister(t.str_);
+                    assert(src_reg >= 0);
+                    if (value_count != 0)
+                    {
+                        int dst_reg = func_->AllocaNextRegister();
+                        func_->AddInstruction(Instruction::ABCode(OpType_Move, dst_reg, src_reg), t.line_);
+                    }
+                }
+                else
+                {
+                    assert(!"TODO: generate code for upvalue.");
+                }
             }
         }
         else
-            assert(!"maybe miss some term type");
+            assert(!"maybe miss some term type.");
     }
 
     void CodeGenerateVisitor::Visit(BinaryExpression *)
