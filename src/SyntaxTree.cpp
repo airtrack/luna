@@ -3,173 +3,45 @@
 
 namespace luna
 {
-    void Chunk::Accept(Visitor *v)
-    {
-        v->Visit(this);
+#define SYNTAX_TREE_ACCEPT_VISITOR_IMPL(class_name)         \
+    void class_name::Accept(Visitor *v, void *data)         \
+    {                                                       \
+        v->Visit(this, data);                               \
     }
 
-    void Block::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(Chunk)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(Block)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(ReturnStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(BreakStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(DoStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(WhileStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(RepeatStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(IfStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(ElseIfStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(ElseStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(NumericForStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(GenericForStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(FunctionStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(FunctionName)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(LocalFunctionStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(LocalNameListStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(AssignmentStatement)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(VarList)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(Terminator)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(BinaryExpression)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(UnaryExpression)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(FunctionBody)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(ParamList)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(NameList)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(TableDefine)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(TableIndexField)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(TableNameField)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(TableArrayField)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(IndexAccessor)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(MemberAccessor)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(NormalFuncCall)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(MemberFuncCall)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(FuncCallArgs)
+    SYNTAX_TREE_ACCEPT_VISITOR_IMPL(ExpressionList)
 
-    void ReturnStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void BreakStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void DoStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void WhileStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void RepeatStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void IfStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void ElseIfStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void ElseStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void NumericForStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void GenericForStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void FunctionStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void FunctionName::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void LocalFunctionStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void LocalNameListStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void AssignmentStatement::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void VarList::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void Terminator::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void BinaryExpression::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void UnaryExpression::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void FunctionBody::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void ParamList::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void NameList::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void TableDefine::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void TableIndexField::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void TableNameField::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void TableArrayField::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void IndexAccessor::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void MemberAccessor::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void NormalFuncCall::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void MemberFuncCall::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void FuncCallArgs::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
-
-    void ExpressionList::Accept(Visitor *v)
-    {
-        v->Visit(this);
-    }
 } // namespace luna

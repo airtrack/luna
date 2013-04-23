@@ -216,40 +216,40 @@ namespace luna
     public:
         explicit CodeGenerateVisitor(State *state);
 
-        virtual void Visit(Chunk *);
-        virtual void Visit(Block *);
-        virtual void Visit(ReturnStatement *);
-        virtual void Visit(BreakStatement *);
-        virtual void Visit(DoStatement *);
-        virtual void Visit(WhileStatement *);
-        virtual void Visit(RepeatStatement *);
-        virtual void Visit(IfStatement *);
-        virtual void Visit(ElseIfStatement *);
-        virtual void Visit(ElseStatement *);
-        virtual void Visit(NumericForStatement *);
-        virtual void Visit(GenericForStatement *);
-        virtual void Visit(FunctionStatement *);
-        virtual void Visit(FunctionName *);
-        virtual void Visit(LocalFunctionStatement *);
-        virtual void Visit(LocalNameListStatement *);
-        virtual void Visit(AssignmentStatement *);
-        virtual void Visit(VarList *);
-        virtual void Visit(Terminator *);
-        virtual void Visit(BinaryExpression *);
-        virtual void Visit(UnaryExpression *);
-        virtual void Visit(FunctionBody *);
-        virtual void Visit(ParamList *);
-        virtual void Visit(NameList *);
-        virtual void Visit(TableDefine *);
-        virtual void Visit(TableIndexField *);
-        virtual void Visit(TableNameField *);
-        virtual void Visit(TableArrayField *);
-        virtual void Visit(IndexAccessor *);
-        virtual void Visit(MemberAccessor *);
-        virtual void Visit(NormalFuncCall *);
-        virtual void Visit(MemberFuncCall *);
-        virtual void Visit(FuncCallArgs *);
-        virtual void Visit(ExpressionList *);
+        virtual void Visit(Chunk *, void *);
+        virtual void Visit(Block *, void *);
+        virtual void Visit(ReturnStatement *, void *);
+        virtual void Visit(BreakStatement *, void *);
+        virtual void Visit(DoStatement *, void *);
+        virtual void Visit(WhileStatement *, void *);
+        virtual void Visit(RepeatStatement *, void *);
+        virtual void Visit(IfStatement *, void *);
+        virtual void Visit(ElseIfStatement *, void *);
+        virtual void Visit(ElseStatement *, void *);
+        virtual void Visit(NumericForStatement *, void *);
+        virtual void Visit(GenericForStatement *, void *);
+        virtual void Visit(FunctionStatement *, void *);
+        virtual void Visit(FunctionName *, void *);
+        virtual void Visit(LocalFunctionStatement *, void *);
+        virtual void Visit(LocalNameListStatement *, void *);
+        virtual void Visit(AssignmentStatement *, void *);
+        virtual void Visit(VarList *, void *);
+        virtual void Visit(Terminator *, void *);
+        virtual void Visit(BinaryExpression *, void *);
+        virtual void Visit(UnaryExpression *, void *);
+        virtual void Visit(FunctionBody *, void *);
+        virtual void Visit(ParamList *, void *);
+        virtual void Visit(NameList *, void *);
+        virtual void Visit(TableDefine *, void *);
+        virtual void Visit(TableIndexField *, void *);
+        virtual void Visit(TableNameField *, void *);
+        virtual void Visit(TableArrayField *, void *);
+        virtual void Visit(IndexAccessor *, void *);
+        virtual void Visit(MemberAccessor *, void *);
+        virtual void Visit(NormalFuncCall *, void *);
+        virtual void Visit(MemberFuncCall *, void *);
+        virtual void Visit(FuncCallArgs *, void *);
+        virtual void Visit(ExpressionList *, void *);
 
     private:
         State *state_;
@@ -272,7 +272,7 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(Chunk *chunk)
+    void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
     {
         // Generate function
         auto func = state_->NewFunction();
@@ -282,7 +282,7 @@ namespace luna
 
         func_state_ = gen_state_.PushFunctionState();
 
-        chunk->block_->Accept(this);
+        chunk->block_->Accept(this, data);
 
         // Generate closure
         auto cl = state_->NewClosure();
@@ -296,80 +296,80 @@ namespace luna
         state_->stack_.top_++;
     }
 
-    void CodeGenerateVisitor::Visit(Block *block)
+    void CodeGenerateVisitor::Visit(Block *block, void *data)
     {
         NameScope current(scope_name_list_, func_);
         int reg = func_->GetNextRegister();
 
         // Visit all statements
         for (auto &s : block->statements_)
-            s->Accept(this);
+            s->Accept(this, data);
 
         // Visit return statement if exist
         if (block->return_stmt_)
-            block->return_stmt_->Accept(this);
+            block->return_stmt_->Accept(this, data);
 
         // Restore register
         func_->SetNextRegister(reg);
         func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
     }
 
-    void CodeGenerateVisitor::Visit(ReturnStatement *)
+    void CodeGenerateVisitor::Visit(ReturnStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(BreakStatement *)
+    void CodeGenerateVisitor::Visit(BreakStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(DoStatement *)
+    void CodeGenerateVisitor::Visit(DoStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(WhileStatement *)
+    void CodeGenerateVisitor::Visit(WhileStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(RepeatStatement *)
+    void CodeGenerateVisitor::Visit(RepeatStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(IfStatement *)
+    void CodeGenerateVisitor::Visit(IfStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(ElseIfStatement *)
+    void CodeGenerateVisitor::Visit(ElseIfStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(ElseStatement *)
+    void CodeGenerateVisitor::Visit(ElseStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(NumericForStatement *)
+    void CodeGenerateVisitor::Visit(NumericForStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(GenericForStatement *)
+    void CodeGenerateVisitor::Visit(GenericForStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(FunctionStatement *)
+    void CodeGenerateVisitor::Visit(FunctionStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(FunctionName *)
+    void CodeGenerateVisitor::Visit(FunctionName *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(LocalFunctionStatement *)
+    void CodeGenerateVisitor::Visit(LocalFunctionStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name)
+    void CodeGenerateVisitor::Visit(LocalNameListStatement *local_name, void *data)
     {
         // Visit local names
-        local_name->name_list_->Accept(this);
+        local_name->name_list_->Accept(this, data);
 
         int reg = func_->GetNextRegister();
         int names = func_state_->names_register_.size();
@@ -378,7 +378,7 @@ namespace luna
         if (local_name->exp_list_)
         {
             func_state_->PushExpListValueCount(names);
-            local_name->exp_list_->Accept(this);
+            local_name->exp_list_->Accept(this, data);
         }
 
         // Set local name init value
@@ -398,15 +398,15 @@ namespace luna
         func_->AddInstruction(Instruction::ACode(OpType_SetTop, reg), 0);
     }
 
-    void CodeGenerateVisitor::Visit(AssignmentStatement *)
+    void CodeGenerateVisitor::Visit(AssignmentStatement *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(VarList *)
+    void CodeGenerateVisitor::Visit(VarList *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(Terminator *term)
+    void CodeGenerateVisitor::Visit(Terminator *term, void *data)
     {
         const TokenDetail &t = term->token_;
         int value_count = func_state_->PopExpValueCount();
@@ -468,23 +468,23 @@ namespace luna
             assert(!"maybe miss some term type.");
     }
 
-    void CodeGenerateVisitor::Visit(BinaryExpression *)
+    void CodeGenerateVisitor::Visit(BinaryExpression *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(UnaryExpression *)
+    void CodeGenerateVisitor::Visit(UnaryExpression *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(FunctionBody *)
+    void CodeGenerateVisitor::Visit(FunctionBody *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(ParamList *)
+    void CodeGenerateVisitor::Visit(ParamList *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(NameList *name_list)
+    void CodeGenerateVisitor::Visit(NameList *name_list, void *data)
     {
         // Add all names to local scope
         for (auto &n : name_list->names_)
@@ -499,56 +499,56 @@ namespace luna
         }
     }
 
-    void CodeGenerateVisitor::Visit(TableDefine *)
+    void CodeGenerateVisitor::Visit(TableDefine *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(TableIndexField *)
+    void CodeGenerateVisitor::Visit(TableIndexField *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(TableNameField *)
+    void CodeGenerateVisitor::Visit(TableNameField *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(TableArrayField *)
+    void CodeGenerateVisitor::Visit(TableArrayField *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(IndexAccessor *)
+    void CodeGenerateVisitor::Visit(IndexAccessor *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(MemberAccessor *)
+    void CodeGenerateVisitor::Visit(MemberAccessor *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(NormalFuncCall *func_call)
+    void CodeGenerateVisitor::Visit(NormalFuncCall *func_call, void *data)
     {
         int reg = func_->GetNextRegister();
         int result_count = func_state_->PopExpValueCount();
 
         // Load function
         func_state_->PushExpValueCount(1);
-        func_call->caller_->Accept(this);
+        func_call->caller_->Accept(this, data);
 
         // Prepare args
-        func_call->args_->Accept(this);
+        func_call->args_->Accept(this, data);
 
         func_->AddInstruction(Instruction::AsBxCode(OpType_Call, reg, result_count), 0);
     }
 
-    void CodeGenerateVisitor::Visit(MemberFuncCall *)
+    void CodeGenerateVisitor::Visit(MemberFuncCall *, void *)
     {
     }
 
-    void CodeGenerateVisitor::Visit(FuncCallArgs *arg)
+    void CodeGenerateVisitor::Visit(FuncCallArgs *arg, void *data)
     {
         if (arg->type_ == FuncCallArgs::String ||
             arg->type_ == FuncCallArgs::Table)
         {
             func_state_->PushExpValueCount(1);
-            arg->arg_->Accept(this);
+            arg->arg_->Accept(this, data);
         }
         else
         {
@@ -557,12 +557,12 @@ namespace luna
             if (arg->arg_)
             {
                 func_state_->PushExpListValueCount(EXP_VALUE_COUNT_ANY);
-                arg->arg_->Accept(this);
+                arg->arg_->Accept(this, data);
             }
         }
     }
 
-    void CodeGenerateVisitor::Visit(ExpressionList *exp_list)
+    void CodeGenerateVisitor::Visit(ExpressionList *exp_list, void *data)
     {
         int value_count = func_state_->PopExpListValueCount();
 
@@ -586,7 +586,7 @@ namespace luna
                     value_count -= count;
             }
 
-            exp->Accept(this);
+            exp->Accept(this, data);
         }
     }
 

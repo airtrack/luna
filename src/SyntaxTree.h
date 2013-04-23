@@ -7,6 +7,11 @@
 
 namespace luna
 {
+#define SYNTAX_TREE_ACCEPT_VISITOR()                \
+    virtual void Accept(Visitor *v, void *data) = 0
+#define SYNTAX_TREE_ACCEPT_VISITOR_DECL()           \
+    virtual void Accept(Visitor *v, void *data)
+
     class String;
     class Visitor;
 
@@ -16,7 +21,7 @@ namespace luna
     {
     public:
         virtual ~SyntaxTree() { }
-        virtual void Accept(Visitor *v) = 0;
+        SYNTAX_TREE_ACCEPT_VISITOR();
     };
 
     class Chunk : public SyntaxTree
@@ -32,7 +37,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class Block : public SyntaxTree
@@ -43,7 +48,7 @@ namespace luna
 
         Block() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class ReturnStatement : public SyntaxTree
@@ -53,7 +58,7 @@ namespace luna
 
         ReturnStatement() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class BreakStatement : public SyntaxTree
@@ -66,7 +71,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class DoStatement : public SyntaxTree
@@ -79,7 +84,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class WhileStatement : public SyntaxTree
@@ -94,7 +99,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class RepeatStatement : public SyntaxTree
@@ -109,7 +114,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class IfStatement : public SyntaxTree
@@ -128,7 +133,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class ElseIfStatement : public SyntaxTree
@@ -147,7 +152,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class ElseStatement : public SyntaxTree
@@ -160,7 +165,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class NumericForStatement : public SyntaxTree
@@ -185,7 +190,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class GenericForStatement : public SyntaxTree
@@ -204,7 +209,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class FunctionStatement : public SyntaxTree
@@ -219,7 +224,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class FunctionName : public SyntaxTree
@@ -230,7 +235,7 @@ namespace luna
 
         FunctionName() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class LocalFunctionStatement : public SyntaxTree
@@ -245,7 +250,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class LocalNameListStatement : public SyntaxTree
@@ -260,7 +265,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class AssignmentStatement : public SyntaxTree
@@ -275,7 +280,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class VarList : public SyntaxTree
@@ -285,7 +290,7 @@ namespace luna
 
         VarList() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class Terminator : public SyntaxTree
@@ -296,7 +301,7 @@ namespace luna
         Terminator() { }
         explicit Terminator(const TokenDetail &token) : token_(token) { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class BinaryExpression : public SyntaxTree
@@ -314,7 +319,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class UnaryExpression : public SyntaxTree
@@ -330,7 +335,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class FunctionBody : public SyntaxTree
@@ -346,7 +351,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class ParamList : public SyntaxTree
@@ -360,7 +365,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class NameList : public SyntaxTree
@@ -370,7 +375,7 @@ namespace luna
 
         NameList() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class TableDefine : public SyntaxTree
@@ -380,7 +385,7 @@ namespace luna
 
         TableDefine() { }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class TableIndexField : public SyntaxTree
@@ -395,7 +400,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class TableNameField : public SyntaxTree
@@ -410,7 +415,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class TableArrayField : public SyntaxTree
@@ -423,7 +428,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class IndexAccessor : public SyntaxTree
@@ -438,7 +443,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class MemberAccessor : public SyntaxTree
@@ -453,7 +458,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class NormalFuncCall : public SyntaxTree
@@ -468,7 +473,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class MemberFuncCall : public SyntaxTree
@@ -485,7 +490,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class FuncCallArgs : public SyntaxTree
@@ -500,7 +505,7 @@ namespace luna
         {
         }
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 
     class ExpressionList : public SyntaxTree
@@ -508,7 +513,7 @@ namespace luna
     public:
         std::vector<std::unique_ptr<SyntaxTree>> exp_list_;
 
-        virtual void Accept(Visitor *v);
+        SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 } // namespace luna
 

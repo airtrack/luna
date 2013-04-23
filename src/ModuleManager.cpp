@@ -25,6 +25,6 @@ namespace luna
 
         // AST generate code
         auto visitor = GenerateVisitor(state_);
-        ast->Accept(visitor.get());
+        ast->Accept(visitor.get(), nullptr);
     }
 } // namespace luna
