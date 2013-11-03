@@ -1,7 +1,7 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include "GCObject.h"
+#include "GC.h"
 #include "OpCode.h"
 #include "String.h"
 #include "Value.h"

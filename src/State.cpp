@@ -1,6 +1,6 @@
 #include "State.h"
 #include "Lex.h"
-#include "GCObject.h"
+#include "GC.h"
 #include "String.h"
 #include "Function.h"
 #include "Table.h"

@@ -1,7 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "GCObject.h"
+#include "GC.h"
 #include <string>
 
 namespace luna

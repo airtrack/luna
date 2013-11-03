@@ -1,4 +1,4 @@
-#include "GCObject.h"
+#include "GC.h"
 
 namespace luna
 {

@@ -2,7 +2,7 @@
 #define TABLE_H
 
 #include "Value.h"
-#include "GCObject.h"
+#include "GC.h"
 #include <memory>
 #include <vector>
 #include <unordered_map>
