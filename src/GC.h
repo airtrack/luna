@@ -14,6 +14,7 @@ namespace luna
     {
         friend class GC;
     public:
+        GCObject();
         virtual ~GCObject() = 0;
 
     private:
@@ -25,10 +26,19 @@ namespace luna
         unsigned int gc_ : 2;
     };
 
+    class Table;
+    class Function;
+    class Closure;
+
     class GC
     {
     public:
         GC();
+
+        // Alloc GC objects
+        Table * NewTable(GCGeneration gen = GCGen0);
+        Function * NewFunction(GCGeneration gen = GCGen2);
+        Closure * NewClosure(GCGeneration gen = GCGen0);
 
     private:
         struct GenInfo
@@ -42,6 +52,8 @@ namespace luna
 
             GenInfo() : gen_(nullptr), count_(0), max_count_(0) { }
         };
+
+        void SetObjectGen(GCObject *obj, GCGeneration gen);
 
         // Youngest generation
         GenInfo gen0_;
