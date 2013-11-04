@@ -31,12 +31,24 @@ namespace luna
         GC();
 
     private:
-        // Youngest generation object list
-        GCObject *gen0_;
-        // Mesozoic generation object list
-        GCObject *gen1_;
-        // Oldest generation object list
-        GCObject *gen2_;
+        struct GenInfo
+        {
+            // Pointing to GC object list
+            GCObject *gen_;
+            // Count of GC objects
+            unsigned int count_;
+            // Current max count of GC objects
+            unsigned int max_count_;
+
+            GenInfo() : gen_(nullptr), count_(0), max_count_(0) { }
+        };
+
+        // Youngest generation
+        GenInfo gen0_;
+        // Mesozoic generation
+        GenInfo gen1_;
+        // Oldest generation
+        GenInfo gen2_;
     };
 } // namespace luna
 
