@@ -1,6 +1,9 @@
 #ifndef GC_OBJECT_H
 #define GC_OBJECT_H
 
+#include <functional>
+#include <deque>
+
 namespace luna
 {
     enum GCGeneration
@@ -8,6 +11,12 @@ namespace luna
         GCGen0,         // Youngest generation
         GCGen1,         // Mesozoic generation
         GCGen2,         // Oldest generation
+    };
+
+    enum GCFlag
+    {
+        GCFlag_White,
+        GCFlag_Black,
     };
 
     class GCObject
@@ -33,12 +42,20 @@ namespace luna
     class GC
     {
     public:
+        typedef std::function<void ()> RootTravelType;
+
         GC();
+
+        // Set minor and major root travel functions
+        void SetRootTraveller(const RootTravelType &minor, const RootTravelType &major);
 
         // Alloc GC objects
         Table * NewTable(GCGeneration gen = GCGen0);
         Function * NewFunction(GCGeneration gen = GCGen2);
         Closure * NewClosure(GCGeneration gen = GCGen0);
+
+        // Set GC object barrier
+        void SetBarrier(GCObject *obj);
 
     private:
         struct GenInfo
@@ -55,12 +72,27 @@ namespace luna
 
         void SetObjectGen(GCObject *obj, GCGeneration gen);
 
+        // Run minor and major GC
+        void MinorGC();
+        void MajorGC();
+
+        static const unsigned int kGen0InitMaxCount = 512;
+        static const unsigned int kGen1InitMaxCount = 512;
+
         // Youngest generation
         GenInfo gen0_;
         // Mesozoic generation
         GenInfo gen1_;
         // Oldest generation
         GenInfo gen2_;
+
+        // Minor root traveller
+        RootTravelType minor_traveller_;
+        // Major root traveller
+        RootTravelType major_traveller_;
+
+        // Barriered GC objects
+        std::deque<GCObject *> barriered_;
     };
 } // namespace luna
 
