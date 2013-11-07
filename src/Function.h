@@ -17,6 +17,8 @@ namespace luna
     public:
         Function();
 
+        virtual void Accept(GCObjectVisitor *v);
+
         // Get function instructions and size
         const Instruction * GetOpCodes() const;
         std::size_t OpCodeSize() const;
@@ -99,6 +101,8 @@ namespace luna
     {
     public:
         Closure();
+
+        virtual void Accept(GCObjectVisitor *v);
 
         // Get and set closure prototype Function
         Function * GetPrototype() const;

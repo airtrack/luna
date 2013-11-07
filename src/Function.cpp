@@ -8,6 +8,18 @@ namespace luna
     {
     }
 
+    void Function::Accept(GCObjectVisitor *v)
+    {
+        if (v->Visit(this))
+        {
+            module_->Accept(v);
+            superior_->Accept(v);
+
+            for (const auto &value : const_values_)
+                value.Accept(v);
+        }
+    }
+
     const Instruction * Function::GetOpCodes() const
     {
         return opcodes_.empty() ? nullptr : &opcodes_[0];
@@ -124,6 +136,17 @@ namespace luna
     Closure::Closure()
         : prototype_(nullptr)
     {
+    }
+
+    void Closure::Accept(GCObjectVisitor *v)
+    {
+        if (v->Visit(this))
+        {
+            prototype_->Accept(v);
+
+            for (const auto &upvalue : upvalues_)
+                upvalue.Accept(v);
+        }
     }
 
     Function * Closure::GetPrototype() const

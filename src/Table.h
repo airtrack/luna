@@ -15,6 +15,8 @@ namespace luna
     public:
         Table();
 
+        virtual void Accept(GCObjectVisitor *v);
+
         // Set array value by index, return true if success.
         // 'index' start from 1.
         bool SetArrayValue(std::size_t index, const Value &value);

@@ -15,6 +15,29 @@ namespace luna
     {
     }
 
+    void Table::Accept(GCObjectVisitor *v)
+    {
+        if (v->Visit(this))
+        {
+            // Visit all array members
+            if (array_)
+            {
+                for (const auto &value : *array_)
+                    value.Accept(v);
+            }
+
+            // Visit all keys and values in hash table.
+            if (hash_)
+            {
+                for (auto it = hash_->begin(); it != hash_->end(); ++it)
+                {
+                    it->first.Accept(v);
+                    it->second.Accept(v);
+                }
+            }
+        }
+    }
+
     bool Table::SetArrayValue(std::size_t index, const Value &value)
     {
         if (index < 1)

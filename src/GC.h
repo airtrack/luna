@@ -19,12 +19,29 @@ namespace luna
         GCFlag_Black,
     };
 
+    class Table;
+    class Function;
+    class Closure;
+    class String;
+
+    class GCObjectVisitor
+    {
+    public:
+        // Need visit all GC object members when return true
+        virtual bool Visit(Table *) = 0;
+        virtual bool Visit(Function *) = 0;
+        virtual bool Visit(Closure *) = 0;
+        virtual bool Visit(String *) = 0;
+    };
+
     class GCObject
     {
         friend class GC;
     public:
         GCObject();
         virtual ~GCObject() = 0;
+
+        virtual void Accept(GCObjectVisitor *) = 0;
 
     private:
         // Pointing next GCObject in current generation
@@ -34,10 +51,6 @@ namespace luna
         // GC flag
         unsigned int gc_ : 2;
     };
-
-    class Table;
-    class Function;
-    class Closure;
 
     class GC
     {

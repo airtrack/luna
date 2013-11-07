@@ -1,6 +1,7 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+#include "GC.h"
 #include <functional>
 
 namespace luna
@@ -47,6 +48,20 @@ namespace luna
         Value() : obj_(nullptr), type_(ValueT_Nil) { }
 
         void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
+
+        void Accept(GCObjectVisitor *v) const
+        {
+            switch (type_)
+            {
+                case ValueT_Nil:
+                case ValueT_Bool:
+                case ValueT_Number:
+                case ValueT_CFunction:
+                    break;
+                default:
+                    obj_->Accept(v);
+            }
+        }
     };
 
     inline bool operator == (const Value &left, const Value &right)
@@ -91,6 +106,14 @@ namespace luna
         enum Type { Stack, Shared } type_;
 
         Upvalue() : stack_value_(nullptr), type_(Stack) { }
+
+        void Accept(GCObjectVisitor *v) const
+        {
+            if (type_ == Stack)
+                stack_value_->Accept(v);
+            else
+                shared_->value_.Accept(v);
+        }
     };
 } // namespace luna
 

@@ -15,6 +15,11 @@ namespace luna
         String() { }
         explicit String(const std::string &str) : str_(str) { }
 
+        virtual void Accept(GCObjectVisitor *v)
+        {
+            v->Visit(this);
+        }
+
         const std::string& GetStdString() const
         { return str_; }
 
