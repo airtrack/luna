@@ -12,8 +12,10 @@ namespace luna
     {
         if (v->Visit(this))
         {
-            module_->Accept(v);
-            superior_->Accept(v);
+            if (module_)
+                module_->Accept(v);
+            if (superior_)
+                superior_->Accept(v);
 
             for (const auto &value : const_values_)
                 value.Accept(v);
