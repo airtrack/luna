@@ -39,6 +39,7 @@ namespace luna
         friend class GC;
         friend class MinorMarkVisitor;
         friend class BarrieredMarkVisitor;
+        friend class MajorMarkVisitor;
     public:
         GCObject();
         virtual ~GCObject() = 0;
@@ -97,6 +98,11 @@ namespace luna
 
         void MinorGCMark();
         void MinorGCSweep();
+
+        void MajorGCMark();
+        void MajorGCSweep();
+
+        void SweepGeneration(GenInfo &gen);
 
         // Adjust GenInfo's threshold_count_ by alived_count
         void AdjustThreshold(unsigned int alived_count, GenInfo &gen,
