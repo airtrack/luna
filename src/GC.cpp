@@ -152,6 +152,8 @@ namespace luna
         MinorGCMark();
         MinorGCSweep();
 
+        barriered_.clear();
+
         // Caculate objects count from gen0_ to gen1_, which is how
         // many alived objects in gen0_ after mark-sweep, and adjust
         // gen0_'s threshold count by the alived_gen0_count
