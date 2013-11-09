@@ -89,6 +89,13 @@ namespace luna
         gen1_.threshold_count_ = kGen1InitThresholdCount;
     }
 
+    GC::~GC()
+    {
+        DestroyGeneration(gen0_);
+        DestroyGeneration(gen1_);
+        DestroyGeneration(gen2_);
+    }
+
     void GC::SetRootTraveller(const RootTravelType &minor, const RootTravelType &major)
     {
         minor_traveller_ = minor;
@@ -313,5 +320,16 @@ namespace luna
 
         if (gen.threshold_count_ < min_threshold)
             gen.threshold_count_ = min_threshold;
+    }
+
+    void GC::DestroyGeneration(GenInfo &gen)
+    {
+        while (gen.gen_)
+        {
+            GCObject *obj = gen.gen_;
+            gen.gen_ = gen.gen_->next_;
+            delete obj;
+        }
+        gen.count_ = 0;
     }
 } // namespace luna

@@ -61,6 +61,7 @@ namespace luna
         typedef std::function<void (GCObjectVisitor *)> RootTravelType;
 
         GC();
+        ~GC();
 
         // Set minor and major root travel functions
         void SetRootTraveller(const RootTravelType &minor, const RootTravelType &major);
@@ -107,6 +108,9 @@ namespace luna
         // Adjust GenInfo's threshold_count_ by alived_count
         void AdjustThreshold(unsigned int alived_count, GenInfo &gen,
                              unsigned int min_threshold);
+
+        // Delete generation all objects
+        void DestroyGeneration(GenInfo &gen);
 
         static const unsigned int kGen0InitThresholdCount = 512;
         static const unsigned int kGen1InitThresholdCount = 512;
