@@ -1,6 +1,7 @@
 #include "GC.h"
 #include "Table.h"
 #include "Function.h"
+#include "String.h"
 #include <assert.h>
 
 namespace luna
@@ -14,10 +15,55 @@ namespace luna
     {
     }
 
+    class MinorMarkVisitor : public GCObjectVisitor
+    {
+    public:
+        virtual bool Visit(Table *t) { return VisitObj(t); }
+        virtual bool Visit(Function *f) { return VisitObj(f); }
+        virtual bool Visit(Closure *c) { return VisitObj(c); }
+        virtual bool Visit(String *s) { return VisitObj(s); }
+
+    private:
+        bool VisitObj(GCObject *obj)
+        {
+            if (obj->generation_ == GCGen0 && obj->gc_ == GCFlag_White)
+            {
+                obj->gc_ = GCFlag_Black;
+                return true;
+            }
+            return false;
+        }
+    };
+
+    class BarrieredMarkVisitor : public GCObjectVisitor
+    {
+    public:
+        virtual bool Visit(Table *t) { return VisitObj(t); }
+        virtual bool Visit(Function *f) { return VisitObj(f); }
+        virtual bool Visit(Closure *c) { return VisitObj(c); }
+        virtual bool Visit(String *s) { return VisitObj(s); }
+
+    private:
+        bool VisitObj(GCObject *obj)
+        {
+            // Visit member GC objects of obj when it is barriered object
+            if (obj->generation_ != GCGen0 && obj->gc_ == GCFlag_Black)
+                return true;
+
+            // Visit GCGen0 generation object
+            if (obj->generation_ == GCGen0 && obj->gc_ == GCFlag_White)
+            {
+                obj->gc_ = GCFlag_Black;
+                return true;
+            }
+            return false;
+        }
+    };
+
     GC::GC()
     {
-        gen0_.max_count_ = kGen0InitMaxCount;
-        gen1_.max_count_ = kGen1InitMaxCount;
+        gen0_.threshold_count_ = kGen0InitThresholdCount;
+        gen1_.threshold_count_ = kGen1InitThresholdCount;
     }
 
     void GC::SetRootTraveller(const RootTravelType &minor, const RootTravelType &major)
@@ -28,6 +74,7 @@ namespace luna
 
     Table * GC::NewTable(GCGeneration gen)
     {
+        CheckGC();
         auto t = new Table;
         SetObjectGen(t, gen);
         return t;
@@ -35,6 +82,7 @@ namespace luna
 
     Function * GC::NewFunction(GCGeneration gen)
     {
+        CheckGC();
         auto f = new Function;
         SetObjectGen(f, gen);
         return f;
@@ -42,9 +90,18 @@ namespace luna
 
     Closure * GC::NewClosure(GCGeneration gen)
     {
+        CheckGC();
         auto c = new Closure;
         SetObjectGen(c, gen);
         return c;
+    }
+
+    String * GC::NewString(GCGeneration gen)
+    {
+        CheckGC();
+        auto s = new String;
+        SetObjectGen(s, gen);
+        return s;
     }
 
     void GC::SetBarrier(GCObject *obj)
@@ -77,16 +134,94 @@ namespace luna
         gen_info->count_++;
     }
 
+    void GC::CheckGC()
+    {
+        if (gen0_.count_ >= gen0_.threshold_count_)
+        {
+            if (gen1_.count_ >= gen1_.threshold_count_)
+                MajorGC();
+            else
+                MinorGC();
+        }
+    }
+
     void GC::MinorGC()
     {
-        minor_traveller_();
+        unsigned int old_gen1_count = gen1_.count_;
 
-        for (auto obj : barriered_)
-            obj;
+        MinorGCMark();
+        MinorGCSweep();
+
+        // Caculate objects count from gen0_ to gen1_, which is how
+        // many alived objects in gen0_ after mark-sweep, and adjust
+        // gen0_'s threshold count by the alived_gen0_count
+        unsigned int alived_gen0_count = gen1_.count_ - old_gen1_count;
+        AdjustThreshold(alived_gen0_count, gen0_, kGen0InitThresholdCount);
     }
 
     void GC::MajorGC()
     {
-        major_traveller_();
+    }
+
+    void GC::MinorGCMark()
+    {
+        // Visit all minor GC root objects
+        MinorMarkVisitor marker;
+        minor_traveller_(&marker);
+
+        // Visit all barriered GC objects
+        BarrieredMarkVisitor barriered_maker;
+        for (auto obj : barriered_)
+        {
+            // All barriered objects must be GCGen1 or GCGen2.
+            assert(obj->generation_ != GCGen0);
+
+            // Mark barriered objects, and visitor can visit
+            // member GC objects of barriered objects.
+            obj->gc_ = GCFlag_Black;
+            obj->Accept(&barriered_maker);
+        }
+    }
+
+    void GC::MinorGCSweep()
+    {
+        // Sweep GCGen0
+        while (gen0_.gen_)
+        {
+            GCObject *obj = gen0_.gen_;
+            gen0_.gen_ = gen0_.gen_->next_;
+
+            // Move object to GCGen1 generation when object is black
+            if (obj->gc_ == GCFlag_Black)
+            {
+                obj->gc_ = GCFlag_White;
+                obj->generation_ = GCGen1;
+                obj->next_ = gen1_.gen_;
+                gen1_.gen_ = obj;
+                gen1_.count_++;
+            }
+            else
+            {
+                delete obj;
+            }
+        }
+
+        gen0_.count_ = 0;
+
+        // Reset barriered objects' GCFlag
+        for (auto obj : barriered_)
+            obj->gc_ = GCFlag_White;
+    }
+
+    void GC::AdjustThreshold(unsigned int alived_count, GenInfo &gen,
+                             unsigned int min_threshold)
+    {
+        while (gen.threshold_count_ < 2 * alived_count)
+            gen.threshold_count_ *= 2;
+        while (gen.threshold_count_ >= 4 * alived_count)
+            gen.threshold_count_ /= 2;
+
+        if (gen.threshold_count_ < min_threshold)
+            gen.threshold_count_ = min_threshold;
     }
 } // namespace luna

@@ -37,6 +37,8 @@ namespace luna
     class GCObject
     {
         friend class GC;
+        friend class MinorMarkVisitor;
+        friend class BarrieredMarkVisitor;
     public:
         GCObject();
         virtual ~GCObject() = 0;
@@ -55,7 +57,7 @@ namespace luna
     class GC
     {
     public:
-        typedef std::function<void ()> RootTravelType;
+        typedef std::function<void (GCObjectVisitor *)> RootTravelType;
 
         GC();
 
@@ -66,6 +68,7 @@ namespace luna
         Table * NewTable(GCGeneration gen = GCGen0);
         Function * NewFunction(GCGeneration gen = GCGen2);
         Closure * NewClosure(GCGeneration gen = GCGen0);
+        String * NewString(GCGeneration gen = GCGen0);
 
         // Set GC object barrier
         void SetBarrier(GCObject *obj);
@@ -77,20 +80,30 @@ namespace luna
             GCObject *gen_;
             // Count of GC objects
             unsigned int count_;
-            // Current max count of GC objects
-            unsigned int max_count_;
+            // Current threshold count of GC objects
+            unsigned int threshold_count_;
 
-            GenInfo() : gen_(nullptr), count_(0), max_count_(0) { }
+            GenInfo() : gen_(nullptr), count_(0), threshold_count_(0) { }
         };
 
         void SetObjectGen(GCObject *obj, GCGeneration gen);
+
+        // Check run GC
+        void CheckGC();
 
         // Run minor and major GC
         void MinorGC();
         void MajorGC();
 
-        static const unsigned int kGen0InitMaxCount = 512;
-        static const unsigned int kGen1InitMaxCount = 512;
+        void MinorGCMark();
+        void MinorGCSweep();
+
+        // Adjust GenInfo's threshold_count_ by alived_count
+        void AdjustThreshold(unsigned int alived_count, GenInfo &gen,
+                             unsigned int min_threshold);
+
+        static const unsigned int kGen0InitThresholdCount = 512;
+        static const unsigned int kGen1InitThresholdCount = 512;
 
         // Youngest generation
         GenInfo gen0_;
