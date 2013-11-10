@@ -48,7 +48,10 @@ namespace luna
         {
             // Visit member GC objects of obj when it is barriered object
             if (obj->generation_ != GCGen0 && obj->gc_ == GCFlag_Black)
+            {
+                obj->gc_ = GCFlag_White;
                 return true;
+            }
 
             // Visit GCGen0 generation object
             if (obj->generation_ == GCGen0 && obj->gc_ == GCFlag_White)
@@ -132,6 +135,7 @@ namespace luna
 
     void GC::SetBarrier(GCObject *obj)
     {
+        assert(obj->generation_ != GCGen0);
         barriered_.push_back(obj);
     }
 
@@ -244,10 +248,6 @@ namespace luna
         }
 
         gen0_.count_ = 0;
-
-        // Reset barriered objects' GCFlag
-        for (auto obj : barriered_)
-            obj->gc_ = GCFlag_White;
     }
 
     void GC::MajorGCMark()
