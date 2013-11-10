@@ -3,6 +3,7 @@
 #include "Function.h"
 #include "String.h"
 #include <assert.h>
+#include <time.h>
 
 namespace luna
 {
@@ -86,10 +87,24 @@ namespace luna
         }
     };
 
-    GC::GC()
+#define GC_LOG(log)                             \
+    do                                          \
+    {                                           \
+        if (log_stream_.is_open())              \
+        {                                       \
+            log_stream_ << log << std::endl;    \
+        }                                       \
+    } while (0)
+
+    GC::GC(bool log)
     {
         gen0_.threshold_count_ = kGen0InitThresholdCount;
         gen1_.threshold_count_ = kGen1InitThresholdCount;
+
+        if (log)
+        {
+            log_stream_.open("gc.log");
+        }
     }
 
     GC::~GC()
@@ -143,10 +158,35 @@ namespace luna
     {
         if (gen0_.count_ >= gen0_.threshold_count_)
         {
+            unsigned int gen0_count = gen0_.count_;
+            unsigned int gen0_threshold = gen0_.threshold_count_;
+            unsigned int gen1_count = gen1_.count_;
+            unsigned int gen1_threshold = gen1_.threshold_count_;
+            unsigned int gen2_count = gen2_.count_;
+            unsigned int gen2_threshold = gen2_.threshold_count_;
+
+            const char *gc_name = "";
+            clock_t start = clock();
             if (gen1_.count_ >= gen1_.threshold_count_)
+            {
+                gc_name = "major";
                 MajorGC();
+            }
             else
+            {
+                gc_name = "minor";
                 MinorGC();
+            }
+
+            clock_t duration = clock() - start;
+            unsigned int microseconds = duration * 1000000 / CLOCKS_PER_SEC;
+            GC_LOG(gc_name << "[" << microseconds << " microseconds]: " <<
+                   gen0_count << " " << gen0_threshold << " | " <<
+                   gen1_count << " " << gen1_threshold << " | " <<
+                   gen2_count << " " << gen2_threshold << " - " <<
+                   gen0_.count_ << " " << gen0_.threshold_count_ << " | " <<
+                   gen1_.count_ << " " << gen1_.threshold_count_ << " | " <<
+                   gen2_.count_ << " " << gen2_.threshold_count_);
         }
     }
 
@@ -197,9 +237,6 @@ namespace luna
         MajorGCSweep();
 
         barriered_.clear();
-
-        // Adjust GCGen1 threshold count
-        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount);
     }
 
     void GC::MinorGCMark()
@@ -277,8 +314,14 @@ namespace luna
             gen1_.gen_ = obj;
         }
 
+        // Adjust GCGen0 threshold count
+        AdjustThreshold(gen0_.count_, gen0_, kGen0InitThresholdCount);
+
         gen1_.count_ += gen0_.count_;
         gen0_.count_ = 0;
+
+        // Adjust GCGen1 threshold count
+        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount);
     }
 
     void GC::SweepGeneration(GenInfo &gen)
@@ -309,10 +352,13 @@ namespace luna
     void GC::AdjustThreshold(unsigned int alived_count, GenInfo &gen,
                              unsigned int min_threshold)
     {
-        while (gen.threshold_count_ < 2 * alived_count)
-            gen.threshold_count_ *= 2;
-        while (gen.threshold_count_ >= 4 * alived_count)
-            gen.threshold_count_ /= 2;
+        if (alived_count != 0)
+        {
+            while (gen.threshold_count_ < 2 * alived_count)
+                gen.threshold_count_ *= 2;
+            while (gen.threshold_count_ >= 4 * alived_count)
+                gen.threshold_count_ /= 2;
+        }
 
         if (gen.threshold_count_ < min_threshold)
             gen.threshold_count_ = min_threshold;

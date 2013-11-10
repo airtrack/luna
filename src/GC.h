@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <deque>
+#include <fstream>
 
 namespace luna
 {
@@ -65,7 +66,7 @@ namespace luna
     public:
         typedef std::function<void (GCObjectVisitor *)> RootTravelType;
 
-        GC();
+        explicit GC(bool log = false);
         ~GC();
 
         // Set minor and major root travel functions
@@ -134,6 +135,9 @@ namespace luna
 
         // Barriered GC objects
         std::deque<GCObject *> barriered_;
+
+        // Log file
+        std::ofstream log_stream_;
     };
 } // namespace luna
 
