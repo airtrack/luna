@@ -40,6 +40,7 @@ namespace luna
         friend class MinorMarkVisitor;
         friend class BarrieredMarkVisitor;
         friend class MajorMarkVisitor;
+        friend bool CheckBarrier(GCObject *);
     public:
         GCObject();
         virtual ~GCObject() = 0;
@@ -54,6 +55,10 @@ namespace luna
         // GC flag
         unsigned int gc_ : 2;
     };
+
+    // GC object barrier checker
+    inline bool CheckBarrier(GCObject *obj) { return obj->generation_ != GCGen0; }
+    #define CHECK_BARRIER(gc, obj) if (luna::CheckBarrier(obj)) gc.SetBarrier(obj)
 
     class GC
     {
@@ -75,6 +80,9 @@ namespace luna
         // Set GC object barrier
         void SetBarrier(GCObject *obj);
 
+        // Check run GC
+        void CheckGC();
+
     private:
         struct GenInfo
         {
@@ -89,9 +97,6 @@ namespace luna
         };
 
         void SetObjectGen(GCObject *obj, GCGeneration gen);
-
-        // Check run GC
-        void CheckGC();
 
         // Run minor and major GC
         void MinorGC();

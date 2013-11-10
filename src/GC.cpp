@@ -104,7 +104,6 @@ namespace luna
 
     Table * GC::NewTable(GCGeneration gen)
     {
-        CheckGC();
         auto t = new Table;
         SetObjectGen(t, gen);
         return t;
@@ -112,7 +111,6 @@ namespace luna
 
     Function * GC::NewFunction(GCGeneration gen)
     {
-        CheckGC();
         auto f = new Function;
         SetObjectGen(f, gen);
         return f;
@@ -120,7 +118,6 @@ namespace luna
 
     Closure * GC::NewClosure(GCGeneration gen)
     {
-        CheckGC();
         auto c = new Closure;
         SetObjectGen(c, gen);
         return c;
@@ -128,7 +125,6 @@ namespace luna
 
     String * GC::NewString(GCGeneration gen)
     {
-        CheckGC();
         auto s = new String;
         SetObjectGen(s, gen);
         return s;
@@ -137,6 +133,17 @@ namespace luna
     void GC::SetBarrier(GCObject *obj)
     {
         barriered_.push_back(obj);
+    }
+
+    void GC::CheckGC()
+    {
+        if (gen0_.count_ >= gen0_.threshold_count_)
+        {
+            if (gen1_.count_ >= gen1_.threshold_count_)
+                MajorGC();
+            else
+                MinorGC();
+        }
     }
 
     void GC::SetObjectGen(GCObject *obj, GCGeneration gen)
@@ -162,17 +169,6 @@ namespace luna
         obj->next_ = gen_info->gen_;
         gen_info->gen_ = obj;
         gen_info->count_++;
-    }
-
-    void GC::CheckGC()
-    {
-        if (gen0_.count_ >= gen0_.threshold_count_)
-        {
-            if (gen1_.count_ >= gen1_.threshold_count_)
-                MajorGC();
-            else
-                MinorGC();
-        }
     }
 
     void GC::MinorGC()
