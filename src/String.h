@@ -23,10 +23,10 @@ namespace luna
         const std::string& GetStdString() const
         { return str_; }
 
-    private:
         void SetValue(const std::string &str)
         { str_ = str; }
 
+    private:
         std::string str_;
     };
 } // namespace luna

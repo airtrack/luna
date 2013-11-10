@@ -49,19 +49,7 @@ namespace luna
 
         void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
 
-        void Accept(GCObjectVisitor *v) const
-        {
-            switch (type_)
-            {
-                case ValueT_Nil:
-                case ValueT_Bool:
-                case ValueT_Number:
-                case ValueT_CFunction:
-                    break;
-                default:
-                    obj_->Accept(v);
-            }
-        }
+        void Accept(GCObjectVisitor *v) const;
     };
 
     inline bool operator == (const Value &left, const Value &right)
