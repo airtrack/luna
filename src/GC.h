@@ -113,13 +113,15 @@ namespace luna
 
         // Adjust GenInfo's threshold_count_ by alived_count
         void AdjustThreshold(unsigned int alived_count, GenInfo &gen,
-                             unsigned int min_threshold);
+                             unsigned int min_threshold,
+                             unsigned int max_threshold);
 
         // Delete generation all objects
         void DestroyGeneration(GenInfo &gen);
 
         static const unsigned int kGen0InitThresholdCount = 512;
         static const unsigned int kGen1InitThresholdCount = 512;
+        static const unsigned int kGen0MaxThresholdCount = 2048;
 
         // Youngest generation
         GenInfo gen0_;

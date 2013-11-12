@@ -228,7 +228,8 @@ namespace luna
         // many alived objects in gen0_ after mark-sweep, and adjust
         // gen0_'s threshold count by the alived_gen0_count
         unsigned int alived_gen0_count = gen1_.count_ - old_gen1_count;
-        AdjustThreshold(alived_gen0_count, gen0_, kGen0InitThresholdCount);
+        AdjustThreshold(alived_gen0_count, gen0_, kGen0InitThresholdCount,
+                        kGen0MaxThresholdCount);
     }
 
     void GC::MajorGC()
@@ -315,13 +316,14 @@ namespace luna
         }
 
         // Adjust GCGen0 threshold count
-        AdjustThreshold(gen0_.count_, gen0_, kGen0InitThresholdCount);
+        AdjustThreshold(gen0_.count_, gen0_, kGen0InitThresholdCount,
+                        kGen0MaxThresholdCount);
 
         gen1_.count_ += gen0_.count_;
         gen0_.count_ = 0;
 
         // Adjust GCGen1 threshold count
-        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount);
+        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount, 0);
     }
 
     void GC::SweepGeneration(GenInfo &gen)
@@ -350,7 +352,8 @@ namespace luna
     }
 
     void GC::AdjustThreshold(unsigned int alived_count, GenInfo &gen,
-                             unsigned int min_threshold)
+                             unsigned int min_threshold,
+                             unsigned int max_threshold)
     {
         if (alived_count != 0)
         {
@@ -362,6 +365,9 @@ namespace luna
 
         if (gen.threshold_count_ < min_threshold)
             gen.threshold_count_ = min_threshold;
+
+        if (max_threshold != 0 && gen.threshold_count_ > max_threshold)
+            gen.threshold_count_ = max_threshold;
     }
 
     void GC::DestroyGeneration(GenInfo &gen)
