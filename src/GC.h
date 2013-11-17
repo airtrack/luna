@@ -122,6 +122,7 @@ namespace luna
         static const unsigned int kGen0InitThresholdCount = 512;
         static const unsigned int kGen1InitThresholdCount = 512;
         static const unsigned int kGen0MaxThresholdCount = 2048;
+        static const unsigned int kGen1MaxThresholdCount = 102400;
 
         // Youngest generation
         GenInfo gen0_;

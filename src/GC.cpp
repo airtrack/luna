@@ -323,7 +323,12 @@ namespace luna
         gen0_.count_ = 0;
 
         // Adjust GCGen1 threshold count
-        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount, 0);
+        AdjustThreshold(gen1_.count_, gen1_, kGen1InitThresholdCount,
+                        kGen1MaxThresholdCount);
+        if (gen1_.count_ >= kGen1MaxThresholdCount)
+        {
+            gen1_.threshold_count_ = gen1_.count_ + kGen1MaxThresholdCount;
+        }
     }
 
     void GC::SweepGeneration(GenInfo &gen)
@@ -365,8 +370,7 @@ namespace luna
 
         if (gen.threshold_count_ < min_threshold)
             gen.threshold_count_ = min_threshold;
-
-        if (max_threshold != 0 && gen.threshold_count_ > max_threshold)
+        else if (gen.threshold_count_ > max_threshold)
             gen.threshold_count_ = max_threshold;
     }
 
