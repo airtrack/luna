@@ -50,6 +50,8 @@
 		CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
 		CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */; };
 		CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */; };
+		CEFF9B89184E3075008A7A25 /* SemanticAnalysis.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */; };
+		CEFF9B8B184E309C008A7A25 /* SemanticAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFF9B8A184E309C008A7A25 /* SemanticAnalysis.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -158,6 +160,8 @@
 		CEE7D92716BC23D00049BDAE /* lunac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lunac; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModuleManager.cpp; path = ../src/ModuleManager.cpp; sourceTree = "<group>"; };
 		CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGenerate.h; path = ../src/CodeGenerate.h; sourceTree = "<group>"; };
+		CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SemanticAnalysis.h; path = ../src/SemanticAnalysis.h; sourceTree = "<group>"; };
+		CEFF9B8A184E309C008A7A25 /* SemanticAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SemanticAnalysis.cpp; path = ../src/SemanticAnalysis.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,6 +225,8 @@
 				CEC60A24169011B700E15ADE /* Parser.h */,
 				CE75E31816D676EA00A008A8 /* Runtime.cpp */,
 				CE75E31616D6769B00A008A8 /* Runtime.h */,
+				CEFF9B8A184E309C008A7A25 /* SemanticAnalysis.cpp */,
+				CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */,
 				CE1953941683648900504CCD /* State.cpp */,
 				CE36379C167C6345009E2D95 /* State.h */,
 				CE19539216835C0400504CCD /* String.h */,
@@ -286,6 +292,7 @@
 				CEC60A25169011B700E15ADE /* Parser.h in Headers */,
 				CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */,
 				CEC60A3116907B8700E15ADE /* Visitor.h in Headers */,
+				CEFF9B89184E3075008A7A25 /* SemanticAnalysis.h in Headers */,
 				CE1E694A16941F940060DE44 /* Token.h in Headers */,
 				CE597F2E169DBF3B00407019 /* GC.h in Headers */,
 				CE597F33169DC07E00407019 /* Table.h in Headers */,
@@ -444,6 +451,7 @@
 				CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */,
 				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
 				CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */,
+				CEFF9B8B184E309C008A7A25 /* SemanticAnalysis.cpp in Sources */,
 				CE30E90316F75C06006CB767 /* BaseLib.cpp in Sources */,
 				CE0242321701EF6200CC59BE /* Bootstrap.cpp in Sources */,
 			);
