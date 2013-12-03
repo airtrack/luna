@@ -46,9 +46,10 @@
 		CEC60A3116907B8700E15ADE /* Visitor.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A3016907B8700E15ADE /* Visitor.h */; };
 		CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CEDBE61216C8D9D1005FDB2A /* OpCode.h */; };
 		CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61416C8DF73005FDB2A /* Function.cpp */; };
-		CEDBE61716C8F133005FDB2A /* Visitor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61616C8F133005FDB2A /* Visitor.cpp */; };
+		CEDBE61716C8F133005FDB2A /* CodeGenerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61616C8F133005FDB2A /* CodeGenerate.cpp */; };
 		CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
 		CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */; };
+		CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,9 +154,10 @@
 		CEC60A3016907B8700E15ADE /* Visitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = ../src/Visitor.h; sourceTree = "<group>"; };
 		CEDBE61216C8D9D1005FDB2A /* OpCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpCode.h; path = ../src/OpCode.h; sourceTree = "<group>"; };
 		CEDBE61416C8DF73005FDB2A /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../src/Function.cpp; sourceTree = "<group>"; };
-		CEDBE61616C8F133005FDB2A /* Visitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Visitor.cpp; path = ../src/Visitor.cpp; sourceTree = "<group>"; };
+		CEDBE61616C8F133005FDB2A /* CodeGenerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGenerate.cpp; path = ../src/CodeGenerate.cpp; sourceTree = "<group>"; };
 		CEE7D92716BC23D00049BDAE /* lunac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lunac; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModuleManager.cpp; path = ../src/ModuleManager.cpp; sourceTree = "<group>"; };
+		CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGenerate.h; path = ../src/CodeGenerate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +202,8 @@
 				CE30E90016F75B7A006CB767 /* BaseLib.h */,
 				CE0242311701EF6200CC59BE /* Bootstrap.cpp */,
 				CE02422F1701EF1800CC59BE /* Bootstrap.h */,
+				CEDBE61616C8F133005FDB2A /* CodeGenerate.cpp */,
+				CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */,
 				CE36379A167C5B97009E2D95 /* Exception.h */,
 				CEDBE61416C8DF73005FDB2A /* Function.cpp */,
 				CE597F34169DC0F700407019 /* Function.h */,
@@ -232,7 +236,6 @@
 				CE1E694916941F940060DE44 /* Token.h */,
 				CE69702C182F7AC5003F7CEC /* Value.cpp */,
 				CEA5E6B116BEB52900B81DA1 /* Value.h */,
-				CEDBE61616C8F133005FDB2A /* Visitor.cpp */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
 				CE05E05F16EF7EBF00D1F623 /* VM.cpp */,
 				CE05E05D16EF7E2D00D1F623 /* VM.h */,
@@ -290,6 +293,7 @@
 				CE597F37169DC25F00407019 /* StringPool.h in Headers */,
 				CEA5E6B216BEB52900B81DA1 /* Value.h in Headers */,
 				CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */,
+				CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */,
 				CE75E31716D6769B00A008A8 /* Runtime.h in Headers */,
 				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
 				CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */,
@@ -436,7 +440,7 @@
 				CEA5E6B416BEB7C900B81DA1 /* Table.cpp in Sources */,
 				CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */,
 				CE69702D182F7AC5003F7CEC /* Value.cpp in Sources */,
-				CEDBE61716C8F133005FDB2A /* Visitor.cpp in Sources */,
+				CEDBE61716C8F133005FDB2A /* CodeGenerate.cpp in Sources */,
 				CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */,
 				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
 				CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */,

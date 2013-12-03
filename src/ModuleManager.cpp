@@ -2,7 +2,7 @@
 #include "Lex.h"
 #include "Parser.h"
 #include "State.h"
-#include "Visitor.h"
+#include "CodeGenerate.h"
 #include "TextInStream.h"
 #include <functional>
 

@@ -2,12 +2,9 @@
 #define VISITOR_H
 
 #include "SyntaxTree.h"
-#include <memory>
 
 namespace luna
 {
-    class State;
-
     class Visitor
     {
     public:
@@ -47,8 +44,6 @@ namespace luna
         virtual void Visit(FuncCallArgs *, void *) = 0;
         virtual void Visit(ExpressionList *, void *) = 0;
     };
-
-    std::unique_ptr<Visitor> GenerateVisitor(State *state);
 } // namespace luna
 
 #endif // VISITOR_H
