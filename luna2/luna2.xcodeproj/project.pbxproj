@@ -52,6 +52,7 @@
 		CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */; };
 		CEFF9B89184E3075008A7A25 /* SemanticAnalysis.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */; };
 		CEFF9B8B184E309C008A7A25 /* SemanticAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFF9B8A184E309C008A7A25 /* SemanticAnalysis.cpp */; };
+		CEFF9B8E1850DC01008A7A25 /* TestSemantic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEFF9B8C1850DC01008A7A25 /* TestSemantic.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -162,6 +163,8 @@
 		CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGenerate.h; path = ../src/CodeGenerate.h; sourceTree = "<group>"; };
 		CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SemanticAnalysis.h; path = ../src/SemanticAnalysis.h; sourceTree = "<group>"; };
 		CEFF9B8A184E309C008A7A25 /* SemanticAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SemanticAnalysis.cpp; path = ../src/SemanticAnalysis.cpp; sourceTree = "<group>"; };
+		CEFF9B8C1850DC01008A7A25 /* TestSemantic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestSemantic.cpp; path = ../test/TestSemantic.cpp; sourceTree = "<group>"; };
+		CEFF9B8D1850DC01008A7A25 /* TestCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestCommon.h; path = ../test/TestCommon.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -252,12 +255,14 @@
 		CE088433168883A200E05968 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				CE0884341688845E00E05968 /* UnitTest.h */,
-				CE0884351688981400E05968 /* UnitTest.cpp */,
+				CE1E7BE4182E6C0100ADFFF7 /* GCTest.cpp */,
 				CE1DC67D168A0595004EAEBC /* TestLex.cpp */,
 				CEC60A291690429C00E15ADE /* TestParser.cpp */,
+				CEFF9B8C1850DC01008A7A25 /* TestSemantic.cpp */,
+				CEFF9B8D1850DC01008A7A25 /* TestCommon.h */,
 				CE58112316C69B09008F6566 /* TestTable.cpp */,
-				CE1E7BE4182E6C0100ADFFF7 /* GCTest.cpp */,
+				CE0884351688981400E05968 /* UnitTest.cpp */,
+				CE0884341688845E00E05968 /* UnitTest.h */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -419,6 +424,7 @@
 				CE08845016889B1400E05968 /* UnitTest.cpp in Sources */,
 				CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */,
 				CEC60A2B1690429C00E15ADE /* TestParser.cpp in Sources */,
+				CEFF9B8E1850DC01008A7A25 /* TestSemantic.cpp in Sources */,
 				CE58112516C69B09008F6566 /* TestTable.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

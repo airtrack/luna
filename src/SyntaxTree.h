@@ -12,6 +12,13 @@ namespace luna
 #define SYNTAX_TREE_ACCEPT_VISITOR_DECL()           \
     virtual void Accept(Visitor *v, void *data)
 
+    enum SemanticOp
+    {
+        SemanticOp_None,
+        SemanticOp_Read,
+        SemanticOp_Write,
+    };
+
     class String;
     class Visitor;
 
@@ -274,9 +281,14 @@ namespace luna
         std::unique_ptr<SyntaxTree> var_list_;
         std::unique_ptr<SyntaxTree> exp_list_;
 
+        // For semantic
+        std::size_t var_count_;
+        std::size_t exp_count_;
+
         AssignmentStatement(std::unique_ptr<SyntaxTree> var_list,
                             std::unique_ptr<SyntaxTree> exp_list)
-            : var_list_(std::move(var_list)), exp_list_(std::move(exp_list))
+            : var_list_(std::move(var_list)), exp_list_(std::move(exp_list)),
+              var_count_(0), exp_count_(0)
         {
         }
 
@@ -298,8 +310,12 @@ namespace luna
     public:
         TokenDetail token_;
 
+        // For semantic
+        SemanticOp semantic_;
+
         Terminator() { }
-        explicit Terminator(const TokenDetail &token) : token_(token) { }
+        explicit Terminator(const TokenDetail &token)
+            : token_(token), semantic_(SemanticOp_None) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
@@ -437,9 +453,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> table_;
         std::unique_ptr<SyntaxTree> index_;
 
+        // For semantic
+        SemanticOp semantic_;
+
         IndexAccessor(std::unique_ptr<SyntaxTree> table,
                       std::unique_ptr<SyntaxTree> index)
-            : table_(std::move(table)), index_(std::move(index))
+            : table_(std::move(table)), index_(std::move(index)),
+              semantic_(SemanticOp_None)
         {
         }
 
@@ -452,9 +472,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> table_;
         TokenDetail member_;
 
+        // For semantic
+        SemanticOp semantic_;
+
         MemberAccessor(std::unique_ptr<SyntaxTree> table,
                        const TokenDetail &member)
-            : table_(std::move(table)), member_(member)
+            : table_(std::move(table)), member_(member),
+              semantic_(SemanticOp_None)
         {
         }
 
