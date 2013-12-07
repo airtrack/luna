@@ -595,7 +595,8 @@ namespace
         std::unique_ptr<SyntaxTree> ParsePrefixExp(PrefixExpType *type = nullptr)
         {
             NextToken();
-            assert(current_.token_ == Token_Id || current_.token_ == '(');
+            if (current_.token_ != Token_Id && current_.token_ != '(')
+                throw ParseException("unexpect token here", current_);
 
             std::unique_ptr<SyntaxTree> exp;
 
