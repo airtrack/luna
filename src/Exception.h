@@ -48,6 +48,18 @@ namespace luna
             what_ = buffer;
         }
     };
+
+    class SemanticException : public Exception
+    {
+    public:
+        SemanticException(const char *str, const TokenDetail &t)
+        {
+            char buffer[128] = { 0 };
+            snprintf(buffer, sizeof(buffer), "%d:%d '%s' %s", t.line_, t.column_,
+                     GetTokenStr(t).c_str(), str);
+            what_ = buffer;
+        }
+    };
 } // namespace luna
 
 #endif // EXCEPTION_H

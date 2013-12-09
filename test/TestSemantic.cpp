@@ -136,3 +136,81 @@ TEST_CASE(semantic8)
     EXPECT_TRUE(b->semantic_ == luna::SemanticOp_Read);
     EXPECT_TRUE(c->semantic_ == luna::SemanticOp_Read);
 }
+
+TEST_CASE(semantic9)
+{
+    EXPECT_TRUE(Semantic("a = 1 + 1"));
+    EXPECT_TRUE(Semantic("a = 1 + b"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 - {}");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 * nil");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 / true");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 % 'str'");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 ^ ...");
+    });
+}
+
+TEST_CASE(semantic10)
+{
+    EXPECT_TRUE(Semantic("a = 1 > 2"));
+    EXPECT_TRUE(Semantic("a = 'str' >= 'str'"));
+    EXPECT_TRUE(Semantic("a = 1 > b"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 < 'str'");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = true <= false");
+    });
+}
+
+TEST_CASE(semantic11)
+{
+    EXPECT_TRUE(Semantic("a = 'str' .. 'str'"));
+    EXPECT_TRUE(Semantic("a = 1 .. 'str'"));
+    EXPECT_TRUE(Semantic("a = 'str' .. 1"));
+    EXPECT_TRUE(Semantic("a = 'str' .. b"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = 1 .. 1");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = true .. nil");
+    });
+}
+
+TEST_CASE(semantic12)
+{
+    EXPECT_TRUE(Semantic("a = -(1 + 1)"));
+    EXPECT_TRUE(Semantic("a = #{1, 2, 3}"));
+    EXPECT_TRUE(Semantic("a = #'str'"));
+    EXPECT_TRUE(Semantic("a = not a"));
+    EXPECT_TRUE(Semantic("a = -a"));
+    EXPECT_TRUE(Semantic("a = #a"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = -'str'");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = #1");
+    });
+}
+
+TEST_CASE(semantic13)
+{
+    EXPECT_TRUE(Semantic("a = -#{1, 2, 3} + 1"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = (1 > 2) + 1");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = (1 ~= 2) > 1");
+    });
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("a = not a >= true");
+    });
+}

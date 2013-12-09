@@ -1,5 +1,6 @@
 #include "SemanticAnalysis.h"
 #include "Visitor.h"
+#include "Exception.h"
 #include <assert.h>
 
 namespace luna
@@ -46,11 +47,36 @@ namespace luna
     struct VarListData
     {
         std::size_t var_count_;
+
+        VarListData() : var_count_(0) { }
+    };
+
+    struct ExpListData
+    {
+        std::size_t exp_count_;
+
+        ExpListData() : exp_count_(0) { }
+    };
+
+    // Expression type for semantic
+    enum ExpType
+    {
+        ExpType_Unknown,    // unknown type at semantic analysis phase
+        ExpType_Nil,
+        ExpType_Bool,
+        ExpType_Number,
+        ExpType_String,
+        ExpType_VarArg,
+        ExpType_Table,
     };
 
     struct ExpVarData
     {
         SemanticOp semantic_op_;
+        ExpType exp_type_;
+
+        explicit ExpVarData(SemanticOp semantic_op = SemanticOp_None)
+            : semantic_op_(semantic_op), exp_type_(ExpType_Unknown) { }
     };
 
     void SemanticAnalysisVisitor::Visit(Chunk *chunk, void *data)
@@ -69,7 +95,10 @@ namespace luna
     void SemanticAnalysisVisitor::Visit(ReturnStatement *ret_stmt, void *data)
     {
         if (ret_stmt->exp_list_)
-            ret_stmt->exp_list_->Accept(this, nullptr);
+        {
+            ExpListData exp_list_data;
+            ret_stmt->exp_list_->Accept(this, &exp_list_data);
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(BreakStatement *, void *data)
@@ -83,19 +112,22 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(WhileStatement *while_stmt, void *data)
     {
-        while_stmt->exp_->Accept(this, nullptr);
+        ExpVarData exp_var_data{ SemanticOp_Read };
+        while_stmt->exp_->Accept(this, &exp_var_data);
         while_stmt->block_->Accept(this, nullptr);
     }
 
     void SemanticAnalysisVisitor::Visit(RepeatStatement *repeat_stmt, void *data)
     {
+        ExpVarData exp_var_data{ SemanticOp_Read };
         repeat_stmt->block_->Accept(this, nullptr);
-        repeat_stmt->exp_->Accept(this, nullptr);
+        repeat_stmt->exp_->Accept(this, &exp_var_data);
     }
 
     void SemanticAnalysisVisitor::Visit(IfStatement *if_stmt, void *data)
     {
-        if_stmt->exp_->Accept(this, nullptr);
+        ExpVarData exp_var_data{ SemanticOp_Read };
+        if_stmt->exp_->Accept(this, &exp_var_data);
         if_stmt->true_branch_->Accept(this, nullptr);
         if (if_stmt->false_branch_)
             if_stmt->false_branch_->Accept(this, nullptr);
@@ -103,7 +135,8 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(ElseIfStatement *elseif_stmt, void *data)
     {
-        elseif_stmt->exp_->Accept(this, nullptr);
+        ExpVarData exp_var_data{ SemanticOp_Read };
+        elseif_stmt->exp_->Accept(this, &exp_var_data);
         elseif_stmt->true_branch_->Accept(this, nullptr);
         if (elseif_stmt->false_branch_)
             elseif_stmt->false_branch_->Accept(this, nullptr);
@@ -116,17 +149,19 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(NumericForStatement *num_for, void *data)
     {
-        num_for->exp1_->Accept(this, nullptr);
-        num_for->exp2_->Accept(this, nullptr);
+        ExpVarData exp_var_data{ SemanticOp_Read };
+        num_for->exp1_->Accept(this, &exp_var_data);
+        num_for->exp2_->Accept(this, &exp_var_data);
         if (num_for->exp3_)
-            num_for->exp3_->Accept(this, nullptr);
+            num_for->exp3_->Accept(this, &exp_var_data);
         num_for->block_->Accept(this, nullptr);
     }
 
     void SemanticAnalysisVisitor::Visit(GenericForStatement *gen_for, void *data)
     {
+        ExpListData exp_list_data;
         gen_for->name_list_->Accept(this, nullptr);
-        gen_for->exp_list_->Accept(this, nullptr);
+        gen_for->exp_list_->Accept(this, &exp_list_data);
         gen_for->block_->Accept(this, nullptr);
     }
 
@@ -149,14 +184,20 @@ namespace luna
     {
         l_namelist_stmt->name_list_->Accept(this, nullptr);
         if (l_namelist_stmt->exp_list_)
-            l_namelist_stmt->exp_list_->Accept(this, nullptr);
+        {
+            ExpListData exp_list_data;
+            l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(AssignmentStatement *assign_stmt, void *data)
     {
-        VarListData var_list_data{ 0 };
+        VarListData var_list_data;
+        ExpListData exp_list_data;
         assign_stmt->var_list_->Accept(this, &var_list_data);
-        assign_stmt->exp_list_->Accept(this, nullptr);
+        assign_stmt->exp_list_->Accept(this, &exp_list_data);
+        assign_stmt->var_count_ = var_list_data.var_count_;
+        assign_stmt->exp_count_ = exp_list_data.exp_count_;
     }
 
     void SemanticAnalysisVisitor::Visit(VarList *var_list, void *data)
@@ -169,18 +210,83 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(Terminator *term, void *data)
     {
+        // Current term read and write semantic
         auto exp_var_data = static_cast<ExpVarData *>(data);
         term->semantic_ = exp_var_data->semantic_op_;
         if (term->token_.token_ != Token_Id)
             assert(exp_var_data->semantic_op_ == SemanticOp_Read);
+
+        // Set Expression type
+        switch (term->token_.token_)
+        {
+            case Token_Nil: exp_var_data->exp_type_ = ExpType_Nil; break;
+            case Token_Id: exp_var_data->exp_type_ = ExpType_Unknown; break;
+            case Token_Number: exp_var_data->exp_type_ = ExpType_Number; break;
+            case Token_String: exp_var_data->exp_type_ = ExpType_String; break;
+            case Token_VarArg: exp_var_data->exp_type_ = ExpType_VarArg; break;
+            case Token_True: case Token_False: exp_var_data->exp_type_ = ExpType_Bool; break;
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(BinaryExpression *binary_exp, void *data)
     {
         // Binary expression is read semantic
-        ExpVarData exp_var_data{ SemanticOp_Read };
-        binary_exp->left_->Accept(this, &exp_var_data);
-        binary_exp->right_->Accept(this, &exp_var_data);
+        ExpVarData l_exp_var_data{ SemanticOp_Read };
+        ExpVarData r_exp_var_data{ SemanticOp_Read };
+        binary_exp->left_->Accept(this, &l_exp_var_data);
+        binary_exp->right_->Accept(this, &r_exp_var_data);
+
+        auto parent_exp_var_data = static_cast<ExpVarData *>(data);
+        switch (binary_exp->op_token_.token_)
+        {
+            case '+': case '-': case '*': case '/': case '^': case '%':
+                if (l_exp_var_data.exp_type_ != ExpType_Unknown &&
+                    l_exp_var_data.exp_type_ != ExpType_Number)
+                    throw SemanticException("left expression of binary operator is not number",
+                                            binary_exp->op_token_);
+                if (r_exp_var_data.exp_type_ != ExpType_Unknown &&
+                    r_exp_var_data.exp_type_ != ExpType_Number)
+                    throw SemanticException("right expression of binary operator is not number",
+                                            binary_exp->op_token_);
+                parent_exp_var_data->exp_type_ = ExpType_Number;
+                break;
+            case '<': case '>': case Token_LessEqual: case Token_BigEqual:
+                if (l_exp_var_data.exp_type_ != ExpType_Unknown &&
+                    r_exp_var_data.exp_type_ != ExpType_Unknown)
+                {
+                    if (l_exp_var_data.exp_type_ != r_exp_var_data.exp_type_)
+                        throw SemanticException("compare different expression type",
+                                                binary_exp->op_token_);
+                    else if (l_exp_var_data.exp_type_ != ExpType_Number &&
+                             l_exp_var_data.exp_type_ != ExpType_String)
+                        throw SemanticException("can not compare operands",
+                                                binary_exp->op_token_);
+                }
+                parent_exp_var_data->exp_type_ = ExpType_Bool;
+                break;
+            case Token_Concat:
+                if (l_exp_var_data.exp_type_ != ExpType_Unknown &&
+                    r_exp_var_data.exp_type_ != ExpType_Unknown)
+                {
+                    if (!((l_exp_var_data.exp_type_ == ExpType_String &&
+                           r_exp_var_data.exp_type_ == ExpType_String) ||
+                          (l_exp_var_data.exp_type_ == ExpType_String &&
+                           r_exp_var_data.exp_type_ == ExpType_Number) ||
+                          (l_exp_var_data.exp_type_ == ExpType_Number &&
+                           r_exp_var_data.exp_type_ == ExpType_String)))
+                        throw SemanticException("can not concat operands",
+                                                binary_exp->op_token_);
+                }
+                parent_exp_var_data->exp_type_ = ExpType_String;
+                break;
+            case Token_NotEqual: case Token_Equal:
+                parent_exp_var_data->exp_type_ = ExpType_Bool;
+                break;
+            case Token_And: case Token_Or:
+                break;
+            default:
+                break;
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(UnaryExpression *unary_exp, void *data)
@@ -188,6 +294,36 @@ namespace luna
         // Unary expression is read semantic
         ExpVarData exp_var_data{ SemanticOp_Read };
         unary_exp->exp_->Accept(this, &exp_var_data);
+
+        // Expression type
+        if (exp_var_data.exp_type_ != ExpType_Unknown)
+        {
+            switch (unary_exp->op_token_.token_)
+            {
+                case '-':
+                    if (exp_var_data.exp_type_ != ExpType_Number)
+                        throw SemanticException("operand is not number",
+                                                unary_exp->op_token_);
+                    break;
+                case '#':
+                    if (exp_var_data.exp_type_ != ExpType_Table &&
+                        exp_var_data.exp_type_ != ExpType_String)
+                        throw SemanticException("operand is not table or string",
+                                                unary_exp->op_token_);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        auto parent_exp_var_data = static_cast<ExpVarData *>(data);
+        if (unary_exp->op_token_.token_ == '-' ||
+            unary_exp->op_token_.token_ == '#')
+            parent_exp_var_data->exp_type_ = ExpType_Number;
+        else if (unary_exp->op_token_.token_ == Token_Not)
+            parent_exp_var_data->exp_type_ = ExpType_Bool;
+        else
+            assert(!"unexpect unary operator");
     }
 
     void SemanticAnalysisVisitor::Visit(FunctionBody *func_body, void *data)
@@ -211,6 +347,9 @@ namespace luna
     {
         for (auto &field : table_def->fields_)
             field->Accept(this, nullptr);
+
+        // Set Expression type
+        static_cast<ExpVarData *>(data)->exp_type_ = ExpType_Table;
     }
 
     void SemanticAnalysisVisitor::Visit(TableIndexField *table_i_field, void *data)
@@ -274,7 +413,15 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(FuncCallArgs *call_args, void *data)
     {
-        call_args->arg_->Accept(this, nullptr);
+        if (call_args->type_ == FuncCallArgs::ExpList)
+        {
+            ExpListData exp_list_data;
+            call_args->arg_->Accept(this, &exp_list_data);
+        }
+        else
+        {
+            call_args->arg_->Accept(this, nullptr);
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(ExpressionList *exp_list, void *data)
@@ -283,6 +430,8 @@ namespace luna
         ExpVarData exp_var_data{ SemanticOp_Read };
         for (auto &exp : exp_list->exp_list_)
             exp->Accept(this, &exp_var_data);
+
+        static_cast<ExpListData *>(data)->exp_count_ = exp_list->exp_list_.size();
     }
 
     void SemanticAnalysis(SyntaxTree *root)
