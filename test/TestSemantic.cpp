@@ -234,3 +234,42 @@ TEST_CASE(semantic14)
     auto a2 = ASTFind<luna::Terminator>(ret->exp_list_, NameFinder("a"));
     EXPECT_TRUE(a2->scoping_ == luna::LexicalScoping_Upvalue);
 }
+
+TEST_CASE(semantic15)
+{
+    auto ast = Semantic("for i = 1, 10 do print(i) end");
+    auto i = ASTFind<luna::Terminator>(ast, NameFinder("i"));
+    EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Local);
+}
+
+TEST_CASE(semantic16)
+{
+    auto ast = Semantic("for i, j in f() do print(i, j) end");
+    auto i = ASTFind<luna::Terminator>(ast, NameFinder("i"));
+    auto j = ASTFind<luna::Terminator>(ast, NameFinder("j"));
+    EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Local);
+    EXPECT_TRUE(j->scoping_ == luna::LexicalScoping_Local);
+}
+
+TEST_CASE(semantic17)
+{
+    auto ast = Semantic("repeat local i = 1 until i == 1");
+    auto i = ASTFind<luna::Terminator>(ast, NameFinder("i"));
+    EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Local);
+}
+
+TEST_CASE(semantic18)
+{
+    auto ast = Semantic("while i == 1 do local i = 1 end");
+    auto i = ASTFind<luna::Terminator>(ast, NameFinder("i"));
+    EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Global);
+}
+
+TEST_CASE(semantic19)
+{
+    auto ast = Semantic("if i == 1 then local i = 1 elseif j == 1 then local j = 1 end");
+    auto i = ASTFind<luna::Terminator>(ast, NameFinder("i"));
+    auto j = ASTFind<luna::Terminator>(ast, NameFinder("j"));
+    EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Global);
+    EXPECT_TRUE(j->scoping_ == luna::LexicalScoping_Global);
+}
