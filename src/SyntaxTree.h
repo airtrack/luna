@@ -12,11 +12,21 @@ namespace luna
 #define SYNTAX_TREE_ACCEPT_VISITOR_DECL()           \
     virtual void Accept(Visitor *v, void *data)
 
+    // Expression or variable operation semantic
     enum SemanticOp
     {
         SemanticOp_None,
         SemanticOp_Read,
         SemanticOp_Write,
+    };
+
+    // Expression or variable lexical scoping
+    enum LexicalScoping
+    {
+        LexicalScoping_Unknown,
+        LexicalScoping_Global,          // Expression or variable in global table
+        LexicalScoping_Upvalue,         // Expression or variable is upvalue
+        LexicalScoping_Local,           // Expression or variable in current function
     };
 
     class String;
@@ -312,10 +322,12 @@ namespace luna
 
         // For semantic
         SemanticOp semantic_;
+        LexicalScoping scoping_;
 
         Terminator() { }
         explicit Terminator(const TokenDetail &token)
-            : token_(token), semantic_(SemanticOp_None) { }
+            : token_(token), semantic_(SemanticOp_None),
+              scoping_(LexicalScoping_Unknown) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };

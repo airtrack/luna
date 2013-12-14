@@ -214,3 +214,23 @@ TEST_CASE(semantic13)
         Semantic("a = not a >= true");
     });
 }
+
+TEST_CASE(semantic14)
+{
+    auto ast = Semantic("function test() "
+                        "    local a = 1 "
+                        "    a = f() "
+                        "    return function() return a end "
+                        "end");
+
+    auto a = ASTFind<luna::Terminator>(ast, NameFinder("a"));
+    auto f = ASTFind<luna::Terminator>(ast, NameFinder("f"));
+    EXPECT_TRUE(a->scoping_ == luna::LexicalScoping_Local);
+    EXPECT_TRUE(f->scoping_ == luna::LexicalScoping_Global);
+
+    auto ret = ASTFind<luna::ReturnStatement>(ast, [](luna::ReturnStatement *) {
+        return true;
+    });
+    auto a2 = ASTFind<luna::Terminator>(ret->exp_list_, NameFinder("a"));
+    EXPECT_TRUE(a2->scoping_ == luna::LexicalScoping_Upvalue);
+}

@@ -1,10 +1,31 @@
 #include "SemanticAnalysis.h"
 #include "Visitor.h"
 #include "Exception.h"
+#include "String.h"
+#include <string>
+#include <set>
 #include <assert.h>
 
 namespace luna
 {
+    // Lexical block data in LexicalFunction for name finding
+    struct LexicalBlock
+    {
+        LexicalBlock *parent_;
+        std::set<std::string> names_;
+
+        LexicalBlock() : parent_(nullptr) { }
+    };
+
+    // Lexical function data for name finding
+    struct LexicalFunction
+    {
+        LexicalFunction *parent_;
+        LexicalBlock *current_block_;
+
+        LexicalFunction() : parent_(nullptr), current_block_(nullptr) { }
+    };
+
     class SemanticAnalysisVisitor : public Visitor
     {
     public:
@@ -42,8 +63,147 @@ namespace luna
         virtual void Visit(MemberFuncCall *, void *);
         virtual void Visit(FuncCallArgs *, void *);
         virtual void Visit(ExpressionList *, void *);
+
+        SemanticAnalysisVisitor() : current_function_(nullptr) { }
+        ~SemanticAnalysisVisitor()
+        {
+            // delete all functions
+            while (current_function_)
+            {
+                DeleteCurrentFunction();
+            }
+        }
+
+        // Enter a new function AST, and add a new LexicalFunction
+        // data structure
+        void EnterFunction()
+        {
+            auto function = new LexicalFunction;
+            function->parent_ = current_function_;
+            current_function_ = function;
+        }
+
+        // Leave a function AST, and delete current LexicalFunction
+        // data structure
+        void LeaveFunction()
+        {
+            DeleteCurrentFunction();
+        }
+
+        // Add a new LexicalBlock for entering a new block scope
+        void EnterBlock()
+        {
+            assert(current_function_);
+            auto block = new LexicalBlock;
+            block->parent_ = current_function_->current_block_;
+            current_function_->current_block_ = block;
+        }
+
+        // Delete current LexicalBlock when leaving a block scope
+        void LeaveBlock()
+        {
+            DeleteCurrentBlock();
+        }
+
+        // Insert a name into current block
+        void InsertName(const String *str)
+        {
+            assert(current_function_ && current_function_->current_block_);
+            current_function_->current_block_->names_.insert(str->GetStdString());
+        }
+
+        // Search LexicalScoping of a name
+        LexicalScoping SearchName(const String *str) const
+        {
+            assert(current_function_ && current_function_->current_block_);
+
+            auto function = current_function_;
+            while (function)
+            {
+                auto block = function->current_block_;
+                while (block)
+                {
+                    auto it = block->names_.find(str->GetStdString());
+                    if (it != block->names_.end())
+                    {
+                        return function == current_function_ ?
+                            LexicalScoping_Local : LexicalScoping_Upvalue;
+                    }
+
+                    block = block->parent_;
+                }
+
+                function = function->parent_;
+            }
+
+            return LexicalScoping_Global;
+        }
+
+    private:
+        void DeleteCurrentFunction()
+        {
+            assert(current_function_);
+            // delete all blocks in current function
+            DeleteBlocks();
+
+            // delete current function
+            auto function = current_function_;
+            current_function_ = function->parent_;
+            delete function;
+        }
+
+        void DeleteCurrentBlock()
+        {
+            assert(current_function_ && current_function_->current_block_);
+            auto block = current_function_->current_block_;
+            current_function_->current_block_ = block->parent_;
+            delete block;
+        }
+
+        void DeleteBlocks()
+        {
+            while (current_function_->current_block_)
+            {
+                DeleteCurrentBlock();
+            }
+        }
+
+        // Current lexical function for all names finding
+        LexicalFunction *current_function_;
     };
 
+    // Guard class, using for RAII operations.
+    // e.g.
+    //      {
+    //          Guard g(constructor, destructor);
+    //          ...
+    //      }
+    class Guard
+    {
+    public:
+        Guard(const std::function<void ()> &enter,
+              const std::function<void ()> &leave)
+            : leave_(leave)
+        {
+            enter();
+        }
+
+        ~Guard()
+        {
+            leave_();
+        }
+
+        Guard(const Guard &) = delete;
+        void operator = (const Guard &) = delete;
+
+    private:
+        std::function<void ()> leave_;
+    };
+
+#define SEMANTIC_ANALYSIS_GUARD(enter, leave)                           \
+    Guard g([this]() { this->enter(); }, [this]() { this->leave(); })
+
+    // For VarList AST
     struct VarListData
     {
         std::size_t var_count_;
@@ -51,6 +211,7 @@ namespace luna
         VarListData() : var_count_(0) { }
     };
 
+    // For ExpList AST
     struct ExpListData
     {
         std::size_t exp_count_;
@@ -70,6 +231,7 @@ namespace luna
         ExpType_Table,
     };
 
+    // Expression or variable data for semantic analysis
     struct ExpVarData
     {
         SemanticOp semantic_op_;
@@ -81,7 +243,11 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(Chunk *chunk, void *data)
     {
-        chunk->block_->Accept(this, nullptr);
+        SEMANTIC_ANALYSIS_GUARD(EnterFunction, LeaveFunction);
+        {
+            SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+            chunk->block_->Accept(this, nullptr);
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(Block *block, void *data)
@@ -107,6 +273,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(DoStatement *do_stmt, void *data)
     {
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
         do_stmt->block_->Accept(this, nullptr);
     }
 
@@ -114,11 +281,15 @@ namespace luna
     {
         ExpVarData exp_var_data{ SemanticOp_Read };
         while_stmt->exp_->Accept(this, &exp_var_data);
+
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
         while_stmt->block_->Accept(this, nullptr);
     }
 
     void SemanticAnalysisVisitor::Visit(RepeatStatement *repeat_stmt, void *data)
     {
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+
         ExpVarData exp_var_data{ SemanticOp_Read };
         repeat_stmt->block_->Accept(this, nullptr);
         repeat_stmt->exp_->Accept(this, &exp_var_data);
@@ -128,7 +299,12 @@ namespace luna
     {
         ExpVarData exp_var_data{ SemanticOp_Read };
         if_stmt->exp_->Accept(this, &exp_var_data);
-        if_stmt->true_branch_->Accept(this, nullptr);
+
+        {
+            SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+            if_stmt->true_branch_->Accept(this, nullptr);
+        }
+
         if (if_stmt->false_branch_)
             if_stmt->false_branch_->Accept(this, nullptr);
     }
@@ -137,13 +313,19 @@ namespace luna
     {
         ExpVarData exp_var_data{ SemanticOp_Read };
         elseif_stmt->exp_->Accept(this, &exp_var_data);
-        elseif_stmt->true_branch_->Accept(this, nullptr);
+
+        {
+            SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+            elseif_stmt->true_branch_->Accept(this, nullptr);
+        }
+
         if (elseif_stmt->false_branch_)
             elseif_stmt->false_branch_->Accept(this, nullptr);
     }
 
     void SemanticAnalysisVisitor::Visit(ElseStatement *else_stmt, void *data)
     {
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
         else_stmt->block_->Accept(this, nullptr);
     }
 
@@ -154,14 +336,19 @@ namespace luna
         num_for->exp2_->Accept(this, &exp_var_data);
         if (num_for->exp3_)
             num_for->exp3_->Accept(this, &exp_var_data);
+
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+        InsertName(num_for->name_.str_);
         num_for->block_->Accept(this, nullptr);
     }
 
     void SemanticAnalysisVisitor::Visit(GenericForStatement *gen_for, void *data)
     {
         ExpListData exp_list_data;
-        gen_for->name_list_->Accept(this, nullptr);
         gen_for->exp_list_->Accept(this, &exp_list_data);
+
+        SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+        gen_for->name_list_->Accept(this, nullptr);
         gen_for->block_->Accept(this, nullptr);
     }
 
@@ -177,6 +364,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
     {
+        InsertName(l_func_stmt->name_.str_);
         l_func_stmt->func_body_->Accept(this, nullptr);
     }
 
@@ -226,6 +414,10 @@ namespace luna
             case Token_VarArg: exp_var_data->exp_type_ = ExpType_VarArg; break;
             case Token_True: case Token_False: exp_var_data->exp_type_ = ExpType_Bool; break;
         }
+
+        // Search lexical scoping of name
+        if (term->token_.token_ == Token_Id)
+            term->scoping_ = SearchName(term->token_.str_);
     }
 
     void SemanticAnalysisVisitor::Visit(BinaryExpression *binary_exp, void *data)
@@ -328,9 +520,15 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(FunctionBody *func_body, void *data)
     {
-        if (func_body->param_list_)
-            func_body->param_list_->Accept(this, nullptr);
-        func_body->block_->Accept(this, nullptr);
+        SEMANTIC_ANALYSIS_GUARD(EnterFunction, LeaveFunction);
+        {
+            SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
+
+            if (func_body->param_list_)
+                func_body->param_list_->Accept(this, nullptr);
+
+            func_body->block_->Accept(this, nullptr);
+        }
     }
 
     void SemanticAnalysisVisitor::Visit(ParamList *par_list, void *data)
@@ -339,8 +537,10 @@ namespace luna
             par_list->name_list_->Accept(this, nullptr);
     }
 
-    void SemanticAnalysisVisitor::Visit(NameList *, void *data)
+    void SemanticAnalysisVisitor::Visit(NameList *name_list, void *data)
     {
+        for (const auto &name : name_list->names_)
+            InsertName(name.str_);
     }
 
     void SemanticAnalysisVisitor::Visit(TableDefine *table_def, void *data)
@@ -415,8 +615,11 @@ namespace luna
     {
         if (call_args->type_ == FuncCallArgs::ExpList)
         {
-            ExpListData exp_list_data;
-            call_args->arg_->Accept(this, &exp_list_data);
+            if (call_args->arg_)
+            {
+                ExpListData exp_list_data;
+                call_args->arg_->Accept(this, &exp_list_data);
+            }
         }
         else
         {

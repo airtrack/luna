@@ -312,7 +312,8 @@ public:
     virtual void Visit(luna::FuncCallArgs *ast, void *)
     {
         MATCH_AST_TYPE(ast, {
-            ast->arg_->Accept(this, nullptr);
+            if (ast->arg_)
+                ast->arg_->Accept(this, nullptr);
         })
     }
 
