@@ -354,9 +354,9 @@ ASTType * ASTFind(const std::unique_ptr<luna::SyntaxTree> &root,
     return ast_finder.GetResult();
 }
 
-struct NameFinder
+struct FindName
 {
-    NameFinder(const std::string &name) : name_(name) { }
+    FindName(const std::string &name) : name_(name) { }
 
     bool operator () (const luna::Terminator *term) const
     {
@@ -367,6 +367,12 @@ struct NameFinder
     }
 
     std::string name_;
+};
+
+struct AcceptAST
+{
+    bool operator () (const luna::SyntaxTree *) const
+    { return true; }
 };
 
 #endif // TEST_COMMON_H
