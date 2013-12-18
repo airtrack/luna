@@ -83,8 +83,11 @@ namespace luna
     public:
         TokenDetail break_;
 
+        // For semantic
+        const SyntaxTree *loop_;
+
         explicit BreakStatement(const TokenDetail &b)
-            : break_(b)
+            : break_(b), loop_(nullptr)
         {
         }
 

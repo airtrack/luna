@@ -22,8 +22,10 @@ namespace luna
     {
         LexicalFunction *parent_;
         LexicalBlock *current_block_;
+        const SyntaxTree *current_loop_;
 
-        LexicalFunction() : parent_(nullptr), current_block_(nullptr) { }
+        LexicalFunction()
+            : parent_(nullptr), current_block_(nullptr), current_loop_(nullptr) { }
     };
 
     class SemanticAnalysisVisitor : public Visitor
@@ -139,6 +141,18 @@ namespace luna
             return LexicalScoping_Global;
         }
 
+        // Set current loop AST
+        void SetLoopAST(const SyntaxTree *loop)
+        {
+            current_function_->current_loop_ = loop;
+        }
+
+        // Get current loop AST
+        const SyntaxTree *GetLoopAST() const
+        {
+            return current_function_->current_loop_;
+        }
+
     private:
         void DeleteCurrentFunction()
         {
@@ -202,6 +216,11 @@ namespace luna
 
 #define SEMANTIC_ANALYSIS_GUARD(enter, leave)                           \
     Guard g([this]() { this->enter(); }, [this]() { this->leave(); })
+
+#define SEMANTIC_ANALYSIS_LOOP_GUARD(loop_ast)                          \
+    auto *old_loop = GetLoopAST();                                      \
+    Guard l([=]() { this->SetLoopAST(loop_ast); },                      \
+            [=]() { this->SetLoopAST(old_loop); })
 
     // For VarList AST
     struct VarListData
@@ -267,8 +286,11 @@ namespace luna
         }
     }
 
-    void SemanticAnalysisVisitor::Visit(BreakStatement *, void *data)
+    void SemanticAnalysisVisitor::Visit(BreakStatement *break_stmt, void *data)
     {
+        break_stmt->loop_ = GetLoopAST();
+        if (!break_stmt->loop_)
+            throw SemanticException("not in any loop", break_stmt->break_);
     }
 
     void SemanticAnalysisVisitor::Visit(DoStatement *do_stmt, void *data)
@@ -279,6 +301,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(WhileStatement *while_stmt, void *data)
     {
+        SEMANTIC_ANALYSIS_LOOP_GUARD(while_stmt);
         ExpVarData exp_var_data{ SemanticOp_Read };
         while_stmt->exp_->Accept(this, &exp_var_data);
 
@@ -288,6 +311,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(RepeatStatement *repeat_stmt, void *data)
     {
+        SEMANTIC_ANALYSIS_LOOP_GUARD(repeat_stmt);
         SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
 
         ExpVarData exp_var_data{ SemanticOp_Read };
@@ -331,6 +355,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(NumericForStatement *num_for, void *data)
     {
+        SEMANTIC_ANALYSIS_LOOP_GUARD(num_for);
         ExpVarData exp_var_data{ SemanticOp_Read };
         num_for->exp1_->Accept(this, &exp_var_data);
         num_for->exp2_->Accept(this, &exp_var_data);
@@ -344,6 +369,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(GenericForStatement *gen_for, void *data)
     {
+        SEMANTIC_ANALYSIS_LOOP_GUARD(gen_for);
         ExpListData exp_list_data;
         gen_for->exp_list_->Accept(this, &exp_list_data);
 

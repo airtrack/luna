@@ -273,3 +273,50 @@ TEST_CASE(semantic19)
     EXPECT_TRUE(i->scoping_ == luna::LexicalScoping_Global);
     EXPECT_TRUE(j->scoping_ == luna::LexicalScoping_Global);
 }
+
+TEST_CASE(semantic20)
+{
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("do break end");
+    });
+
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("while true do local f = function() break end end");
+    });
+
+    auto ast = Semantic("while true do break end");
+    auto b = ASTFind<luna::BreakStatement>(ast, [](luna::BreakStatement *) {
+        return true;
+    });
+    auto w = ASTFind<luna::WhileStatement>(ast, [](luna::WhileStatement *) {
+        return true;
+    });
+    EXPECT_TRUE(b->loop_ == w);
+
+    ast = Semantic("repeat break until true");
+    b = ASTFind<luna::BreakStatement>(ast, [](luna::BreakStatement *) {
+        return true;
+    });
+    auto r = ASTFind<luna::RepeatStatement>(ast, [](luna::RepeatStatement *) {
+        return true;
+    });
+    EXPECT_TRUE(b->loop_ == r);
+
+    ast = Semantic("for i = 1, 10 do break end");
+    b = ASTFind<luna::BreakStatement>(ast, [](luna::BreakStatement *) {
+        return true;
+    });
+    auto nf = ASTFind<luna::NumericForStatement>(ast, [](luna::NumericForStatement *) {
+        return true;
+    });
+    EXPECT_TRUE(b->loop_ == nf);
+
+    ast = Semantic("for k, v in pairs(t) do break end");
+    b = ASTFind<luna::BreakStatement>(ast, [](luna::BreakStatement *) {
+        return true;
+    });
+    auto gf = ASTFind<luna::GenericForStatement>(ast, [](luna::GenericForStatement *) {
+        return true;
+    });
+    EXPECT_TRUE(b->loop_ == gf);
+}
