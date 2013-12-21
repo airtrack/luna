@@ -294,3 +294,11 @@ TEST_CASE(semantic20)
     auto gf = ASTFind<luna::GenericForStatement>(ast, AcceptAST());
     EXPECT_TRUE(b->loop_ == gf);
 }
+
+TEST_CASE(semantic21)
+{
+    EXPECT_TRUE(Semantic("function f(...) return ... end"));
+    EXPECT_EXCEPTION(luna::SemanticException, {
+        Semantic("function f(...) return function() return ... end end");
+    });
+}

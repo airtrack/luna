@@ -23,9 +23,11 @@ namespace luna
         LexicalFunction *parent_;
         LexicalBlock *current_block_;
         const SyntaxTree *current_loop_;
+        bool has_vararg;
 
         LexicalFunction()
-            : parent_(nullptr), current_block_(nullptr), current_loop_(nullptr) { }
+            : parent_(nullptr), current_block_(nullptr),
+              current_loop_(nullptr), has_vararg(false) { }
     };
 
     class SemanticAnalysisVisitor : public Visitor
@@ -156,6 +158,18 @@ namespace luna
         const SyntaxTree *GetLoopAST() const
         {
             return current_function_->current_loop_;
+        }
+
+        // Set current function has a vararg param
+        void SetFunctionVararg()
+        {
+            current_function_->has_vararg = true;
+        }
+
+        // Current function has a vararg or not
+        bool HasVararg() const
+        {
+            return current_function_->has_vararg;
         }
 
     private:
@@ -449,6 +463,10 @@ namespace luna
         // Search lexical scoping of name
         if (term->token_.token_ == Token_Id)
             term->scoping_ = SearchName(term->token_.str_);
+
+        // Check function has vararg
+        if (term->token_.token_ == Token_VarArg && !HasVararg())
+            throw SemanticException("function has no '...' param", term->token_);
     }
 
     void SemanticAnalysisVisitor::Visit(BinaryExpression *binary_exp, void *data)
@@ -566,6 +584,9 @@ namespace luna
     {
         if (par_list->name_list_)
             par_list->name_list_->Accept(this, nullptr);
+
+        if (par_list->vararg_)
+            SetFunctionVararg();
     }
 
     void SemanticAnalysisVisitor::Visit(NameList *name_list, void *data)
