@@ -3,7 +3,7 @@
 #include "Exception.h"
 #include "String.h"
 #include <string>
-#include <set>
+#include <map>
 #include <assert.h>
 
 namespace luna
@@ -12,7 +12,7 @@ namespace luna
     struct LexicalBlock
     {
         LexicalBlock *parent_;
-        std::set<std::string> names_;
+        std::map<std::string, NameRefInfo *> names_;
 
         LexicalBlock() : parent_(nullptr) { }
     };
@@ -108,10 +108,11 @@ namespace luna
         }
 
         // Insert a name into current block
-        void InsertName(const String *str)
+        void InsertName(const String *name, NameRefInfo *name_ref)
         {
             assert(current_function_ && current_function_->current_block_);
-            current_function_->current_block_->names_.insert(str->GetStdString());
+            current_function_->current_block_->names_.
+                insert(std::make_pair(name->GetStdString(), name_ref));
         }
 
         // Search LexicalScoping of a name
@@ -128,8 +129,12 @@ namespace luna
                     auto it = block->names_.find(str->GetStdString());
                     if (it != block->names_.end())
                     {
-                        return function == current_function_ ?
+                        auto scoping = function == current_function_ ?
                             LexicalScoping_Local : LexicalScoping_Upvalue;
+
+                        // Name referenced as upvalue
+                        it->second->is_upvalue_ = scoping == LexicalScoping_Upvalue;
+                        return scoping;
                     }
 
                     block = block->parent_;
@@ -363,7 +368,7 @@ namespace luna
             num_for->exp3_->Accept(this, &exp_var_data);
 
         SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
-        InsertName(num_for->name_.str_);
+        InsertName(num_for->name_.str_, &num_for->name_ref_);
         num_for->block_->Accept(this, nullptr);
     }
 
@@ -390,7 +395,7 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
     {
-        InsertName(l_func_stmt->name_.str_);
+        InsertName(l_func_stmt->name_.str_, &l_func_stmt->name_ref_);
         l_func_stmt->func_body_->Accept(this, nullptr);
     }
 
@@ -565,8 +570,11 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(NameList *name_list, void *data)
     {
-        for (const auto &name : name_list->names_)
-            InsertName(name.str_);
+        auto size = name_list->names_.size();
+        name_list->names_ref_.resize(size);
+
+        for (std::size_t i = 0; i < size; ++i)
+            InsertName(name_list->names_[i].str_, &name_list->names_ref_[i]);
     }
 
     void SemanticAnalysisVisitor::Visit(TableDefine *table_def, void *data)
