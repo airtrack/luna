@@ -177,6 +177,8 @@ luna::Value RandomValue(bool exclude_table)
             break;
         case luna::ValueT_CFunction:
             break;
+        default:
+            break;
     }
 
     return value;
