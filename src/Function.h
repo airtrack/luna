@@ -2,9 +2,10 @@
 #define FUNCTION_H
 
 #include "GC.h"
+#include "Value.h"
 #include "OpCode.h"
 #include "String.h"
-#include "Value.h"
+#include "Upvalue.h"
 #include <vector>
 
 namespace luna
@@ -109,16 +110,13 @@ namespace luna
         void SetPrototype(Function *prototype);
 
         // Get upvalue by index
-        Value * GetUpvalue(int index) const;
-
-        // Add upvalue by type, return upvalue index
-        int AddUpvalue(Value *value, Upvalue::Type type);
+        Value * GetUpvalue(std::size_t index) const;
 
     private:
         // prototype Function
         Function *prototype_;
         // upvalues
-        std::vector<Upvalue> upvalues_;
+        std::vector<Upvalue *> upvalues_;
     };
 } // namespace luna
 

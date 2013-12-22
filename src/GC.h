@@ -23,6 +23,7 @@ namespace luna
     class Table;
     class Function;
     class Closure;
+    class Upvalue;
     class String;
 
     class GCObjectVisitor
@@ -32,6 +33,7 @@ namespace luna
         virtual bool Visit(Table *) = 0;
         virtual bool Visit(Function *) = 0;
         virtual bool Visit(Closure *) = 0;
+        virtual bool Visit(Upvalue *) = 0;
         virtual bool Visit(String *) = 0;
     };
 
@@ -76,6 +78,7 @@ namespace luna
         Table * NewTable(GCGeneration gen = GCGen0);
         Function * NewFunction(GCGeneration gen = GCGen2);
         Closure * NewClosure(GCGeneration gen = GCGen0);
+        Upvalue * NewUpvalue(GCGeneration gen = GCGen0);
         String * NewString(GCGeneration gen = GCGen0);
 
         // Set GC object barrier

@@ -1,8 +1,8 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "Value.h"
 #include "GC.h"
+#include "Value.h"
 #include <memory>
 #include <vector>
 #include <unordered_map>

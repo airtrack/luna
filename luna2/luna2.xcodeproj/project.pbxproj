@@ -37,6 +37,8 @@
 		CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2EA6F716763B2700E59BBC /* TextInStream.cpp */; };
 		CEA5E6B216BEB52900B81DA1 /* Value.h in Headers */ = {isa = PBXBuildFile; fileRef = CEA5E6B116BEB52900B81DA1 /* Value.h */; };
 		CEA5E6B416BEB7C900B81DA1 /* Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEA5E6B316BEB7C900B81DA1 /* Table.cpp */; };
+		CEB44B1C1866D0A700748389 /* Upvalue.h in Headers */ = {isa = PBXBuildFile; fileRef = CEB44B1B1866D0A700748389 /* Upvalue.h */; };
+		CEB44B1E1866D0BA00748389 /* Upvalue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEB44B1D1866D0BA00748389 /* Upvalue.cpp */; };
 		CEB6C99216A432AC007E72D9 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEB6C99116A432AC007E72D9 /* Token.cpp */; };
 		CEC60A25169011B700E15ADE /* Parser.h in Headers */ = {isa = PBXBuildFile; fileRef = CEC60A24169011B700E15ADE /* Parser.h */; };
 		CEC60A281690121500E15ADE /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEC60A271690121500E15ADE /* Parser.cpp */; };
@@ -148,6 +150,8 @@
 		CE8F1AF916875AE6001FBAA6 /* libluna.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libluna.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEA5E6B116BEB52900B81DA1 /* Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Value.h; path = ../src/Value.h; sourceTree = "<group>"; };
 		CEA5E6B316BEB7C900B81DA1 /* Table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Table.cpp; path = ../src/Table.cpp; sourceTree = "<group>"; };
+		CEB44B1B1866D0A700748389 /* Upvalue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Upvalue.h; path = ../src/Upvalue.h; sourceTree = "<group>"; };
+		CEB44B1D1866D0BA00748389 /* Upvalue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Upvalue.cpp; path = ../src/Upvalue.cpp; sourceTree = "<group>"; };
 		CEB6C99116A432AC007E72D9 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Token.cpp; path = ../src/Token.cpp; sourceTree = "<group>"; };
 		CEC60A24169011B700E15ADE /* Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Parser.h; path = ../src/Parser.h; sourceTree = "<group>"; };
 		CEC60A271690121500E15ADE /* Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Parser.cpp; path = ../src/Parser.cpp; sourceTree = "<group>"; };
@@ -243,6 +247,8 @@
 				CE2EA6F816763B2700E59BBC /* TextInStream.h */,
 				CEB6C99116A432AC007E72D9 /* Token.cpp */,
 				CE1E694916941F940060DE44 /* Token.h */,
+				CEB44B1D1866D0BA00748389 /* Upvalue.cpp */,
+				CEB44B1B1866D0A700748389 /* Upvalue.h */,
 				CE69702C182F7AC5003F7CEC /* Value.cpp */,
 				CEA5E6B116BEB52900B81DA1 /* Value.h */,
 				CEC60A3016907B8700E15ADE /* Visitor.h */,
@@ -307,6 +313,7 @@
 				CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */,
 				CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */,
 				CE75E31716D6769B00A008A8 /* Runtime.h in Headers */,
+				CEB44B1C1866D0A700748389 /* Upvalue.h in Headers */,
 				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
 				CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */,
 				CE30E90116F75B7A006CB767 /* BaseLib.h in Headers */,
@@ -451,6 +458,7 @@
 				CEB6C99216A432AC007E72D9 /* Token.cpp in Sources */,
 				CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */,
 				CEA5E6B416BEB7C900B81DA1 /* Table.cpp in Sources */,
+				CEB44B1E1866D0BA00748389 /* Upvalue.cpp in Sources */,
 				CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */,
 				CE69702D182F7AC5003F7CEC /* Value.cpp in Sources */,
 				CEDBE61716C8F133005FDB2A /* CodeGenerate.cpp in Sources */,

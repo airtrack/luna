@@ -287,8 +287,6 @@ namespace luna
         // Generate closure
         auto cl = state_->NewClosure();
         cl->SetPrototype(func);
-        // Add Env as closure upvalue
-        cl->AddUpvalue(state_->GetGlobal(), Upvalue::Stack);
 
         // Add closure to stack
         state_->stack_.top_->closure_ = cl;

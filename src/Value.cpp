@@ -2,6 +2,7 @@
 #include "Function.h"
 #include "Table.h"
 #include "String.h"
+#include "Upvalue.h"
 
 namespace luna
 {
@@ -22,6 +23,9 @@ namespace luna
                 break;
             case ValueT_Closure:
                 closure_->Accept(v);
+                break;
+            case ValueT_Upvalue:
+                upvalue_->Accept(v);
                 break;
             case ValueT_Table:
                 table_->Accept(v);

@@ -1,6 +1,7 @@
 #include "GC.h"
 #include "Table.h"
 #include "Function.h"
+#include "Upvalue.h"
 #include "String.h"
 #include <assert.h>
 #include <time.h>
@@ -22,6 +23,7 @@ namespace luna
         virtual bool Visit(Table *t) { return VisitObj(t); }
         virtual bool Visit(Function *f) { return VisitObj(f); }
         virtual bool Visit(Closure *c) { return VisitObj(c); }
+        virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
 
     private:
@@ -42,6 +44,7 @@ namespace luna
         virtual bool Visit(Table *t) { return VisitObj(t); }
         virtual bool Visit(Function *f) { return VisitObj(f); }
         virtual bool Visit(Closure *c) { return VisitObj(c); }
+        virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
 
     private:
@@ -70,6 +73,7 @@ namespace luna
         virtual bool Visit(Table *t) { return VisitObj(t); }
         virtual bool Visit(Function *f) { return VisitObj(f); }
         virtual bool Visit(Closure *c) { return VisitObj(c); }
+        virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
 
     private:
@@ -139,6 +143,13 @@ namespace luna
         auto c = new Closure;
         SetObjectGen(c, gen);
         return c;
+    }
+
+    Upvalue * GC::NewUpvalue(GCGeneration gen)
+    {
+        auto u = new Upvalue;
+        SetObjectGen(u, gen);
+        return u;
     }
 
     String * GC::NewString(GCGeneration gen)

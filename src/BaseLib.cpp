@@ -23,8 +23,6 @@ namespace base {
                 case luna::ValueT_Number:
                     printf("%g", api.GetNumber(i));
                     break;
-                case luna::ValueT_Obj:
-                    break;
                 case luna::ValueT_String:
                     printf("%s", api.GetString(i));
                     break;
@@ -36,6 +34,8 @@ namespace base {
                     break;
                 case luna::ValueT_CFunction:
                     printf("function:\t%p", api.GetCFunction(i));
+                    break;
+                default:
                     break;
             }
 

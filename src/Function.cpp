@@ -147,7 +147,7 @@ namespace luna
             prototype_->Accept(v);
 
             for (const auto &upvalue : upvalues_)
-                upvalue.Accept(v);
+                upvalue->Accept(v);
         }
     }
 
@@ -161,25 +161,15 @@ namespace luna
         prototype_ = prototype;
     }
 
-    Value * Closure::GetUpvalue(int index) const
+    Value * Closure::GetUpvalue(std::size_t index) const
     {
         int size = upvalues_.size();
         if (index < size)
         {
-            auto &upvalue = upvalues_[index];
-            return upvalue.type_ == Upvalue::Stack ?
-                upvalue.stack_value_ : &upvalue.shared_->value_;
+            auto upvalue = upvalues_[index];
+            return upvalue->GetValue();
         }
 
         return nullptr;
-    }
-
-    int Closure::AddUpvalue(Value *value, Upvalue::Type type)
-    {
-        Upvalue upvalue;
-        upvalue.stack_value_ = value;
-        upvalue.type_ = type;
-        upvalues_.push_back(upvalue);
-        return upvalues_.size() - 1;
     }
 } // namespace luna

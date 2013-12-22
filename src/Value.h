@@ -9,9 +9,9 @@ namespace luna
 #define EXP_VALUE_COUNT_ANY -1
 #define ENV_TABLE_INDEX 0
 
-    class GCObject;
     class String;
     class Closure;
+    class Upvalue;
     class Table;
     class State;
 
@@ -25,6 +25,7 @@ namespace luna
         ValueT_Obj,
         ValueT_String,
         ValueT_Closure,
+        ValueT_Upvalue,
         ValueT_Table,
         ValueT_CFunction,
     };
@@ -37,6 +38,7 @@ namespace luna
             GCObject *obj_;
             String *str_;
             Closure *closure_;
+            Upvalue *upvalue_;
             Table *table_;
             CFunctionType cfunc_;
             double num_;
@@ -61,6 +63,7 @@ namespace luna
                  (left.type_ == ValueT_Obj && left.obj_ == right.obj_) ||
                  (left.type_ == ValueT_String && left.str_ == right.str_) ||
                  (left.type_ == ValueT_Closure && left.closure_ == right.closure_) ||
+                 (left.type_ == ValueT_Upvalue && left.upvalue_ == right.upvalue_) ||
                  (left.type_ == ValueT_Table && left.table_ == right.table_) ||
                  (left.type_ == ValueT_CFunction && left.cfunc_ == right.cfunc_));
     }
@@ -69,40 +72,6 @@ namespace luna
     {
         return !(left == right);
     }
-
-    // Shared Upvalue used by Upvalue
-    struct SharedUpvalue
-    {
-        Value value_;
-        int shared_;
-
-        SharedUpvalue() : shared_(0) { }
-
-        void IncreaseShared() { ++shared_; }
-        void DecreaseShared() { --shared_; }
-    };
-
-    // Upvalue type for Closure
-    struct Upvalue
-    {
-        union
-        {
-            Value *stack_value_;
-            SharedUpvalue *shared_;
-        };
-
-        enum Type { Stack, Shared } type_;
-
-        Upvalue() : stack_value_(nullptr), type_(Stack) { }
-
-        void Accept(GCObjectVisitor *v) const
-        {
-            if (type_ == Stack)
-                stack_value_->Accept(v);
-            else
-                shared_->value_.Accept(v);
-        }
-    };
 } // namespace luna
 
 namespace std
@@ -122,6 +91,8 @@ namespace std
                 return hash<void *>()(t.str_);
             else if (t.type_ == luna::ValueT_Closure)
                 return hash<void *>()(t.closure_);
+            else if (t.type_ == luna::ValueT_Upvalue)
+                return hash<void *>()(t.upvalue_);
             else if (t.type_ == luna::ValueT_Table)
                 return hash<void *>()(t.table_);
             else if (t.type_ == luna::ValueT_CFunction)
