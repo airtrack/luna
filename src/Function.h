@@ -9,7 +9,7 @@
 
 namespace luna
 {
-    // Function prototype class, all runtime function(closure) reference this
+    // Function prototype class, all runtime functions(closures) reference this
     // class object. This class contains some static information generated after
     // parse.
     class Function : public GCObject
@@ -95,8 +95,8 @@ namespace luna
         Function *superior_;
     };
 
-    // All runtime function are closure, this class object point to a
-    // prototype Function object and add upvalues.
+    // All runtime function are closures, this class object pointer to a
+    // prototype Function object and its upvalues.
     class Closure : public GCObject
     {
     public:
