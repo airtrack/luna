@@ -38,6 +38,8 @@ namespace text {
         InStringStream(const InStringStream&) = delete;
         void operator = (const InStringStream&) = delete;
 
+        void SetInputString(const std::string &input);
+
         int GetChar()
         {
             if (pos_ < str_.size())

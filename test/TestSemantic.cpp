@@ -4,10 +4,11 @@
 
 namespace
 {
+    ParserWrapper g_parser;
     std::unique_ptr<luna::SyntaxTree> Semantic(const std::string &s)
     {
-        ParserWrapper parser(s);
-        auto ast = parser.Parse();
+        g_parser.SetInput(s);
+        auto ast = g_parser.Parse();
         luna::SemanticAnalysis(ast.get());
         return std::move(ast);
     }

@@ -14,10 +14,15 @@
 class ParserWrapper
 {
 public:
-    explicit ParserWrapper(const std::string &str)
+    explicit ParserWrapper(const std::string &str = "")
         : iss_(str), state_(), name_("parser"),
           lexer_(&state_, &name_, std::bind(&io::text::InStringStream::GetChar, &iss_)), parser_(&state_)
     {
+    }
+
+    void SetInput(const std::string &input)
+    {
+        iss_.SetInputString(input);
     }
 
     bool IsEOF()

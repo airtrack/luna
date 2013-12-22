@@ -45,15 +45,10 @@ TEST_CASE(lex2)
                        "--[[this is long\n comment]]"
                        "--[[this is long\n comment too--]]"
                        "--[[incomplete comment]");
-    try
-    {
+
+    EXPECT_EXCEPTION(luna::LexException, {
         lexer.GetToken();
-        EXPECT_TRUE(false);
-    }
-    catch (const luna::LexException&)
-    {
-        EXPECT_TRUE(true);
-    }
+    });
 }
 
 TEST_CASE(lex3)
@@ -62,15 +57,10 @@ TEST_CASE(lex3)
                        "[=[incomplete string]=");
     for (int i = 0; i < 3; ++i)
         EXPECT_TRUE(lexer.GetToken() == luna::Token_String);
-    try
-    {
+
+    EXPECT_EXCEPTION(luna::LexException, {
         lexer.GetToken();
-        EXPECT_TRUE(false);
-    }
-    catch (const luna::LexException&)
-    {
-        EXPECT_TRUE(true);
-    }
+    });
 }
 
 TEST_CASE(lex4)
@@ -79,15 +69,10 @@ TEST_CASE(lex4)
                        " 0x");
     for (int i = 0; i < 9; ++i)
         EXPECT_TRUE(lexer.GetToken() == luna::Token_Number);
-    try
-    {
+
+    EXPECT_EXCEPTION(luna::LexException, {
         lexer.GetToken();
-        EXPECT_TRUE(false);
-    }
-    catch (const luna::LexException&)
-    {
-        EXPECT_TRUE(true);
-    }
+    });
 }
 
 TEST_CASE(lex5)

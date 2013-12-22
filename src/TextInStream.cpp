@@ -2,7 +2,6 @@
 
 namespace io {
 namespace text {
-
     InStream::InStream(const std::string &path)
         : stream_(nullptr)
     {
@@ -21,5 +20,10 @@ namespace text {
     {
     }
 
+    void InStringStream::SetInputString(const std::string &input)
+    {
+        str_ = input;
+        pos_ = 0;
+    }
 } // namespace text
 } // namespace io
