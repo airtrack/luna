@@ -7,17 +7,23 @@
 
 namespace luna
 {
-    // String pool, all strings alloc from this pool class.
     class StringPool
     {
     public:
         StringPool();
-        ~StringPool();
 
         StringPool(const StringPool&) = delete;
         void operator = (const StringPool&) = delete;
 
-        String * AllocString(const std::string &str);
+        // Get string from pool when string is existed,
+        // otherwise return nullptr
+        String * GetString(const std::string &str);
+
+        // Add string to pool
+        void AddString(String *str);
+
+        // Delete string from pool
+        void DeleteString(String *str);
 
     private:
         struct StringHash
@@ -36,13 +42,8 @@ namespace luna
             }
         };
 
-        String * GetSpareString();
-        void UseSpareString(String *spare);
-
-        // all used String store in it
+        String temp_;
         std::unordered_set<String *, StringHash, StringEqual> strings_;
-        // all unused String for spare
-        std::vector<String *> spares_;
     };
 } // namespace luna
 

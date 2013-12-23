@@ -9,17 +9,23 @@
 namespace luna
 {
     State::State()
-        : string_pool_(new StringPool)
     {
         module_manager_.reset(new ModuleManager(this));
+        string_pool_.reset(new StringPool);
+
+        gc_.reset(new GC([&](GCObject *obj, unsigned int type) {
+            if (type == GCObjectType_String)
+                string_pool_->DeleteString(static_cast<String *>(obj));
+        }));
+
+        // New global table
         global_.table_ = NewTable();
         global_.type_ = ValueT_Table;
     }
 
     State::~State()
     {
-        for (auto o : gclist_)
-            delete o;
+        gc_->ResetDeleter();
     }
 
     void State::AddModulePath(const std::string &path)
@@ -38,28 +44,34 @@ namespace luna
 
     String * State::GetString(const std::string &str)
     {
-        return string_pool_->AllocString(str);
+        auto s = string_pool_->GetString(str);
+        if (!s)
+        {
+            s = gc_->NewString();
+            s->SetValue(str);
+            string_pool_->AddString(s);
+        }
+        return s;
     }
 
     Function * State::NewFunction()
     {
-        auto f = new Function;
-        gclist_.push_back(f);
-        return f;
+        return gc_->NewFunction();
     }
 
     Closure * State::NewClosure()
     {
-        auto c = new Closure;
-        gclist_.push_back(c);
-        return c;
+        return gc_->NewClosure();
+    }
+
+    Upvalue * State::NewUpvalue()
+    {
+        return gc_->NewUpvalue();
     }
 
     Table * State::NewTable()
     {
-        auto t = new Table;
-        gclist_.push_back(t);
-        return t;
+        return gc_->NewTable();
     }
 
     CallInfo * State::GetCurrentCall()

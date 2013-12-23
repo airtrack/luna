@@ -9,7 +9,7 @@
 namespace luna
 {
     GCObject::GCObject()
-        : next_(nullptr), generation_(GCGen0), gc_(0)
+        : next_(nullptr), generation_(GCGen0), gc_(0), gc_obj_type_(0)
     {
     }
 
@@ -100,7 +100,8 @@ namespace luna
         }                                       \
     } while (0)
 
-    GC::GC(bool log)
+    GC::GC(const GCObjectDeleter &obj_deleter, bool log)
+        : obj_deleter_(obj_deleter)
     {
         gen0_.threshold_count_ = kGen0InitThresholdCount;
         gen1_.threshold_count_ = kGen1InitThresholdCount;
@@ -127,6 +128,7 @@ namespace luna
     Table * GC::NewTable(GCGeneration gen)
     {
         auto t = new Table;
+        t->gc_obj_type_ = GCObjectType_Table;
         SetObjectGen(t, gen);
         return t;
     }
@@ -134,6 +136,7 @@ namespace luna
     Function * GC::NewFunction(GCGeneration gen)
     {
         auto f = new Function;
+        f->gc_obj_type_ = GCObjectType_Function;
         SetObjectGen(f, gen);
         return f;
     }
@@ -141,6 +144,7 @@ namespace luna
     Closure * GC::NewClosure(GCGeneration gen)
     {
         auto c = new Closure;
+        c->gc_obj_type_ = GCObjectType_Closure;
         SetObjectGen(c, gen);
         return c;
     }
@@ -148,6 +152,7 @@ namespace luna
     Upvalue * GC::NewUpvalue(GCGeneration gen)
     {
         auto u = new Upvalue;
+        u->gc_obj_type_ = GCObjectType_Upvalue;
         SetObjectGen(u, gen);
         return u;
     }
@@ -155,6 +160,7 @@ namespace luna
     String * GC::NewString(GCGeneration gen)
     {
         auto s = new String;
+        s->gc_obj_type_ = GCObjectType_String;
         SetObjectGen(s, gen);
         return s;
     }
@@ -292,7 +298,7 @@ namespace luna
             }
             else
             {
-                delete obj;
+                obj_deleter_(obj, obj->gc_obj_type_);
             }
         }
 
@@ -359,7 +365,7 @@ namespace luna
             }
             else
             {
-                delete obj;
+                obj_deleter_(obj, obj->gc_obj_type_);
                 gen.count_--;
             }
         }
@@ -391,7 +397,7 @@ namespace luna
         {
             GCObject *obj = gen.gen_;
             gen.gen_ = gen.gen_->next_;
-            delete obj;
+            obj_deleter_(obj, obj->gc_obj_type_);
         }
         gen.count_ = 0;
     }

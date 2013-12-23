@@ -7,46 +7,25 @@ namespace luna
     {
     }
 
-    StringPool::~StringPool()
+    String * StringPool::GetString(const std::string &str)
     {
-        for (auto p : strings_)
-            delete p;
-        for (auto p : spares_)
-            delete p;
-    }
-
-    String * StringPool::AllocString(const std::string &str)
-    {
-        String *spare = GetSpareString();
-        spare->SetValue(str);
-
-        auto it = strings_.find(spare);
+        temp_.SetValue(str);
+        auto it = strings_.find(&temp_);
         if (it == strings_.end())
-        {
-            // if the 'str' is not existed, insert into strings_
-            strings_.insert(spare);
-            UseSpareString(spare);
-        }
+            return nullptr;
         else
-        {
-            // if the 'str' value is existed, just use the existed one
-            spare = *it;
-        }
-
-        return spare;
+            return *it;
     }
 
-    String * StringPool::GetSpareString()
+    void StringPool::AddString(String *str)
     {
-        if (spares_.empty())
-            spares_.push_back(new String);
-        return spares_.back();
+        auto it = strings_.insert(str);
+        assert(it.second);
+        (void)it;
     }
 
-    void StringPool::UseSpareString(String *spare)
+    void StringPool::DeleteString(String *str)
     {
-        assert(!spares_.empty());
-        assert(spares_.back() == spare);
-        spares_.pop_back();
+        strings_.erase(str);
     }
 } // namespace luna

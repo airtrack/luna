@@ -8,7 +8,7 @@
 #include <deque>
 #include <string>
 
-luna::GC g_gc(true);
+luna::GC g_gc(luna::GC::DefaultDeleter(), true);
 std::deque<luna::Table *> g_globalTable;
 std::deque<luna::Function *> g_globalFunction;
 std::deque<luna::Closure *> g_globalClosure;

@@ -7,6 +7,7 @@
 
 namespace luna
 {
+    // Generations of GC object
     enum GCGeneration
     {
         GCGen0,         // Youngest generation
@@ -14,10 +15,21 @@ namespace luna
         GCGen2,         // Oldest generation
     };
 
+    // GC flag for mark GC object
     enum GCFlag
     {
         GCFlag_White,
         GCFlag_Black,
+    };
+
+    // GC object type allocated by GC
+    enum GCObjectType
+    {
+        GCObjectType_Table = 1,
+        GCObjectType_Function,
+        GCObjectType_Closure,
+        GCObjectType_Upvalue,
+        GCObjectType_String,
     };
 
     class Table;
@@ -26,6 +38,7 @@ namespace luna
     class Upvalue;
     class String;
 
+    // Visitor for visit all GC objects
     class GCObjectVisitor
     {
     public:
@@ -37,6 +50,8 @@ namespace luna
         virtual bool Visit(String *) = 0;
     };
 
+    // Base class of GC objects, GC use this class to manipulate
+    // all GC objects
     class GCObject
     {
         friend class GC;
@@ -57,6 +72,8 @@ namespace luna
         unsigned int generation_ : 2;
         // GC flag
         unsigned int gc_ : 2;
+        // GC object type
+        unsigned int gc_obj_type_ : 4;
     };
 
     // GC object barrier checker
@@ -67,9 +84,19 @@ namespace luna
     {
     public:
         typedef std::function<void (GCObjectVisitor *)> RootTravelType;
+        typedef std::function<void (GCObject *, unsigned int)> GCObjectDeleter;
 
-        explicit GC(bool log = false);
+        struct DefaultDeleter
+        {
+            inline void operator () (GCObject *obj, unsigned int) const
+            { delete obj; }
+        };
+
+        explicit GC(const GCObjectDeleter &obj_deleter = DefaultDeleter(), bool log = false);
         ~GC();
+
+        void ResetDeleter(const GCObjectDeleter &obj_deleter = DefaultDeleter())
+        { obj_deleter_ = obj_deleter; }
 
         // Set minor and major root travel functions
         void SetRootTraveller(const RootTravelType &minor, const RootTravelType &major);
@@ -142,6 +169,8 @@ namespace luna
         // Barriered GC objects
         std::deque<GCObject *> barriered_;
 
+        // GC object Deleter
+        GCObjectDeleter obj_deleter_;
         // Log file
         std::ofstream log_stream_;
     };
