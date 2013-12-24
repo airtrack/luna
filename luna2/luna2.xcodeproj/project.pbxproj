@@ -49,6 +49,7 @@
 		CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CEDBE61216C8D9D1005FDB2A /* OpCode.h */; };
 		CEDBE61516C8DF73005FDB2A /* Function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61416C8DF73005FDB2A /* Function.cpp */; };
 		CEDBE61716C8F133005FDB2A /* CodeGenerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEDBE61616C8F133005FDB2A /* CodeGenerate.cpp */; };
+		CEE1FB6B1869D7C100D960B0 /* String.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE1FB6A1869D7C100D960B0 /* String.cpp */; };
 		CEE7D93516BC246A0049BDAE /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
 		CEE7D93716BC25D70049BDAE /* ModuleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */; };
 		CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */ = {isa = PBXBuildFile; fileRef = CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */; };
@@ -162,6 +163,7 @@
 		CEDBE61216C8D9D1005FDB2A /* OpCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpCode.h; path = ../src/OpCode.h; sourceTree = "<group>"; };
 		CEDBE61416C8DF73005FDB2A /* Function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Function.cpp; path = ../src/Function.cpp; sourceTree = "<group>"; };
 		CEDBE61616C8F133005FDB2A /* CodeGenerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeGenerate.cpp; path = ../src/CodeGenerate.cpp; sourceTree = "<group>"; };
+		CEE1FB6A1869D7C100D960B0 /* String.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = String.cpp; path = ../src/String.cpp; sourceTree = "<group>"; };
 		CEE7D92716BC23D00049BDAE /* lunac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lunac; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE7D93616BC25D70049BDAE /* ModuleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ModuleManager.cpp; path = ../src/ModuleManager.cpp; sourceTree = "<group>"; };
 		CEFF9B86184E2CDD008A7A25 /* CodeGenerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CodeGenerate.h; path = ../src/CodeGenerate.h; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				CEFF9B88184E3075008A7A25 /* SemanticAnalysis.h */,
 				CE1953941683648900504CCD /* State.cpp */,
 				CE36379C167C6345009E2D95 /* State.h */,
+				CEE1FB6A1869D7C100D960B0 /* String.cpp */,
 				CE19539216835C0400504CCD /* String.h */,
 				CE597F38169DC30700407019 /* StringPool.cpp */,
 				CE597F36169DC25F00407019 /* StringPool.h */,
@@ -464,6 +467,7 @@
 				CEDBE61716C8F133005FDB2A /* CodeGenerate.cpp in Sources */,
 				CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */,
 				CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */,
+				CEE1FB6B1869D7C100D960B0 /* String.cpp in Sources */,
 				CE477AF316F5E5D6001F2B0A /* LibAPI.cpp in Sources */,
 				CEFF9B8B184E309C008A7A25 /* SemanticAnalysis.cpp in Sources */,
 				CE30E90316F75C06006CB767 /* BaseLib.cpp in Sources */,
