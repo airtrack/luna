@@ -54,6 +54,30 @@ namespace luna
         return s;
     }
 
+    String * State::GetString(const char *str, std::size_t len)
+    {
+        auto s = string_pool_->GetString(str, len);
+        if (!s)
+        {
+            s = gc_->NewString();
+            s->SetValue(str, len);
+            string_pool_->AddString(s);
+        }
+        return s;
+    }
+
+    String * State::GetString(const char *str)
+    {
+        auto s = string_pool_->GetString(str);
+        if (!s)
+        {
+            s = gc_->NewString();
+            s->SetValue(str);
+            string_pool_->AddString(s);
+        }
+        return s;
+    }
+
     Function * State::NewFunction()
     {
         return gc_->NewFunction();

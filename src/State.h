@@ -36,11 +36,13 @@ namespace luna
         void LoadString(const std::string &script_str);
 
         // New GCObjects
-        String *GetString(const std::string &str);
-        Function *NewFunction();
-        Closure *NewClosure();
-        Upvalue *NewUpvalue();
-        Table *NewTable();
+        String * GetString(const std::string &str);
+        String * GetString(const char *str, std::size_t len);
+        String * GetString(const char *str);
+        Function * NewFunction();
+        Closure * NewClosure();
+        Upvalue * NewUpvalue();
+        Table * NewTable();
 
         // Get current CallInfo
         CallInfo * GetCurrentCall();
