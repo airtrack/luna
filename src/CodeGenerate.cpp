@@ -1,6 +1,7 @@
 #include "CodeGenerate.h"
 #include "State.h"
 #include "Function.h"
+#include "Guard.h"
 #include <vector>
 #include <stack>
 #include <utility>
@@ -8,10 +9,29 @@
 
 namespace luna
 {
+    // Lexical function struct for code generator
+    struct GenerateFunction
+    {
+        GenerateFunction *parent_;
+        // Current function for code generate
+        Function *function_;
+
+        GenerateFunction() : parent_(nullptr), function_(nullptr) { }
+    };
+
     class CodeGenerateVisitor : public Visitor
     {
     public:
-        explicit CodeGenerateVisitor(State *state);
+        explicit CodeGenerateVisitor(State *state)
+            : state_(state), current_function_(nullptr) { }
+
+        ~CodeGenerateVisitor()
+        {
+            while (current_function_)
+            {
+                DeleteCurrentFunction();
+            }
+        }
 
         virtual void Visit(Chunk *, void *);
         virtual void Visit(Block *, void *);
@@ -48,17 +68,43 @@ namespace luna
         virtual void Visit(FuncCallArgs *, void *);
         virtual void Visit(ExpressionList *, void *);
 
+        void EnterFunction()
+        {
+            auto function = new GenerateFunction;
+            function->parent_ = current_function_;
+            current_function_ = function;
+        }
+
+        void LeaveFunction()
+        {
+            DeleteCurrentFunction();
+        }
+
+        Function * GetCurrentFunction() const
+        {
+            return current_function_->function_;
+        }
+
     private:
         State *state_;
+
+        void DeleteCurrentFunction()
+        {
+            auto function = current_function_;
+            current_function_ = current_function_->parent_;
+            delete function;
+        }
+
+        // Current code generating function
+        GenerateFunction *current_function_;
     };
 
-    CodeGenerateVisitor::CodeGenerateVisitor(State *state)
-        : state_(state)
-    {
-    }
+#define CODE_GENERATE_GUARD(enter, leave)                               \
+    Guard g([this]() { this->enter(); }, [this]() { this->leave(); })
 
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
     {
+        CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
     }
 
     void CodeGenerateVisitor::Visit(Block *block, void *data)

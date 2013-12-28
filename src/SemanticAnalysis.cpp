@@ -2,6 +2,7 @@
 #include "Visitor.h"
 #include "Exception.h"
 #include "String.h"
+#include "Guard.h"
 #include <string>
 #include <map>
 #include <assert.h>
@@ -203,34 +204,6 @@ namespace luna
 
         // Current lexical function for all names finding
         LexicalFunction *current_function_;
-    };
-
-    // Guard class, using for RAII operations.
-    // e.g.
-    //      {
-    //          Guard g(constructor, destructor);
-    //          ...
-    //      }
-    class Guard
-    {
-    public:
-        Guard(const std::function<void ()> &enter,
-              const std::function<void ()> &leave)
-            : leave_(leave)
-        {
-            enter();
-        }
-
-        ~Guard()
-        {
-            leave_();
-        }
-
-        Guard(const Guard &) = delete;
-        void operator = (const Guard &) = delete;
-
-    private:
-        std::function<void ()> leave_;
     };
 
 #define SEMANTIC_ANALYSIS_GUARD(enter, leave)                           \

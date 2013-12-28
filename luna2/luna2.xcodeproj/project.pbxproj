@@ -30,6 +30,7 @@
 		CE597F37169DC25F00407019 /* StringPool.h in Headers */ = {isa = PBXBuildFile; fileRef = CE597F36169DC25F00407019 /* StringPool.h */; };
 		CE597F39169DC30700407019 /* StringPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE597F38169DC30700407019 /* StringPool.cpp */; };
 		CE5BDB96186EF8C300838999 /* TestString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE5BDB94186EF8C300838999 /* TestString.cpp */; };
+		CE5BDB98186F184700838999 /* Guard.h in Headers */ = {isa = PBXBuildFile; fileRef = CE5BDB97186F184700838999 /* Guard.h */; };
 		CE69702D182F7AC5003F7CEC /* Value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE69702C182F7AC5003F7CEC /* Value.cpp */; };
 		CE75E31716D6769B00A008A8 /* Runtime.h in Headers */ = {isa = PBXBuildFile; fileRef = CE75E31616D6769B00A008A8 /* Runtime.h */; };
 		CE75E31916D676EA00A008A8 /* Runtime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE75E31816D676EA00A008A8 /* Runtime.cpp */; };
@@ -147,6 +148,7 @@
 		CE597F36169DC25F00407019 /* StringPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringPool.h; path = ../src/StringPool.h; sourceTree = "<group>"; };
 		CE597F38169DC30700407019 /* StringPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringPool.cpp; path = ../src/StringPool.cpp; sourceTree = "<group>"; };
 		CE5BDB94186EF8C300838999 /* TestString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestString.cpp; path = ../test/TestString.cpp; sourceTree = "<group>"; };
+		CE5BDB97186F184700838999 /* Guard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Guard.h; path = ../src/Guard.h; sourceTree = "<group>"; };
 		CE69702C182F7AC5003F7CEC /* Value.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Value.cpp; path = ../src/Value.cpp; sourceTree = "<group>"; };
 		CE75E31616D6769B00A008A8 /* Runtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Runtime.h; path = ../src/Runtime.h; sourceTree = "<group>"; };
 		CE75E31816D676EA00A008A8 /* Runtime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Runtime.cpp; path = ../src/Runtime.cpp; sourceTree = "<group>"; };
@@ -224,6 +226,7 @@
 				CE597F34169DC0F700407019 /* Function.h */,
 				CE597F30169DBFB000407019 /* GC.cpp */,
 				CE597F2D169DBF3B00407019 /* GC.h */,
+				CE5BDB97186F184700838999 /* Guard.h */,
 				CE2EA6FB16763D9A00E59BBC /* Lex.cpp */,
 				CE2EA6F616763B2700E59BBC /* Lex.h */,
 				CE477AF216F5E5D6001F2B0A /* LibAPI.cpp */,
@@ -309,6 +312,7 @@
 				CEC60A25169011B700E15ADE /* Parser.h in Headers */,
 				CEC60A2F1690792A00E15ADE /* SyntaxTree.h in Headers */,
 				CEC60A3116907B8700E15ADE /* Visitor.h in Headers */,
+				CE5BDB98186F184700838999 /* Guard.h in Headers */,
 				CEFF9B89184E3075008A7A25 /* SemanticAnalysis.h in Headers */,
 				CE1E694A16941F940060DE44 /* Token.h in Headers */,
 				CE597F2E169DBF3B00407019 /* GC.h in Headers */,
