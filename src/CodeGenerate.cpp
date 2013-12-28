@@ -9,14 +9,32 @@
 
 namespace luna
 {
+    // Lexical block struct for code generator
+    struct GenerateBlock
+    {
+        GenerateBlock *parent_;
+        // Current block register start id
+        int register_start_id_;
+
+        GenerateBlock() : parent_(nullptr), register_start_id_(0) { }
+    };
+
     // Lexical function struct for code generator
     struct GenerateFunction
     {
         GenerateFunction *parent_;
+        // Current block
+        GenerateBlock *current_block_;
         // Current function for code generate
         Function *function_;
+        // Register id generator
+        int register_id_;
+        // Max register count used in current function
+        int register_max_;
 
-        GenerateFunction() : parent_(nullptr), function_(nullptr) { }
+        GenerateFunction()
+            : parent_(nullptr), current_block_(nullptr),
+              function_(nullptr), register_id_(0), register_max_(0) { }
     };
 
     class CodeGenerateVisitor : public Visitor
@@ -80,9 +98,33 @@ namespace luna
             DeleteCurrentFunction();
         }
 
+        void EnterBlock()
+        {
+            auto block = new GenerateBlock;
+            block->parent_ = current_function_->current_block_;
+            block->register_start_id_ = current_function_->register_id_;
+            current_function_->current_block_ = block;
+        }
+
+        void LeaveBlock()
+        {
+            auto block = current_function_->current_block_;
+            current_function_->current_block_ = block->parent_;
+            current_function_->register_id_ = block->register_start_id_;
+            delete block;
+        }
+
         Function * GetCurrentFunction() const
         {
             return current_function_->function_;
+        }
+
+        int GenerateRegisterId()
+        {
+            int id = current_function_->register_id_++;
+            if (current_function_->register_id_ > current_function_->register_max_)
+                current_function_->register_max_ = current_function_->register_id_;
+            return id;
         }
 
     private:
@@ -105,6 +147,13 @@ namespace luna
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
     {
         CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
+        {
+            auto function = GetCurrentFunction();
+            function->SetBaseInfo(chunk->module_, 0);
+
+            CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+            chunk->block_->Accept(this, nullptr);
+        }
     }
 
     void CodeGenerateVisitor::Visit(Block *block, void *data)
