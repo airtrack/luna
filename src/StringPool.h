@@ -40,7 +40,7 @@ namespace luna
         {
             bool operator () (const String *l, const String *r) const
             {
-                return *l == *r;
+                return l == r || *l == *r;
             }
         };
 
