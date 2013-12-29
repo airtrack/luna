@@ -319,6 +319,33 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(Terminator *term, void *data)
     {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+        auto function = GetCurrentFunction();
+
+        // Load const to register
+        if (term->token_.token_ == Token_Number || term->token_.token_ == Token_String)
+        {
+            if (register_id < end_register)
+            {
+                auto index = 0;
+                if (term->token_.token_ == Token_Number)
+                    index = function->AddConstNumber(term->token_.number_);
+                else
+                    index = function->AddConstString(term->token_.str_);
+                auto instruction = Instruction::ABCode(OpType_LoadConst,
+                                                       register_id++, index);
+                function->AddInstruction(instruction, term->token_.line_);
+            }
+        }
+
+        // Fill nil into all remain registers
+        while (register_id < end_register)
+        {
+            auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
+            function->AddInstruction(instruction, term->token_.line_);
+        }
     }
 
     void CodeGenerateVisitor::Visit(BinaryExpression *, void *)
@@ -353,8 +380,7 @@ namespace luna
             if (need_init)
             {
                 auto function = GetCurrentFunction();
-                auto instruction = Instruction::ABCode(OpType_LoadNil, register_id,
-                                                       as_upvalue ? 1 : 0);
+                auto instruction = Instruction::ACode(OpType_LoadNil, register_id);
                 function->AddInstruction(instruction, name_list->names_[i].line_);
             }
         }
