@@ -102,18 +102,22 @@ namespace luna
         virtual void Visit(FuncCallArgs *, void *);
         virtual void Visit(ExpressionList *, void *);
 
+        // Prepare function data when enter each lexical function
         void EnterFunction()
         {
             auto function = new GenerateFunction;
             function->parent_ = current_function_;
             current_function_ = function;
+            current_function_->function_ = state_->NewFunction();
         }
 
+        // Clean up when leave lexical function
         void LeaveFunction()
         {
             DeleteCurrentFunction();
         }
 
+        // Prepare some data when enter each lexical block
         void EnterBlock()
         {
             auto block = new GenerateBlock;
@@ -122,6 +126,7 @@ namespace luna
             current_function_->current_block_ = block;
         }
 
+        // Clean up when leave lexical block
         void LeaveBlock()
         {
             auto block = current_function_->current_block_;
@@ -130,6 +135,7 @@ namespace luna
             delete block;
         }
 
+        // Insert name into current local scope
         void InsertName(String *name, int register_id, bool as_upvalue)
         {
             assert(current_function_ && current_function_->current_block_);
@@ -142,11 +148,13 @@ namespace luna
             return nullptr;
         }
 
+        // Get current function data
         Function * GetCurrentFunction() const
         {
             return current_function_->function_;
         }
 
+        // Generate one register id from current function
         int GenerateRegisterId()
         {
             int id = current_function_->register_id_++;
@@ -224,11 +232,21 @@ namespace luna
     {
         CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
         {
+            // Generate function code
             auto function = GetCurrentFunction();
             function->SetBaseInfo(chunk->module_, 0);
 
             CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
             chunk->block_->Accept(this, nullptr);
+
+            // New one closure
+            auto closure = state_->NewClosure();
+            closure->SetPrototype(function);
+
+            // Put closure on stack
+            auto top = state_->stack_.top_++;
+            top->closure_ = closure;
+            top->type_ = ValueT_Closure;
         }
     }
 
