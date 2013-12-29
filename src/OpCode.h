@@ -10,6 +10,7 @@ namespace luna
         OpType_Call,                    // AsBx A: register of closure sBx: expected result count
         OpType_SetTop,                  // A    A: index of new top
         OpType_GetUpTable,              // ABC  A: register B: index of upvalue C: key register
+        OpType_LoadNil,                 // AB   A: register B: 1 as upvalue, 0 as normal
     };
 
     struct Instruction
