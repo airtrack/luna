@@ -5,12 +5,9 @@ namespace luna
 {
     enum OpType
     {
-        OpType_LoadConst = 1,           // AB   A: register B: const index
-        OpType_Move,                    // AB   A: register B: register    B -> A
-        OpType_Call,                    // AsBx A: register of closure sBx: expected result count
-        OpType_SetTop,                  // A    A: index of new top
-        OpType_GetUpTable,              // ABC  A: register B: index of upvalue C: key register
         OpType_LoadNil,                 // A    A: register
+        OpType_LoadConst = 1,           // AB   A: register B: const index
+        OpType_Call,                    // AsBx A: register of closure sBx: expected result count
     };
 
     struct Instruction

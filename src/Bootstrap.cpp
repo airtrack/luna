@@ -10,7 +10,7 @@ namespace luna
 
     void Bootstrap::Prepare()
     {
-        boot_ = Instruction::AsBxCode(OpType_Call, 0, EXP_VALUE_COUNT_ANY);
+        boot_ = Instruction::AsBxCode(OpType_Call, 0, 0);
 
         CallInfo call;
         call.register_ = state_->stack_.top_ - 1;

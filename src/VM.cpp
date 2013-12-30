@@ -44,22 +44,16 @@ namespace luna
                     *a = *b;
                     SET_NEW_TOP(a);
                     break;
-                case OpType_Move:
-                    a = GET_REGISTER_A(i);
-                    b = GET_REGISTER_B(i);
-                    *a = *b;
-                    SET_NEW_TOP(a);
-                    break;
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
                     if (Call(a, i)) return ;
                     break;
-                case OpType_SetTop:
+                case OpType_LoadNil:
                     a = GET_REGISTER_A(i);
-                    state_->stack_.SetNewTop(a);
+                    a->SetNil();
+                    SET_NEW_TOP(a);
                     break;
-                case OpType_GetUpTable:
-                    GetUpTable(GET_REGISTER_A(i), GET_UPVALUE_B(i), GET_REGISTER_C(i));
+                default:
                     break;
             }
         }
@@ -68,7 +62,7 @@ namespace luna
         Value *new_top = call->func_ ? call->func_ : call->register_;
         // Reset top value
         state_->stack_.SetNewTop(new_top);
-        // Set expect result
+        // Set expect results
         if (call->expect_result != EXP_VALUE_COUNT_ANY)
             state_->stack_.SetNewTop(new_top + call->expect_result);
 
@@ -147,25 +141,27 @@ namespace luna
 
         // Copy c function result to caller stack
         Value *dst = a;
-        for (int i = 0; i < res_count && i < expect_result; ++i)
-            *dst++ = *src++;
+        if (expect_result == EXP_VALUE_COUNT_ANY)
+        {
+            for (int i = 0; i < res_count; ++i)
+                *dst++ = *src++;
+        }
+        else
+        {
+            int count = std::min(expect_result, res_count);
+            for (int i = 0; i < count; ++i)
+                *dst++ = *src++;
+            // Set all remain expect results to nil
+            count = expect_result - res_count;
+            for (int i = 0; i < count; ++i, ++dst)
+                dst->SetNil();
+        }
 
-        // Set all register nil after dst and set new stack top pointer
+        // Set registers which after dst to nil
+        // and set new stack top pointer
         state_->stack_.SetNewTop(dst);
-        state_->stack_.SetNewTop(a + expect_result);
 
         // Pop the c function CallInfo
         state_->calls_.pop_back();
-    }
-
-    void VM::GetUpTable(Value *dst, Value *t, Value *k)
-    {
-        if (t->type_ != ValueT_Table)
-        {
-            // TODO: report error
-            return ;
-        }
-
-        *dst = t->table_->GetValue(*k);
     }
 } // namespace luna

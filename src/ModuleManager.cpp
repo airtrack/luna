@@ -2,6 +2,7 @@
 #include "Lex.h"
 #include "Parser.h"
 #include "State.h"
+#include "SemanticAnalysis.h"
 #include "CodeGenerate.h"
 #include "TextInStream.h"
 #include <functional>
@@ -22,6 +23,9 @@ namespace luna
         // Parse to AST
         Parser parser(state_);
         auto ast = parser.Parse(&lexer);
+
+        // Semantic analysis
+        SemanticAnalysis(ast.get());
 
         // AST generate code
         auto visitor = GenerateVisitor(state_);
