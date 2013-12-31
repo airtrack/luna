@@ -4,6 +4,7 @@
 #include "Guard.h"
 #include <vector>
 #include <stack>
+#include <limits>
 #include <utility>
 #include <unordered_map>
 #include <assert.h>
@@ -210,6 +211,8 @@ namespace luna
     struct ExpListData
     {
         // ExpList need fill into range [start_register_, end_register_)
+        // when end_register_ != EXP_VALUE_COUNT_ANY, otherwise fill any
+        // count registers begin with start_register_
         int start_register_;
         int end_register_;
 
@@ -221,6 +224,8 @@ namespace luna
     struct ExpVarData
     {
         // Need fill into range [start_register_, end_register_)
+        // when end_register_ != EXP_VALUE_COUNT_ANY, otherwise fill any
+        // count registers begin with start_register_
         int start_register_;
         int end_register_;
 
@@ -345,7 +350,7 @@ namespace luna
         // Load const to register
         if (term->token_.token_ == Token_Number || term->token_.token_ == Token_String)
         {
-            if (register_id < end_register)
+            if (end_register == EXP_VALUE_COUNT_ANY || register_id < end_register)
             {
                 auto index = 0;
                 if (term->token_.token_ == Token_Number)
@@ -359,10 +364,14 @@ namespace luna
         }
 
         // Fill nil into all remain registers
-        while (register_id < end_register)
+        // when end_register != EXP_VALUE_COUNT_ANY
+        if (end_register != EXP_VALUE_COUNT_ANY)
         {
-            auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
-            function->AddInstruction(instruction, term->token_.line_);
+            while (register_id < end_register)
+            {
+                auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
+                function->AddInstruction(instruction, term->token_.line_);
+            }
         }
     }
 
@@ -451,7 +460,9 @@ namespace luna
 
         // Each expression consume one register
         int i = 0;
-        for (; i < count && register_id < end_register; ++i, ++register_id)
+        int max_register = end_register == EXP_VALUE_COUNT_ANY ?
+            std::numeric_limits<int>::max() : end_register;
+        for (; i < count && register_id < max_register; ++i, ++register_id)
         {
             REGISTER_GENERATOR_GUARD();
             ExpVarData exp_var_data{ register_id, register_id + 1 };

@@ -38,6 +38,11 @@ namespace luna
             Instruction i = *call->instruction_++;
 
             switch (Instruction::GetOpCode(i)) {
+                case OpType_LoadNil:
+                    a = GET_REGISTER_A(i);
+                    a->SetNil();
+                    SET_NEW_TOP(a);
+                    break;
                 case OpType_LoadConst:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
@@ -47,11 +52,6 @@ namespace luna
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
                     if (Call(a, i)) return ;
-                    break;
-                case OpType_LoadNil:
-                    a = GET_REGISTER_A(i);
-                    a->SetNil();
-                    SET_NEW_TOP(a);
                     break;
                 default:
                     break;
