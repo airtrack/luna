@@ -49,6 +49,11 @@ namespace luna
                     *a = *b;
                     SET_NEW_TOP(a);
                     break;
+                case OpType_Move:
+                    a = GET_REGISTER_A(i);
+                    b = GET_REGISTER_B(i);
+                    *a = *b;
+                    break;
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
                     if (Call(a, i)) return ;
