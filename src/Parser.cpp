@@ -672,8 +672,9 @@ namespace
             }
             else
             {
+                int line = LookAhead().line_;
                 std::unique_ptr<SyntaxTree> args = ParseArgs();
-                return std::unique_ptr<SyntaxTree>(new NormalFuncCall(std::move(caller), std::move(args)));
+                return std::unique_ptr<SyntaxTree>(new NormalFuncCall(std::move(caller), std::move(args), line));
             }
         }
 

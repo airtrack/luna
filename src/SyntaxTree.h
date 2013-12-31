@@ -524,9 +524,12 @@ namespace luna
         std::unique_ptr<SyntaxTree> caller_;
         std::unique_ptr<SyntaxTree> args_;
 
+        // Function call line in source
+        int line_;
+
         NormalFuncCall(std::unique_ptr<SyntaxTree> caller,
-                       std::unique_ptr<SyntaxTree> args)
-            : caller_(std::move(caller)), args_(std::move(args))
+                       std::unique_ptr<SyntaxTree> args, int line)
+            : caller_(std::move(caller)), args_(std::move(args)), line_(line)
         {
         }
 

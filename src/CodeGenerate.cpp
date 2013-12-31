@@ -439,6 +439,38 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call, void *data)
     {
+        REGISTER_GENERATOR_GUARD();
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        int start_register = exp_var_data ? exp_var_data->start_register_ : 0;
+        int end_register = exp_var_data ? exp_var_data->end_register_ : 0;
+
+        // Generate code to get caller and its params
+        int caller_register = GenerateRegisterId();
+        ExpVarData caller_data{ caller_register, caller_register + 1 };
+        func_call->caller_->Accept(this, &caller_data);
+        func_call->args_->Accept(this, nullptr);
+
+        // Generate call instruction
+        auto function = GetCurrentFunction();
+        // Calculate expect results count of function call
+        auto results = end_register == EXP_VALUE_COUNT_ANY ?
+            EXP_VALUE_COUNT_ANY : end_register - start_register;
+        auto instruction = Instruction::AsBxCode(OpType_Call,
+                                                 caller_register, results);
+        function->AddInstruction(instruction, func_call->line_);
+
+        // Copy results of function call to dst registers
+        // if end_register == EXP_VALUE_COUNT_ANY, then do not
+        // copy results to dst registers, just keep it
+        if (end_register != EXP_VALUE_COUNT_ANY)
+        {
+            int src = caller_register;
+            for (int dst = start_register; dst < end_register; ++dst, ++src)
+            {
+                auto i = Instruction::ABCode(OpType_Move, dst, src);
+                function->AddInstruction(i, func_call->line_);
+            }
+        }
     }
 
     void CodeGenerateVisitor::Visit(MemberFuncCall *, void *)
