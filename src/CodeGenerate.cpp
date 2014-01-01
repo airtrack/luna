@@ -144,8 +144,19 @@ namespace luna
                 insert(std::make_pair(name, LocalNameInfo(register_id, as_upvalue)));
         }
 
-        const LocalNameInfo * SearchName(String *name) const
+        // Search name from current lexical function
+        const LocalNameInfo * SearchLocalName(String *name) const
         {
+            auto block = current_function_->current_block_;
+            while (block)
+            {
+                auto it = block->names_.find(name);
+                if (it != block->names_.end())
+                    return &it->second;
+                else
+                    block = block->parent_;
+            }
+
             return nullptr;
         }
 
@@ -345,20 +356,39 @@ namespace luna
         auto exp_var_data = static_cast<ExpVarData *>(data);
         auto register_id = exp_var_data->start_register_;
         auto end_register = exp_var_data->end_register_;
-        auto function = GetCurrentFunction();
 
-        // Load const to register
+        // Just return when term is SemanticOp_Read and no registers to fill
+        if (term->semantic_ == SemanticOp_Read &&
+            end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+            return ;
+
+        auto function = GetCurrentFunction();
         if (term->token_.token_ == Token_Number || term->token_.token_ == Token_String)
         {
-            if (end_register == EXP_VALUE_COUNT_ANY || register_id < end_register)
+            // Load const to register
+            auto index = 0;
+            if (term->token_.token_ == Token_Number)
+                index = function->AddConstNumber(term->token_.number_);
+            else
+                index = function->AddConstString(term->token_.str_);
+            auto instruction = Instruction::ABCode(OpType_LoadConst, register_id++, index);
+            function->AddInstruction(instruction, term->token_.line_);
+        }
+        else if (term->token_.token_ == Token_Id)
+        {
+            if (term->scoping_ == LexicalScoping_Global)
             {
-                auto index = 0;
-                if (term->token_.token_ == Token_Number)
-                    index = function->AddConstNumber(term->token_.number_);
-                else
-                    index = function->AddConstString(term->token_.str_);
-                auto instruction = Instruction::ABCode(OpType_LoadConst,
-                                                       register_id++, index);
+                // Get value from global table by key index
+                auto index = function->AddConstString(term->token_.str_);
+                auto instruction = Instruction::ABCode(OpType_GetGlobal, register_id++, index);
+                function->AddInstruction(instruction, term->token_.line_);
+            }
+            else if (term->scoping_ == LexicalScoping_Local)
+            {
+                // Load local variable value to dst register
+                auto local = SearchLocalName(term->token_.str_);
+                assert(local);
+                auto instruction = Instruction::ABCode(OpType_Move, register_id++, local->register_id_);
                 function->AddInstruction(instruction, term->token_.line_);
             }
         }
@@ -441,11 +471,11 @@ namespace luna
     {
         REGISTER_GENERATOR_GUARD();
         auto exp_var_data = static_cast<ExpVarData *>(data);
-        int start_register = exp_var_data ? exp_var_data->start_register_ : 0;
-        int end_register = exp_var_data ? exp_var_data->end_register_ : 0;
+        auto start_register = exp_var_data ? exp_var_data->start_register_ : 0;
+        auto end_register = exp_var_data ? exp_var_data->end_register_ : 0;
 
         // Generate code to get caller and its params
-        int caller_register = GenerateRegisterId();
+        auto caller_register = GenerateRegisterId();
         ExpVarData caller_data{ caller_register, caller_register + 1 };
         func_call->caller_->Accept(this, &caller_data);
         func_call->args_->Accept(this, nullptr);
@@ -464,8 +494,8 @@ namespace luna
         // copy results to dst registers, just keep it
         if (end_register != EXP_VALUE_COUNT_ANY)
         {
-            int src = caller_register;
-            for (int dst = start_register; dst < end_register; ++dst, ++src)
+            auto src = caller_register;
+            for (auto dst = start_register; dst < end_register; ++dst, ++src)
             {
                 auto i = Instruction::ABCode(OpType_Move, dst, src);
                 function->AddInstruction(i, func_call->line_);
@@ -479,6 +509,22 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(FuncCallArgs *arg, void *data)
     {
+        if (arg->type_ == FuncCallArgs::ExpList)
+        {
+            if (arg->arg_)
+            {
+                auto start_register = GenerateRegisterId();
+                ExpListData exp_list_data{ start_register, EXP_VALUE_COUNT_ANY };
+                arg->arg_->Accept(this, &exp_list_data);
+            }
+        }
+        else
+        {
+            // arg->type_ is FuncCallArgs::Table or FuncCallArgs::String
+            auto start_register = GenerateRegisterId();
+            ExpVarData exp_var_data{ start_register, start_register + 1 };
+            arg->arg_->Accept(this, &exp_var_data);
+        }
     }
 
     void CodeGenerateVisitor::Visit(ExpressionList *exp_list, void *data)
