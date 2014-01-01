@@ -39,7 +39,8 @@ namespace base {
                     break;
             }
 
-            printf("\t");
+            if (i != params - 1)
+                printf("\t");
         }
 
         printf("\n");
