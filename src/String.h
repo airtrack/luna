@@ -27,6 +27,9 @@ namespace luna
         std::size_t GetLength() const
         { return length_; }
 
+        const char * GetCStr() const
+        { return in_heap_ ? str_ : str_buffer_; }
+
         // Convert to std::string
         std::string GetStdString() const;
 

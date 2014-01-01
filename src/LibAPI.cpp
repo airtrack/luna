@@ -39,7 +39,7 @@ namespace luna
     {
         Value *v = GetValue(index);
         if (v)
-            return v->str_->GetStdString().c_str();
+            return v->str_->GetCStr();
         else
             return "";
     }
