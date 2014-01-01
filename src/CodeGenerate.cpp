@@ -31,7 +31,7 @@ namespace luna
         // Local names
         // Same names are the same instance String, so using String
         // pointer as key is fine
-        std::unordered_map<String *, LocalNameInfo> names_;
+        std::unordered_map<const String *, LocalNameInfo> names_;
 
         GenerateBlock() : parent_(nullptr), register_start_id_(0) { }
     };
@@ -136,16 +136,16 @@ namespace luna
             delete block;
         }
 
-        // Insert name into current local scope
-        void InsertName(String *name, int register_id, bool as_upvalue)
+        // Insert name into current local scope, replace its info when existed
+        void InsertName(const String *name, int register_id, bool as_upvalue)
         {
             assert(current_function_ && current_function_->current_block_);
-            current_function_->current_block_->names_.
-                insert(std::make_pair(name, LocalNameInfo(register_id, as_upvalue)));
+            current_function_->current_block_->names_[name] =
+                LocalNameInfo(register_id, as_upvalue);
         }
 
-        // Search name from current lexical function
-        const LocalNameInfo * SearchLocalName(String *name) const
+        // Search name in current lexical function
+        const LocalNameInfo * SearchLocalName(const String *name) const
         {
             auto block = current_function_->current_block_;
             while (block)

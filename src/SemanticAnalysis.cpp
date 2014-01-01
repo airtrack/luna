@@ -3,8 +3,7 @@
 #include "Exception.h"
 #include "String.h"
 #include "Guard.h"
-#include <string>
-#include <map>
+#include <unordered_map>
 #include <assert.h>
 
 namespace luna
@@ -13,7 +12,10 @@ namespace luna
     struct LexicalBlock
     {
         LexicalBlock *parent_;
-        std::map<std::string, NameRefInfo *> names_;
+        // Local names
+        // Same names are the same instance String, so using String
+        // pointer as key is fine
+        std::unordered_map<const String *, NameRefInfo *> names_;
 
         LexicalBlock() : parent_(nullptr) { }
     };
@@ -110,12 +112,11 @@ namespace luna
             DeleteCurrentBlock();
         }
 
-        // Insert a name into current block
+        // Insert a name into current block, replace its info when existed
         void InsertName(const String *name, NameRefInfo *name_ref)
         {
             assert(current_function_ && current_function_->current_block_);
-            current_function_->current_block_->names_.
-                insert(std::make_pair(name->GetStdString(), name_ref));
+            current_function_->current_block_->names_[name] = name_ref;
         }
 
         // Search LexicalScoping of a name
@@ -129,7 +130,7 @@ namespace luna
                 auto block = function->current_block_;
                 while (block)
                 {
-                    auto it = block->names_.find(str->GetStdString());
+                    auto it = block->names_.find(str);
                     if (it != block->names_.end())
                     {
                         auto scoping = function == current_function_ ?
