@@ -53,10 +53,17 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
                     *a = *b;
+                    SET_NEW_TOP(a);
                     break;
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
                     if (Call(a, i)) return ;
+                    break;
+                case OpType_GetGlobal:
+                    a = GET_REGISTER_A(i);
+                    b = GET_CONST_VALUE(i);
+                    *a = state_->global_.table_->GetValue(*b);
+                    SET_NEW_TOP(a);
                     break;
                 default:
                     break;
