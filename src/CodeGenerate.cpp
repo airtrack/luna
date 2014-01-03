@@ -15,11 +15,16 @@ namespace luna
     {
         // Name register id
         int register_id_;
+        // Name begin instruction
+        int begin_pc_;
         // Name as upvalue or not
         bool as_upvalue_;
 
-        explicit LocalNameInfo(int register_id = 0, bool as_upvalue = false)
-            : register_id_(register_id), as_upvalue_(as_upvalue) { }
+        explicit LocalNameInfo(int register_id = 0, int begin_pc = 0,
+                               bool as_upvalue = false)
+            : register_id_(register_id),
+              begin_pc_(begin_pc),
+              as_upvalue_(as_upvalue) { }
     };
 
     // Lexical block struct for code generator
@@ -31,7 +36,7 @@ namespace luna
         // Local names
         // Same names are the same instance String, so using String
         // pointer as key is fine
-        std::unordered_map<const String *, LocalNameInfo> names_;
+        std::unordered_map<String *, LocalNameInfo> names_;
 
         GenerateBlock() : parent_(nullptr), register_start_id_(0) { }
     };
@@ -131,21 +136,51 @@ namespace luna
         void LeaveBlock()
         {
             auto block = current_function_->current_block_;
+
+            // Add all variables in block to the function local variable list
+            auto function = current_function_->function_;
+            auto end_pc = function->OpCodeSize();
+            for (auto it = block->names_.begin(); it != block->names_.end(); ++it)
+            {
+                function->AddLocalVar(it->first, it->second.register_id_,
+                                      it->second.begin_pc_, end_pc);
+            }
+
             current_function_->current_block_ = block->parent_;
             current_function_->register_id_ = block->register_start_id_;
             delete block;
         }
 
         // Insert name into current local scope, replace its info when existed
-        void InsertName(const String *name, int register_id, bool as_upvalue)
+        void InsertName(String *name, int register_id, bool as_upvalue)
         {
             assert(current_function_ && current_function_->current_block_);
-            current_function_->current_block_->names_[name] =
-                LocalNameInfo(register_id, as_upvalue);
+
+            auto function = current_function_->function_;
+            auto block = current_function_->current_block_;
+            auto begin_pc = function->OpCodeSize();
+
+            auto it = block->names_.find(name);
+            if (it != block->names_.end())
+            {
+                // Add the same name variable to the function local variable list
+                auto end_pc = function->OpCodeSize();
+                function->AddLocalVar(name, it->second.register_id_,
+                                      it->second.begin_pc_, end_pc);
+
+                // New variable replace the old one
+                it->second = LocalNameInfo(register_id, begin_pc, as_upvalue);
+            }
+            else
+            {
+                // Variable not existed, then insert into
+                LocalNameInfo local(register_id, begin_pc, as_upvalue);
+                block->names_.insert(std::make_pair(name, local));
+            }
         }
 
         // Search name in current lexical function
-        const LocalNameInfo * SearchLocalName(const String *name) const
+        const LocalNameInfo * SearchLocalName(String *name) const
         {
             auto block = current_function_->current_block_;
             while (block)
@@ -194,7 +229,16 @@ namespace luna
         void DeleteCurrentFunction()
         {
             auto function = current_function_;
-            current_function_ = current_function_->parent_;
+
+            // Delete all blocks in function
+            while (function->current_block_)
+            {
+                auto block = function->current_block_;
+                function->current_block_ = block->parent_;
+                delete block;
+            }
+
+            current_function_ = function->parent_;
             delete function;
         }
 

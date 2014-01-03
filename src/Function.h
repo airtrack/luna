@@ -50,6 +50,13 @@ namespace luna
         // Add const Value and return index of the const value
         int AddConstValue(const Value &v);
 
+        // Add local variable debug info
+        void AddLocalVar(String *name, int register_id,
+                         int begin_pc, int end_pc);
+
+        // Search local variable name from local variable list
+        String * SearchLocalVar(int register_id, int pc) const;
+
         // Get const Value by index
         Value * GetConstValue(int i);
 
@@ -59,12 +66,32 @@ namespace luna
     private:
         static const int kMaxRegisterCount = 250;
 
+        // For debug
+        struct LocalVarInfo
+        {
+            // Local variable name
+            String *name_;
+            // Register id in function
+            int register_id_;
+            // Begin instruction index of variable
+            int begin_pc_;
+            // The past-the-end instruction index
+            int end_pc_;
+
+            LocalVarInfo(String *name, int register_id,
+                         int begin_pc, int end_pc)
+                : name_(name), register_id_(register_id),
+                  begin_pc_(begin_pc), end_pc_(end_pc) { }
+        };
+
         // function instruction opcodes
         std::vector<Instruction> opcodes_;
         // opcodes' line number
         std::vector<int> opcode_lines_;
         // const values in function
         std::vector<Value> const_values_;
+        // debug info
+        std::vector<LocalVarInfo> local_vars_;
         // function define module name
         String *module_;
         // function define line at module

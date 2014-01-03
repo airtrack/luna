@@ -190,6 +190,7 @@ namespace luna
         auto reg = a - call->register_;
         auto instruction = call->instruction_ - 1;
         auto base = proto->GetOpCodes();
+        auto pc = instruction - base;
         const char *unknown_name = "?";
 
         // Search last instruction which dst register is reg,
@@ -205,6 +206,17 @@ namespace luna
                         auto key = proto->GetConstValue(index);
                         if (key->type_ == ValueT_String)
                             return key->str_->GetCStr();
+                        else
+                            return unknown_name;
+                    }
+                    break;
+                case OpType_Move:
+                    if (reg == Instruction::GetParamA(*instruction))
+                    {
+                        auto src = Instruction::GetParamB(*instruction);
+                        auto name = proto->SearchLocalVar(src, pc);
+                        if (name)
+                            return name->GetCStr();
                         else
                             return unknown_name;
                     }

@@ -1,4 +1,5 @@
 #include "Function.h"
+#include <limits>
 
 namespace luna
 {
@@ -19,6 +20,9 @@ namespace luna
 
             for (const auto &value : const_values_)
                 value.Accept(v);
+
+            for (const auto &var : local_vars_)
+                var.name_->Accept(v);
         }
     }
 
@@ -89,6 +93,35 @@ namespace luna
     {
         const_values_.push_back(v);
         return const_values_.size() - 1;
+    }
+
+    void Function::AddLocalVar(String *name, int register_id,
+                               int begin_pc, int end_pc)
+    {
+        local_vars_.push_back(LocalVarInfo(name, register_id, begin_pc, end_pc));
+    }
+
+    String * Function::SearchLocalVar(int register_id, int pc) const
+    {
+        String *name = nullptr;
+        int begin_pc = std::numeric_limits<int>::min();
+        int end_pc = std::numeric_limits<int>::max();
+
+        for (const auto &var : local_vars_)
+        {
+            if (var.register_id_ == register_id &&
+                var.begin_pc_ <= pc && pc < var.end_pc_)
+            {
+                if (var.begin_pc_ >= begin_pc && var.end_pc_ <= end_pc)
+                {
+                    name = var.name_;
+                    begin_pc = var.begin_pc_;
+                    end_pc = var.end_pc_;
+                }
+            }
+        }
+
+        return name;
     }
 
     Value * Function::GetConstValue(int i)
