@@ -41,24 +41,6 @@ namespace luna
         // Set superior function
         void SetSuperior(Function *superior);
 
-        // Get next register index, but do not real alloca it
-        int GetNextRegister() const;
-
-        // Alloca next register
-        int AllocaNextRegister();
-
-        // Set next register
-        void SetNextRegister(int reg);
-
-        // Get register count
-        int GetRegisterCount() const;
-
-        // Set register count
-        void SetRegisterCount(int count);
-
-        // Get remain free register count
-        int GetFreeRegisterCount() const;
-
         // Add const number and return index of the const value
         int AddConstNumber(double num);
 
@@ -91,10 +73,6 @@ namespace luna
         int args_;
         // has '...' param or not
         bool is_vararg_;
-        // register allocator
-        int reg_allocator_;
-        // total register count
-        int reg_count_;
         // superior function pointer
         Function *superior_;
     };

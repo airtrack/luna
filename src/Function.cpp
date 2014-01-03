@@ -3,8 +3,8 @@
 namespace luna
 {
     Function::Function()
-        : module_(nullptr), line_(0), args_(0), is_vararg_(false),
-          reg_allocator_(0), reg_count_(0), superior_(nullptr)
+        : module_(nullptr), line_(0), args_(0),
+          is_vararg_(false), superior_(nullptr)
     {
     }
 
@@ -67,45 +67,6 @@ namespace luna
     void Function::SetSuperior(Function *superior)
     {
         superior_ = superior;
-    }
-
-    int Function::GetNextRegister() const
-    {
-        return reg_allocator_;
-    }
-
-    int Function::AllocaNextRegister()
-    {
-        int reg = reg_allocator_++;
-
-        // Adjust register count
-        if (reg_allocator_ > reg_count_)
-            reg_count_ = reg_allocator_;
-
-        return reg;
-    }
-
-    void Function::SetNextRegister(int reg)
-    {
-        reg_allocator_ = reg;
-        if (reg_allocator_ > reg_count_)
-            reg_count_ = reg_allocator_;
-    }
-
-    int Function::GetRegisterCount() const
-    {
-        return reg_count_;
-    }
-
-    void Function::SetRegisterCount(int count)
-    {
-        if (count > reg_count_)
-            reg_count_ = count;
-    }
-
-    int Function::GetFreeRegisterCount() const
-    {
-        return kMaxRegisterCount - reg_allocator_;
     }
 
     int Function::AddConstNumber(double num)
