@@ -71,6 +71,9 @@ namespace luna
         // Get const Value by index
         Value * GetConstValue(int i);
 
+        // Get instruction line by instruction index
+        int GetInstructionLine(int i) const;
+
     private:
         static const int kMaxRegisterCount = 250;
 

@@ -23,6 +23,8 @@ namespace luna
         void CallClosure(Value *a, int expect_result);
         void CallCFunction(Value *a, int expect_result);
 
+        int GetCurrentInstructionLine() const;
+
         State *state_;
     };
 } // namespace luna

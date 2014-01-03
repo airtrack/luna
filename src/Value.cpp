@@ -32,4 +32,20 @@ namespace luna
                 break;
         }
     }
+
+    const char * Value::TypeName() const
+    {
+        switch (type_)
+        {
+            case ValueT_Nil: return "nil";
+            case ValueT_Bool: return "bool";
+            case ValueT_Number: return "number";
+            case ValueT_CFunction: return "C-Function";
+            case ValueT_String: return "string";
+            case ValueT_Closure: return "function";
+            case ValueT_Upvalue: return "upvalue";
+            case ValueT_Table: return "table";
+            default: return "unknown type";
+        }
+    }
 } // namespace luna

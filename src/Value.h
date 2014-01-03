@@ -51,6 +51,8 @@ namespace luna
         void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
 
         void Accept(GCObjectVisitor *v) const;
+
+        const char * TypeName() const;
     };
 
     inline bool operator == (const Value &left, const Value &right)

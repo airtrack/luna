@@ -2,6 +2,7 @@
 #define EXCEPTION_H
 
 #include "Token.h"
+#include "Value.h"
 #include <stdio.h>
 #include <string>
 #include <utility>
@@ -57,6 +58,17 @@ namespace luna
             char buffer[128] = { 0 };
             snprintf(buffer, sizeof(buffer), "%d:%d '%s' %s", t.line_, t.column_,
                      GetTokenStr(t).c_str(), str);
+            what_ = buffer;
+        }
+    };
+
+    class RuntimeException : public Exception
+    {
+    public:
+        RuntimeException(const Value *v, const char *op, int line)
+        {
+            char buffer[128] = { 0 };
+            snprintf(buffer, sizeof(buffer), "%d: attempt to %s a %s value", line, op, v->TypeName());
             what_ = buffer;
         }
     };

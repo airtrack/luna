@@ -24,8 +24,10 @@ int main(int argc, const char **argv)
         state.LoadModule(argv[1]);
         bootstrap.Prepare();
         vm.Execute();
-
-        printf("Execute %s ok.\n", argv[1]);
+    }
+    catch (const luna::RuntimeException &exp)
+    {
+        printf("runtime: %s\n", exp.What().c_str());
     }
     catch (const luna::Exception &exp)
     {

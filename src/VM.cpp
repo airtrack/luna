@@ -2,6 +2,7 @@
 #include "State.h"
 #include "Table.h"
 #include "Function.h"
+#include "Exception.h"
 #include <assert.h>
 
 namespace luna
@@ -98,7 +99,7 @@ namespace luna
         }
         else
         {
-            // TODO: report error
+            throw RuntimeException(a, "call", GetCurrentInstructionLine());
             return true;
         }
     }
@@ -175,5 +176,15 @@ namespace luna
 
         // Pop the c function CallInfo
         state_->calls_.pop_back();
+    }
+
+    int VM::GetCurrentInstructionLine() const
+    {
+        assert(!state_->calls_.empty());
+        auto call = &state_->calls_.back();
+        assert(call->func_ && call->func_->closure_);
+        auto proto = call->func_->closure_->GetPrototype();
+        auto index = call->instruction_ - 1 - proto->GetOpCodes();
+        return proto->GetInstructionLine(index);
     }
 } // namespace luna

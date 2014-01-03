@@ -135,6 +135,11 @@ namespace luna
         return &const_values_[i];
     }
 
+    int Function::GetInstructionLine(int i) const
+    {
+        return opcode_lines_[i];
+    }
+
     Closure::Closure()
         : prototype_(nullptr)
     {
