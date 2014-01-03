@@ -87,8 +87,8 @@ luna::Function * RandomFunction()
     int instruction_count = RandomRange(10, 1000);
     for (int i = 0; i < instruction_count; ++i)
     {
-        unsigned int op_min = luna::OpType_LoadConst;
-        unsigned int op_max = luna::OpType_GetUpTable;
+        unsigned int op_min = luna::OpType_LoadNil;
+        unsigned int op_max = luna::OpType_GetGlobal;
         luna::OpType op = static_cast<luna::OpType>(RandomRange(op_min, op_max));
         luna::Instruction instruction(op, RandomNum(128), RandomNum(128), RandomNum(128));
         f->AddInstruction(instruction, i);
