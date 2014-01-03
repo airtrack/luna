@@ -23,6 +23,8 @@ namespace luna
         void CallClosure(Value *a, int expect_result);
         void CallCFunction(Value *a, int expect_result);
 
+        // Debug help functions
+        const char *GetOperandName(Value *a) const;
         int GetCurrentInstructionLine() const;
 
         State *state_;

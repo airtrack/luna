@@ -99,7 +99,9 @@ namespace luna
         }
         else
         {
-            throw RuntimeException(a, "call", GetCurrentInstructionLine());
+            auto name = GetOperandName(a);
+            auto line = GetCurrentInstructionLine();
+            throw RuntimeException(a, name, "call", line);
             return true;
         }
     }
@@ -178,12 +180,48 @@ namespace luna
         state_->calls_.pop_back();
     }
 
+    const char * VM::GetOperandName(Value *a) const
+    {
+        assert(!state_->calls_.empty());
+        auto call = &state_->calls_.back();
+        assert(call->func_ && call->func_->closure_);
+        auto proto = call->func_->closure_->GetPrototype();
+
+        auto reg = a - call->register_;
+        auto instruction = call->instruction_ - 1;
+        auto base = proto->GetOpCodes();
+        const char *unknown_name = "?";
+
+        // Search last instruction which dst register is reg,
+        // and get the name base on the instruction
+        while (instruction > base)
+        {
+            --instruction;
+            switch (Instruction::GetOpCode(*instruction)) {
+                case OpType_GetGlobal:
+                    if (reg == Instruction::GetParamA(*instruction))
+                    {
+                        auto index = Instruction::GetParamB(*instruction);
+                        auto key = proto->GetConstValue(index);
+                        if (key->type_ == ValueT_String)
+                            return key->str_->GetCStr();
+                        else
+                            return unknown_name;
+                    }
+                    break;
+            }
+        }
+
+        return unknown_name;
+    }
+
     int VM::GetCurrentInstructionLine() const
     {
         assert(!state_->calls_.empty());
         auto call = &state_->calls_.back();
         assert(call->func_ && call->func_->closure_);
         auto proto = call->func_->closure_->GetPrototype();
+
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
     }
