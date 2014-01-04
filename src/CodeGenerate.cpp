@@ -384,19 +384,24 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(LocalNameListStatement *l_namelist_stmt, void *data)
     {
-        auto start_register = GetNextRegisterId();
+        // Generate code for expression list first, then expression list can get
+        // variables which has the same name with variables defined in NameList
+        // e.g.
+        //     local i = 1
+        //     local i = i -- i value is 1
+        if (l_namelist_stmt->exp_list_)
+        {
+            // Register range will be allocated by NameList
+            auto start_register = GetNextRegisterId();
+            auto end_register = start_register + l_namelist_stmt->name_count_;
+
+            ExpListData exp_list_data{ start_register, end_register };
+            l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
+        }
 
         // NameList need init itself when ExpList is not existed
         NameListData name_list_data{ !l_namelist_stmt->exp_list_ };
         l_namelist_stmt->name_list_->Accept(this, &name_list_data);
-
-        auto end_register = GetNextRegisterId();
-
-        if (l_namelist_stmt->exp_list_)
-        {
-            ExpListData exp_list_data{ start_register, end_register };
-            l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
-        }
     }
 
     void CodeGenerateVisitor::Visit(AssignmentStatement *, void *)

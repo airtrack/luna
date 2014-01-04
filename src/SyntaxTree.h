@@ -294,9 +294,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> name_list_;
         std::unique_ptr<SyntaxTree> exp_list_;
 
+        // For semantic and code generate
+        std::size_t name_count_;
+
         LocalNameListStatement(std::unique_ptr<SyntaxTree> name_list,
                                std::unique_ptr<SyntaxTree> exp_list)
-            : name_list_(std::move(name_list)), exp_list_(std::move(exp_list))
+            : name_list_(std::move(name_list)), exp_list_(std::move(exp_list)),
+              name_count_(0)
         {
         }
 

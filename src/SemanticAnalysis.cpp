@@ -215,6 +215,14 @@ namespace luna
     Guard l([=]() { this->SetLoopAST(loop_ast); },                      \
             [=]() { this->SetLoopAST(old_loop); })
 
+    // For NameList AST
+    struct NameListData
+    {
+        std::size_t name_count_;
+
+        NameListData() : name_count_(0) { }
+    };
+
     // For VarList AST
     struct VarListData
     {
@@ -367,7 +375,8 @@ namespace luna
         gen_for->exp_list_->Accept(this, &exp_list_data);
 
         SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
-        gen_for->name_list_->Accept(this, nullptr);
+        NameListData name_list_data;
+        gen_for->name_list_->Accept(this, &name_list_data);
         gen_for->block_->Accept(this, nullptr);
     }
 
@@ -389,7 +398,10 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(LocalNameListStatement *l_namelist_stmt, void *data)
     {
-        l_namelist_stmt->name_list_->Accept(this, nullptr);
+        NameListData name_list_data;
+        l_namelist_stmt->name_list_->Accept(this, &name_list_data);
+        l_namelist_stmt->name_count_ = name_list_data.name_count_;
+
         if (l_namelist_stmt->exp_list_)
         {
             ExpListData exp_list_data;
@@ -557,7 +569,10 @@ namespace luna
     void SemanticAnalysisVisitor::Visit(ParamList *par_list, void *data)
     {
         if (par_list->name_list_)
-            par_list->name_list_->Accept(this, nullptr);
+        {
+            NameListData name_list_data;
+            par_list->name_list_->Accept(this, &name_list_data);
+        }
 
         if (par_list->vararg_)
             SetFunctionVararg();
@@ -567,6 +582,7 @@ namespace luna
     {
         auto size = name_list->names_.size();
         name_list->names_ref_.resize(size);
+        static_cast<NameListData *>(data)->name_count_ = size;
 
         for (std::size_t i = 0; i < size; ++i)
             InsertName(name_list->names_[i].str_, &name_list->names_ref_[i]);
