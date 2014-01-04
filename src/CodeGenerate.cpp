@@ -415,7 +415,7 @@ namespace luna
                 index = function->AddConstNumber(term->token_.number_);
             else
                 index = function->AddConstString(term->token_.str_);
-            auto instruction = Instruction::ABCode(OpType_LoadConst, register_id++, index);
+            auto instruction = Instruction::ABxCode(OpType_LoadConst, register_id++, index);
             function->AddInstruction(instruction, term->token_.line_);
         }
         else if (term->token_.token_ == Token_Id)
@@ -424,7 +424,7 @@ namespace luna
             {
                 // Get value from global table by key index
                 auto index = function->AddConstString(term->token_.str_);
-                auto instruction = Instruction::ABCode(OpType_GetGlobal, register_id++, index);
+                auto instruction = Instruction::ABxCode(OpType_GetGlobal, register_id++, index);
                 function->AddInstruction(instruction, term->token_.line_);
             }
             else if (term->scoping_ == LexicalScoping_Local)

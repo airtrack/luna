@@ -7,7 +7,7 @@
 
 namespace luna
 {
-#define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamB(i)))
+#define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamBx(i)))
 #define GET_REGISTER_A(i)       (call->register_ + Instruction::GetParamA(i))
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
 #define GET_REGISTER_C(i)       (call->register_ + Instruction::GetParamC(i))
@@ -202,7 +202,7 @@ namespace luna
                 case OpType_GetGlobal:
                     if (reg == Instruction::GetParamA(*instruction))
                     {
-                        auto index = Instruction::GetParamB(*instruction);
+                        auto index = Instruction::GetParamBx(*instruction);
                         auto key = proto->GetConstValue(index);
                         if (key->type_ == ValueT_String)
                             return key->str_->GetCStr();
