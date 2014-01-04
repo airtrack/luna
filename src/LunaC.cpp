@@ -31,7 +31,7 @@ int main(int argc, const char **argv)
     }
     catch (const luna::Exception &exp)
     {
-        printf("load %s fail:\n\t%s\n", argv[1], exp.What().c_str());
+        printf("%s\n", exp.What().c_str());
     }
 
     return 0;

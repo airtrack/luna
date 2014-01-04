@@ -1,6 +1,8 @@
 #include "CodeGenerate.h"
 #include "State.h"
+#include "String.h"
 #include "Function.h"
+#include "Exception.h"
 #include "Guard.h"
 #include <vector>
 #include <stack>
@@ -11,6 +13,8 @@
 
 namespace luna
 {
+#define MAX_FUNCTION_REGISTER_COUNT 250
+
     struct LocalNameInfo
     {
         // Name register id
@@ -207,6 +211,14 @@ namespace luna
             int id = current_function_->register_id_++;
             if (current_function_->register_id_ > current_function_->register_max_)
                 current_function_->register_max_ = current_function_->register_id_;
+
+            if (current_function_->register_max_ > MAX_FUNCTION_REGISTER_COUNT)
+            {
+                auto function = current_function_->function_;
+                throw CodeGenerateException("%d: too many local variables in function defined in %s",
+                                            function->GetLine(), function->GetModule()->GetCStr());
+            }
+
             return id;
         }
 

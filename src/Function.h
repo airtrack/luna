@@ -63,9 +63,15 @@ namespace luna
         // Get instruction line by instruction index
         int GetInstructionLine(int i) const;
 
-    private:
-        static const int kMaxRegisterCount = 250;
+        // Get module name
+        String * GetModule() const
+        { return module_; }
 
+        // Get line of function define
+        int GetLine() const
+        { return line_; }
+
+    private:
         // For debug
         struct LocalVarInfo
         {

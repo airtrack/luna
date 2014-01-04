@@ -62,6 +62,18 @@ namespace luna
         }
     };
 
+    class CodeGenerateException : public Exception
+    {
+    public:
+        template<typename... Args>
+        CodeGenerateException(const char *format, Args&&... args)
+        {
+            char buffer[128] = { 0 };
+            snprintf(buffer, sizeof(buffer), format, std::forward<Args>(args)...);
+            what_ = buffer;
+        }
+    };
+
     class RuntimeException : public Exception
     {
     public:
