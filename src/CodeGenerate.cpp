@@ -499,11 +499,13 @@ namespace luna
         {
             CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
             child_index = current_function_->func_index_;
-
-            // Child function generate code
-            if (func_body->param_list_)
-                func_body->param_list_->Accept(this, nullptr);
-            func_body->block_->Accept(this, nullptr);
+            {
+                CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+                // Child function generate code
+                if (func_body->param_list_)
+                    func_body->param_list_->Accept(this, nullptr);
+                func_body->block_->Accept(this, nullptr);
+            }
         }
 
         // Generate closure
@@ -522,8 +524,17 @@ namespace luna
         FillRemainRegisterNil(register_id, end_register, func_body->line_);
     }
 
-    void CodeGenerateVisitor::Visit(ParamList *, void *)
+    void CodeGenerateVisitor::Visit(ParamList *param_list, void *data)
     {
+        auto function = GetCurrentFunction();
+        function->SetFixedArgCount(param_list->fix_arg_count_);
+        if (param_list->vararg_) function->SetHasVararg();
+
+        if (param_list->name_list_)
+        {
+            NameListData name_list_data{ false };
+            param_list->name_list_->Accept(this, &name_list_data);
+        }
     }
 
     void CodeGenerateVisitor::Visit(NameList *name_list, void *data)

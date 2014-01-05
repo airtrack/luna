@@ -413,8 +413,12 @@ namespace luna
         std::unique_ptr<SyntaxTree> name_list_;
         bool vararg_;
 
+        // For semantic and code generate
+        std::size_t fix_arg_count_;
+
         ParamList(std::unique_ptr<SyntaxTree> name_list, bool vararg)
-            : name_list_(std::move(name_list)), vararg_(vararg)
+            : name_list_(std::move(name_list)),
+              vararg_(vararg), fix_arg_count_(0)
         {
         }
 

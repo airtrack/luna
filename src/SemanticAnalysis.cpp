@@ -572,6 +572,7 @@ namespace luna
         {
             NameListData name_list_data;
             par_list->name_list_->Accept(this, &name_list_data);
+            par_list->fix_arg_count_ = name_list_data.name_count_;
         }
 
         if (par_list->vararg_)
