@@ -391,9 +391,11 @@ namespace luna
         //     local i = i -- i value is 1
         if (l_namelist_stmt->exp_list_)
         {
-            // Register range will be allocated by NameList
+            // Reserve registers for NameList
             auto start_register = GetNextRegisterId();
             auto end_register = start_register + l_namelist_stmt->name_count_;
+            Guard g([=]() { this->ResetRegisterIdGenerator(end_register); },
+                    [=]() { this->ResetRegisterIdGenerator(start_register); });
 
             ExpListData exp_list_data{ start_register, end_register };
             l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
