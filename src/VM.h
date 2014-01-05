@@ -24,6 +24,9 @@ namespace luna
         void CallClosure(Value *a, int expect_result);
         void CallCFunction(Value *a, int expect_result);
 
+        // Generate closure
+        void GenerateClosure(Value *a, Instruction i);
+
         // Debug help functions
         std::pair<const char *, const char *> GetOperandNameAndScope(Value *a) const;
         int GetCurrentInstructionLine() const;

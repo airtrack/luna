@@ -14,6 +14,12 @@ namespace luna
 #define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
 #define SET_NEW_TOP(a)          (state_->stack_.IncToNewTop(a + 1))
 
+#define GET_CALLINFO_AND_PROTO()                            \
+    assert(!state_->calls_.empty());                        \
+    auto call = &state_->calls_.back();                     \
+    assert(call->func_ && call->func_->closure_);           \
+    auto proto = call->func_->closure_->GetPrototype()
+
     VM::VM(State *state) : state_(state)
     {
     }
@@ -64,6 +70,11 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
                     *a = state_->global_.table_->GetValue(*b);
+                    SET_NEW_TOP(a);
+                    break;
+                case OpType_Closure:
+                    a = GET_REGISTER_A(i);
+                    GenerateClosure(a, i);
                     SET_NEW_TOP(a);
                     break;
                 default:
@@ -180,12 +191,18 @@ namespace luna
         state_->calls_.pop_back();
     }
 
+    void VM::GenerateClosure(Value *a, Instruction i)
+    {
+        GET_CALLINFO_AND_PROTO();
+        auto func_proto = proto->GetChildFunction(Instruction::GetParamBx(i));
+        a->type_ = ValueT_Closure;
+        a->closure_ = state_->NewClosure();
+        a->closure_->SetPrototype(func_proto);
+    }
+
     std::pair<const char *, const char *> VM::GetOperandNameAndScope(Value *a) const
     {
-        assert(!state_->calls_.empty());
-        auto call = &state_->calls_.back();
-        assert(call->func_ && call->func_->closure_);
-        auto proto = call->func_->closure_->GetPrototype();
+        GET_CALLINFO_AND_PROTO();
 
         auto reg = a - call->register_;
         auto instruction = call->instruction_ - 1;
@@ -232,11 +249,7 @@ namespace luna
 
     int VM::GetCurrentInstructionLine() const
     {
-        assert(!state_->calls_.empty());
-        auto call = &state_->calls_.back();
-        assert(call->func_ && call->func_->closure_);
-        auto proto = call->func_->closure_->GetPrototype();
-
+        GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
     }
