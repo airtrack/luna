@@ -54,6 +54,12 @@ namespace luna
         void AddLocalVar(String *name, int register_id,
                          int begin_pc, int end_pc);
 
+        // Add child function, return index of the function
+        int AddChildFunction(Function *child);
+
+        // Get child function by index
+        Function * GetChildFunction(int index) const;
+
         // Search local variable name from local variable list
         String * SearchLocalVar(int register_id, int pc) const;
 
@@ -98,6 +104,8 @@ namespace luna
         std::vector<Value> const_values_;
         // debug info
         std::vector<LocalVarInfo> local_vars_;
+        // child functions
+        std::vector<Function *> child_funcs_;
         // function define module name
         String *module_;
         // function define line at module

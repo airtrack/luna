@@ -53,6 +53,8 @@ namespace luna
         GenerateBlock *current_block_;
         // Current function for code generate
         Function *function_;
+        // Index of current function in parent
+        int func_index_;
         // Register id generator
         int register_id_;
         // Max register count used in current function
@@ -60,7 +62,8 @@ namespace luna
 
         GenerateFunction()
             : parent_(nullptr), current_block_(nullptr),
-              function_(nullptr), register_id_(0), register_max_(0) { }
+              function_(nullptr), func_index_(0),
+              register_id_(0), register_max_(0) { }
     };
 
     class CodeGenerateVisitor : public Visitor
@@ -116,9 +119,17 @@ namespace luna
         void EnterFunction()
         {
             auto function = new GenerateFunction;
-            function->parent_ = current_function_;
+            auto parent = current_function_;
+            function->parent_ = parent;
             current_function_ = function;
             current_function_->function_ = state_->NewFunction();
+
+            if (parent)
+            {
+                auto index = parent->function_->AddChildFunction(function->function_);
+                function->func_index_ = index;
+                function->function_->SetSuperior(parent->function_);
+            }
         }
 
         // Clean up when leave lexical function
@@ -252,6 +263,21 @@ namespace luna
 
             current_function_ = function->parent_;
             delete function;
+        }
+
+        void FillRemainRegisterNil(int register_id, int end_register, int line)
+        {
+            // Fill nil into all remain registers
+            // when end_register != EXP_VALUE_COUNT_ANY
+            auto function = GetCurrentFunction();
+            if (end_register != EXP_VALUE_COUNT_ANY)
+            {
+                while (register_id < end_register)
+                {
+                    auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
+                    function->AddInstruction(instruction, line);
+                }
+            }
         }
 
         // Current code generating function
@@ -456,16 +482,7 @@ namespace luna
             }
         }
 
-        // Fill nil into all remain registers
-        // when end_register != EXP_VALUE_COUNT_ANY
-        if (end_register != EXP_VALUE_COUNT_ANY)
-        {
-            while (register_id < end_register)
-            {
-                auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
-                function->AddInstruction(instruction, term->token_.line_);
-            }
-        }
+        FillRemainRegisterNil(register_id, end_register, term->token_.line_);
     }
 
     void CodeGenerateVisitor::Visit(BinaryExpression *, void *)
@@ -476,8 +493,33 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(FunctionBody *, void *)
+    void CodeGenerateVisitor::Visit(FunctionBody *func_body, void *data)
     {
+        int child_index = 0;
+        {
+            CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
+            child_index = current_function_->func_index_;
+
+            // Child function generate code
+            if (func_body->param_list_)
+                func_body->param_list_->Accept(this, nullptr);
+            func_body->block_->Accept(this, nullptr);
+        }
+
+        // Generate closure
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+        if (end_register == EXP_VALUE_COUNT_ANY || register_id < end_register)
+        {
+            auto function = GetCurrentFunction();
+            auto i = Instruction::ABxCode(OpType_Closure,
+                                          register_id++,
+                                          child_index);
+            function->AddInstruction(i, func_body->line_);
+        }
+
+        FillRemainRegisterNil(register_id, end_register, func_body->line_);
     }
 
     void CodeGenerateVisitor::Visit(ParamList *, void *)

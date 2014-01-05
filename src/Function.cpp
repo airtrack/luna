@@ -23,6 +23,9 @@ namespace luna
 
             for (const auto &var : local_vars_)
                 var.name_->Accept(v);
+
+            for (auto child : child_funcs_)
+                child->Accept(v);
         }
     }
 
@@ -99,6 +102,17 @@ namespace luna
                                int begin_pc, int end_pc)
     {
         local_vars_.push_back(LocalVarInfo(name, register_id, begin_pc, end_pc));
+    }
+
+    int Function::AddChildFunction(Function *child)
+    {
+        child_funcs_.push_back(child);
+        return child_funcs_.size() - 1;
+    }
+
+    Function * Function::GetChildFunction(int index) const
+    {
+        return child_funcs_[index];
     }
 
     String * Function::SearchLocalVar(int register_id, int pc) const

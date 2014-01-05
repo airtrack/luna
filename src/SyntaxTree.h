@@ -394,10 +394,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> param_list_;
         std::unique_ptr<SyntaxTree> block_;
 
+        int line_;
+
         FunctionBody() { }
         FunctionBody(std::unique_ptr<SyntaxTree> param_list,
-                     std::unique_ptr<SyntaxTree> block)
-            : param_list_(std::move(param_list)), block_(std::move(block))
+                     std::unique_ptr<SyntaxTree> block, int line)
+            : param_list_(std::move(param_list)),
+              block_(std::move(block)), line_(line)
         {
         }
 

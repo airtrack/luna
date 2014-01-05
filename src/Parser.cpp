@@ -130,6 +130,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseFunctionBody()
         {
+            int line = LookAhead().line_;
             if (NextToken().token_ != '(')
                 throw ParseException("unexpect token after 'function', expect '('", current_);
 
@@ -149,7 +150,8 @@ namespace
             if (NextToken().token_ != Token_End)
                 throw ParseException("unexpect token after function body, expect 'end'", current_);
 
-            return std::unique_ptr<SyntaxTree>(new FunctionBody(std::move(param_list), std::move(block)));
+            return std::unique_ptr<SyntaxTree>(new FunctionBody(std::move(param_list),
+                                                                std::move(block), line));
         }
 
         std::unique_ptr<SyntaxTree> ParseParamList()
