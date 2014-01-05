@@ -3,6 +3,7 @@
 
 #include "Value.h"
 #include "OpCode.h"
+#include <utility>
 
 namespace luna
 {
@@ -24,7 +25,7 @@ namespace luna
         void CallCFunction(Value *a, int expect_result);
 
         // Debug help functions
-        const char *GetOperandName(Value *a) const;
+        std::pair<const char *, const char *> GetOperandNameAndScope(Value *a) const;
         int GetCurrentInstructionLine() const;
 
         State *state_;

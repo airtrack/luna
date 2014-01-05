@@ -99,9 +99,9 @@ namespace luna
         }
         else
         {
-            auto name = GetOperandName(a);
+            auto ns = GetOperandNameAndScope(a);
             auto line = GetCurrentInstructionLine();
-            throw RuntimeException(a, name, "call", line);
+            throw RuntimeException(a, ns.first, ns.second, "call", line);
             return true;
         }
     }
@@ -180,7 +180,7 @@ namespace luna
         state_->calls_.pop_back();
     }
 
-    const char * VM::GetOperandName(Value *a) const
+    std::pair<const char *, const char *> VM::GetOperandNameAndScope(Value *a) const
     {
         assert(!state_->calls_.empty());
         auto call = &state_->calls_.back();
@@ -192,6 +192,9 @@ namespace luna
         auto base = proto->GetOpCodes();
         auto pc = instruction - base;
         const char *unknown_name = "?";
+        const char *scope_global = "global";
+        const char *scope_local = "local";
+        const char *scope_null = "";
 
         // Search last instruction which dst register is reg,
         // and get the name base on the instruction
@@ -205,9 +208,9 @@ namespace luna
                         auto index = Instruction::GetParamBx(*instruction);
                         auto key = proto->GetConstValue(index);
                         if (key->type_ == ValueT_String)
-                            return key->str_->GetCStr();
+                            return { key->str_->GetCStr(), scope_global };
                         else
-                            return unknown_name;
+                            return { unknown_name, scope_null };
                     }
                     break;
                 case OpType_Move:
@@ -216,15 +219,15 @@ namespace luna
                         auto src = Instruction::GetParamB(*instruction);
                         auto name = proto->SearchLocalVar(src, pc);
                         if (name)
-                            return name->GetCStr();
+                            return { name->GetCStr(), scope_local };
                         else
-                            return unknown_name;
+                            return { unknown_name, scope_null };
                     }
                     break;
             }
         }
 
-        return unknown_name;
+        return { unknown_name, scope_null };
     }
 
     int VM::GetCurrentInstructionLine() const

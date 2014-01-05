@@ -77,11 +77,12 @@ namespace luna
     class RuntimeException : public Exception
     {
     public:
-        RuntimeException(const Value *v, const char *v_name, const char *op, int line)
+        RuntimeException(const Value *v, const char *v_name,
+                         const char *v_scope, const char *op, int line)
         {
             char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d: attempt to %s '%s' (a %s value)",
-                     line, op, v_name, v->TypeName());
+            snprintf(buffer, sizeof(buffer), "%d: attempt to %s %s '%s' (a %s value)",
+                     line, op, v_scope, v_name, v->TypeName());
             what_ = buffer;
         }
     };
