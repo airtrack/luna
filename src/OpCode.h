@@ -6,6 +6,7 @@ namespace luna
     enum OpType
     {
         OpType_LoadNil = 1,             // A    A: register
+        OpType_LoadBool,                // AB   A: register B: 1 true 0 false
         OpType_LoadConst,               // ABx  A: register Bx: const index
         OpType_Move,                    // AB   A: dst register B: src register
         OpType_Call,                    // AsBx A: register of closure sBx: expected result count

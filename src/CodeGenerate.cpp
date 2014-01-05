@@ -481,6 +481,17 @@ namespace luna
                 function->AddInstruction(instruction, term->token_.line_);
             }
         }
+        else if (term->token_.token_ == Token_True || term->token_.token_ == Token_False)
+        {
+            auto bvalue = term->token_.token_ == Token_True ? 1 : 0;
+            auto instruction = Instruction::ABCode(OpType_LoadBool, register_id++, bvalue);
+            function->AddInstruction(instruction, term->token_.line_);
+        }
+        else if (term->token_.token_ == Token_Nil)
+        {
+            auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
+            function->AddInstruction(instruction, term->token_.line_);
+        }
         else if (term->token_.token_ == Token_VarArg)
         {
             // Copy vararg to registers which start from register_id

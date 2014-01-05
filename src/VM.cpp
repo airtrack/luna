@@ -50,6 +50,12 @@ namespace luna
                     a->SetNil();
                     SET_NEW_TOP(a);
                     break;
+                case OpType_LoadBool:
+                    a = GET_REGISTER_A(i);
+                    a->type_ = ValueT_Bool;
+                    a->bvalue_ = Instruction::GetParamB(i) ? true : false;
+                    SET_NEW_TOP(a);
+                    break;
                 case OpType_LoadConst:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
