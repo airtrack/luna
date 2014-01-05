@@ -11,6 +11,7 @@ namespace luna
         OpType_Call,                    // AsBx A: register of closure sBx: expected result count
         OpType_GetGlobal,               // ABx  A: value register Bx: const index
         OpType_Closure,                 // ABx  A: register Bx: proto index
+        OpType_VarArg,                  // AsBx A: register sBx: expected result count
     };
 
     struct Instruction

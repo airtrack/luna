@@ -77,6 +77,10 @@ namespace luna
                     GenerateClosure(a, i);
                     SET_NEW_TOP(a);
                     break;
+                case OpType_VarArg:
+                    a = GET_REGISTER_A(i);
+                    CopyVarArg(a, i);
+                    break;
                 default:
                     break;
             }
@@ -198,6 +202,31 @@ namespace luna
         a->type_ = ValueT_Closure;
         a->closure_ = state_->NewClosure();
         a->closure_->SetPrototype(func_proto);
+    }
+
+    void VM::CopyVarArg(Value *a, Instruction i)
+    {
+        GET_CALLINFO_AND_PROTO();
+        auto arg = call->func_ + 1;
+        int total_args = call->register_ - arg;
+        int vararg_count = total_args - proto->FixedArgCount();
+
+        arg += proto->FixedArgCount();
+        int expect_count = Instruction::GetParamsBx(i);
+        if (expect_count == EXP_VALUE_COUNT_ANY)
+        {
+            for (int i = 0; i < vararg_count; ++i)
+                *a++ = *arg++;
+            state_->stack_.SetNewTop(a);
+        }
+        else
+        {
+            int i = 0;
+            for (; i < vararg_count && i < expect_count; ++i)
+                *a++ = *arg++;
+            for (; i < expect_count; ++i, ++a)
+                a->SetNil();
+        }
     }
 
     std::pair<const char *, const char *> VM::GetOperandNameAndScope(Value *a) const
