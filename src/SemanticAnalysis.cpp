@@ -669,7 +669,8 @@ namespace luna
         }
         else
         {
-            call_args->arg_->Accept(this, nullptr);
+            ExpVarData exp_var_data{ SemanticOp_Read };
+            call_args->arg_->Accept(this, &exp_var_data);
         }
     }
 
