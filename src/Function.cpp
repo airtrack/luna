@@ -26,6 +26,9 @@ namespace luna
 
             for (auto child : child_funcs_)
                 child->Accept(v);
+
+            for (const auto &upvalue : upvalues_)
+                upvalue.name_->Accept(v);
         }
     }
 
@@ -108,6 +111,12 @@ namespace luna
     {
         child_funcs_.push_back(child);
         return child_funcs_.size() - 1;
+    }
+
+    int Function::AddUpvalue(String *name, bool parent_local, int register_index)
+    {
+        upvalues_.push_back(UpvalueInfo(name, parent_local, register_index));
+        return upvalues_.size() - 1;
     }
 
     Function * Function::GetChildFunction(int index) const

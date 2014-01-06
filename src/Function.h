@@ -16,6 +16,27 @@ namespace luna
     class Function : public GCObject
     {
     public:
+        struct UpvalueInfo
+        {
+            // Upvalue name
+            String *name_;
+
+            // This upvalue is parent function's local variable
+            // when value is true, otherwise it is parent parent
+            // (... and so on) function's local variable
+            bool parent_local_;
+
+            // Register id when this upvalue is parent function's
+            // local variable, otherwise it is index of upvalue list
+            // of parent function
+            int register_index_;
+
+            UpvalueInfo(String *name, bool parent_local,
+                        int register_index)
+            : name_(name), parent_local_(parent_local),
+            register_index_(register_index) { }
+        };
+
         Function();
 
         virtual void Accept(GCObjectVisitor *v);
@@ -57,6 +78,9 @@ namespace luna
         // Add child function, return index of the function
         int AddChildFunction(Function *child);
 
+        // Add a upvalue, return index of the upvalue
+        int AddUpvalue(String *name, bool parent_local, int register_index);
+
         // Get child function by index
         Function * GetChildFunction(int index) const;
 
@@ -68,6 +92,10 @@ namespace luna
 
         // Get instruction line by instruction index
         int GetInstructionLine(int i) const;
+
+        // Get upvalue list
+        const std::vector<UpvalueInfo> &GetUpvalueList() const
+        { return upvalues_; }
 
         // Get module name
         String * GetModule() const
@@ -106,6 +134,8 @@ namespace luna
         std::vector<LocalVarInfo> local_vars_;
         // child functions
         std::vector<Function *> child_funcs_;
+        // upvalues
+        std::vector<UpvalueInfo> upvalues_;
         // function define module name
         String *module_;
         // function define line at module
