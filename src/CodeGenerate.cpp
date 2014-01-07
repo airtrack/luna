@@ -197,7 +197,14 @@ namespace luna
         // Search name in current lexical function
         const LocalNameInfo * SearchLocalName(String *name) const
         {
-            auto block = current_function_->current_block_;
+            return SearchFunctionLocalName(current_function_, name);
+        }
+
+        // Search name in lexical function
+        const LocalNameInfo * SearchFunctionLocalName(GenerateFunction *function,
+                                                      String *name) const
+        {
+            auto block = function->current_block_;
             while (block)
             {
                 auto it = block->names_.find(name);
@@ -208,6 +215,61 @@ namespace luna
             }
 
             return nullptr;
+        }
+
+        // Prepare upvalue info when the name upvalue info not existed, and
+        // return upvalue index, otherwise just return upvalue index
+        // the name must reference a upvalue, otherwise will assert fail
+        int PrepareUpvalue(String *name) const
+        {
+            // If the upvalue info existed, then return the index of the upvalue
+            auto function = GetCurrentFunction();
+            auto index = function->SearchUpvalue(name);
+            if (index >= 0)
+                return index;
+
+            // Search start from parent
+            std::stack<GenerateFunction *> parents;
+            parents.push(current_function_->parent_);
+
+            int register_index = -1;
+            bool parent_local = false;
+            while (!parents.empty())
+            {
+                auto current = parents.top();
+                assert(current);
+                if (register_index >= 0)
+                {
+                    // Find it, add it as upvalue to function,
+                    // and continue backtrack
+                    auto index = current->function_->AddUpvalue(name, parent_local,
+                                                                register_index);
+                    register_index = index;
+                    parent_local = false;
+                    parents.pop();
+                }
+                else
+                {
+                    // Find name from local names
+                    auto name_info = SearchFunctionLocalName(current, name);
+                    if (name_info)
+                    {
+                        // Find it, get its register_id and start backtrack
+                        register_index = name_info->register_id_;
+                        parent_local = true;
+                        parents.pop();
+                    }
+                    else
+                    {
+                        // Not find it, continue to search its parent
+                        parents.push(current->parent_);
+                    }
+                }
+            }
+
+            // Add it as upvalue to current function
+            assert(register_index >= 0);
+            return function->AddUpvalue(name, parent_local, register_index);
         }
 
         // Get current function data
@@ -478,6 +540,13 @@ namespace luna
                 auto local = SearchLocalName(term->token_.str_);
                 assert(local);
                 auto instruction = Instruction::ABCode(OpType_Move, register_id++, local->register_id_);
+                function->AddInstruction(instruction, term->token_.line_);
+            }
+            else if (term->scoping_ == LexicalScoping_Upvalue)
+            {
+                // Get upvalue index
+                auto index = PrepareUpvalue(term->token_.str_);
+                auto instruction = Instruction::ABCode(OpType_GetUpvalue, register_id++, index);
                 function->AddInstruction(instruction, term->token_.line_);
             }
         }

@@ -81,6 +81,9 @@ namespace luna
         // Add a upvalue, return index of the upvalue
         int AddUpvalue(String *name, bool parent_local, int register_index);
 
+        // Get upvalue index when the name upvalue existed, otherwise return -1
+        int SearchUpvalue(String *name) const;
+
         // Get child function by index
         Function * GetChildFunction(int index) const;
 
@@ -93,9 +96,13 @@ namespace luna
         // Get instruction line by instruction index
         int GetInstructionLine(int i) const;
 
-        // Get upvalue list
-        const std::vector<UpvalueInfo> &GetUpvalueList() const
-        { return upvalues_; }
+        // Get upvalue count
+        std::size_t GetUpvalueCount() const
+        { return upvalues_.size(); }
+
+        // Get upvalue info by index
+        const UpvalueInfo * GetUpvalue(std::size_t index) const
+        { return &upvalues_[index]; }
 
         // Get module name
         String * GetModule() const

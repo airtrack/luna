@@ -9,9 +9,10 @@ namespace luna
         OpType_LoadBool,                // AB   A: register B: 1 true 0 false
         OpType_LoadConst,               // ABx  A: register Bx: const index
         OpType_Move,                    // AB   A: dst register B: src register
-        OpType_Call,                    // AsBx A: register of closure sBx: expected result count
+        OpType_GetUpvalue,              // AB   A: register B: upvalue index
         OpType_GetGlobal,               // ABx  A: value register Bx: const index
         OpType_Closure,                 // ABx  A: register Bx: proto index
+        OpType_Call,                    // AsBx A: register of closure sBx: expected result count
         OpType_VarArg,                  // AsBx A: register sBx: expected result count
     };
 

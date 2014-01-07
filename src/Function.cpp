@@ -119,6 +119,18 @@ namespace luna
         return upvalues_.size() - 1;
     }
 
+    int Function::SearchUpvalue(String *name) const
+    {
+        int size = upvalues_.size();
+        for (int i = 0; i < size; ++i)
+        {
+            if (upvalues_[i].name_ == name)
+                return i;
+        }
+
+        return -1;
+    }
+
     Function * Function::GetChildFunction(int index) const
     {
         return child_funcs_[index];
