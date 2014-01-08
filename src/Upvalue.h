@@ -11,10 +11,11 @@ namespace luna
     public:
         virtual void Accept(GCObjectVisitor *v);
 
+        void SetValue(const Value &value)
+        { value_ = value; }
+
         Value * GetValue()
-        {
-            return &value_;
-        }
+        { return &value_; }
 
     private:
         Value value_;

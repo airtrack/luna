@@ -168,8 +168,13 @@ namespace luna
         Function * GetPrototype() const;
         void SetPrototype(Function *prototype);
 
+        // Add upvalue
+        void AddUpvalue(Upvalue *upvalue)
+        { upvalues_.push_back(upvalue); }
+
         // Get upvalue by index
-        Value * GetUpvalue(std::size_t index) const;
+        Upvalue * GetUpvalue(std::size_t index) const
+        { return upvalues_[index]; }
 
     private:
         // prototype Function

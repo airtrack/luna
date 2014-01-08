@@ -194,16 +194,4 @@ namespace luna
     {
         prototype_ = prototype;
     }
-
-    Value * Closure::GetUpvalue(std::size_t index) const
-    {
-        int size = upvalues_.size();
-        if (index < size)
-        {
-            auto upvalue = upvalues_[index];
-            return upvalue->GetValue();
-        }
-
-        return nullptr;
-    }
 } // namespace luna

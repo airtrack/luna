@@ -13,6 +13,7 @@ namespace luna
 #define GET_REGISTER_C(i)       (call->register_ + Instruction::GetParamC(i))
 #define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
 #define SET_NEW_TOP(a)          (state_->stack_.IncToNewTop(a + 1))
+#define GET_REAL_VALUE(a)       (a->type_ == ValueT_Upvalue ? a->upvalue_->GetValue() : a)
 
 #define GET_CALLINFO_AND_PROTO()                            \
     assert(!state_->calls_.empty());                        \
@@ -47,35 +48,40 @@ namespace luna
             switch (Instruction::GetOpCode(i)) {
                 case OpType_LoadNil:
                     a = GET_REGISTER_A(i);
-                    a->SetNil();
+                    GET_REAL_VALUE(a)->SetNil();
                     SET_NEW_TOP(a);
                     break;
                 case OpType_LoadBool:
                     a = GET_REGISTER_A(i);
-                    a->type_ = ValueT_Bool;
-                    a->bvalue_ = Instruction::GetParamB(i) ? true : false;
+                    GET_REAL_VALUE(a)->SetBool(Instruction::GetParamB(i) ? true : false);
                     SET_NEW_TOP(a);
                     break;
                 case OpType_LoadConst:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
-                    *a = *b;
+                    *GET_REAL_VALUE(a) = *b;
                     SET_NEW_TOP(a);
                     break;
                 case OpType_Move:
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
-                    *a = *b;
+                    *GET_REAL_VALUE(a) = *GET_REAL_VALUE(b);
                     SET_NEW_TOP(a);
                     break;
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
                     if (Call(a, i)) return ;
                     break;
+                case OpType_GetUpvalue:
+                    a = GET_REGISTER_A(i);
+                    b = GET_UPVALUE_B(i)->GetValue();
+                    *GET_REAL_VALUE(a) = *b;
+                    SET_NEW_TOP(a);
+                    break;
                 case OpType_GetGlobal:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
-                    *a = state_->global_.table_->GetValue(*b);
+                    *GET_REAL_VALUE(a) = state_->global_.table_->GetValue(*b);
                     SET_NEW_TOP(a);
                     break;
                 case OpType_Closure:
@@ -204,10 +210,41 @@ namespace luna
     void VM::GenerateClosure(Value *a, Instruction i)
     {
         GET_CALLINFO_AND_PROTO();
-        auto func_proto = proto->GetChildFunction(Instruction::GetParamBx(i));
+        auto a_proto = proto->GetChildFunction(Instruction::GetParamBx(i));
         a->type_ = ValueT_Closure;
         a->closure_ = state_->NewClosure();
-        a->closure_->SetPrototype(func_proto);
+        a->closure_->SetPrototype(a_proto);
+
+        // Prepare all upvalues
+        auto closure = call->func_->closure_;
+        auto count = a_proto->GetUpvalueCount();
+        for (std::size_t i = 0; i < count; ++i)
+        {
+            auto upvalue_info = a_proto->GetUpvalue(i);
+            if (upvalue_info->parent_local_)
+            {
+                // Transform local variable to upvalue
+                auto reg = call->register_ + upvalue_info->register_index_;
+                if (reg->type_ != ValueT_Upvalue)
+                {
+                    auto upvalue = state_->NewUpvalue();
+                    upvalue->SetValue(*reg);
+                    reg->type_ = ValueT_Upvalue;
+                    reg->upvalue_ = upvalue;
+                    a->closure_->AddUpvalue(upvalue);
+                }
+                else
+                {
+                    a->closure_->AddUpvalue(reg->upvalue_);
+                }
+            }
+            else
+            {
+                // Get upvalue from parent upvalue list
+                auto upvalue = closure->GetUpvalue(upvalue_info->register_index_);
+                a->closure_->AddUpvalue(upvalue);
+            }
+        }
     }
 
     void VM::CopyVarArg(Value *a, Instruction i)

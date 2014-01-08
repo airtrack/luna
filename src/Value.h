@@ -49,6 +49,7 @@ namespace luna
         Value() : obj_(nullptr), type_(ValueT_Nil) { }
 
         void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
+        void SetBool(bool bvalue) { bvalue_ = bvalue; type_ = ValueT_Bool; }
 
         void Accept(GCObjectVisitor *v) const;
 
