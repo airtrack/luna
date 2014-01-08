@@ -261,8 +261,21 @@ namespace luna
                     }
                     else
                     {
-                        // Not find it, continue to search its parent
-                        parents.push(current->parent_);
+                        // Find it from current function upvalue list
+                        auto index = current->function_->SearchUpvalue(name);
+                        if (index >= 0)
+                        {
+                            // Find it, the name upvalue has been inserted,
+                            // then get the upvalue index, and start backtrack
+                            register_index = index;
+                            parent_local = false;
+                            parents.pop();
+                        }
+                        else
+                        {
+                            // Not find it, continue to search its parent
+                            parents.push(current->parent_);
+                        }
                     }
                 }
             }
