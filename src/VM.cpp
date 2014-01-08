@@ -283,6 +283,7 @@ namespace luna
         const char *unknown_name = "?";
         const char *scope_global = "global";
         const char *scope_local = "local";
+        const char *scope_upvalue = "upvalue";
         const char *scope_null = "";
 
         // Search last instruction which dst register is reg,
@@ -311,6 +312,14 @@ namespace luna
                             return { name->GetCStr(), scope_local };
                         else
                             return { unknown_name, scope_null };
+                    }
+                    break;
+                case OpType_GetUpvalue:
+                    if (reg == Instruction::GetParamA(*instruction))
+                    {
+                        auto index = Instruction::GetParamB(*instruction);
+                        auto upvalue_info = proto->GetUpvalue(index);
+                        return { upvalue_info->name_->GetCStr(), scope_upvalue };
                     }
                     break;
             }
