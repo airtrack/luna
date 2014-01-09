@@ -82,7 +82,8 @@ luna::Function * RandomFunction()
     auto f = g_gc.NewFunction();
 
     auto s = RandomString();
-    f->SetBaseInfo(s, RandomNum(1000));
+    f->SetModuleName(s);
+    f->SetLine(RandomNum(1000));
 
     int instruction_count = RandomRange(10, 1000);
     for (int i = 0; i < instruction_count; ++i)

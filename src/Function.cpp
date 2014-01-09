@@ -68,9 +68,13 @@ namespace luna
         return args_;
     }
 
-    void Function::SetBaseInfo(String *module, int line)
+    void Function::SetModuleName(String *module)
     {
         module_ = module;
+    }
+
+    void Function::SetLine(int line)
+    {
         line_ = line;
     }
 

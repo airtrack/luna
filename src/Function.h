@@ -57,7 +57,8 @@ namespace luna
         int FixedArgCount() const;
 
         // Set module and function define start line
-        void SetBaseInfo(String *module, int line);
+        void SetModuleName(String *module);
+        void SetLine(int line);
 
         // Set superior function
         void SetSuperior(Function *superior);

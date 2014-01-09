@@ -14,6 +14,23 @@
 namespace luna
 {
 #define MAX_FUNCTION_REGISTER_COUNT 250
+#define MAX_CLOSURE_UPVALUE_COUNT 250
+
+#define CHECK_REGISTER_MAX_COUNT(register_max, function)                \
+    if (register_max > MAX_FUNCTION_REGISTER_COUNT)                     \
+    {                                                                   \
+        throw CodeGenerateException(                                    \
+            "%d: too many local variables in function defined in %s",   \
+            function->GetLine(), function->GetModule()->GetCStr());     \
+    }
+
+#define CHECK_UPVALUE_MAX_COUNT(index, function)                        \
+    if (index >= MAX_CLOSURE_UPVALUE_COUNT)                             \
+    {                                                                   \
+        throw CodeGenerateException(                                    \
+            "%d: too many upvalues in function defined in %s",          \
+            function->GetLine(), function->GetModule()->GetCStr());     \
+    }
 
     struct LocalNameInfo
     {
@@ -129,6 +146,7 @@ namespace luna
                 auto index = parent->function_->AddChildFunction(function->function_);
                 function->func_index_ = index;
                 function->function_->SetSuperior(parent->function_);
+                function->function_->SetModuleName(parent->function_->GetModule());
             }
         }
 
@@ -244,6 +262,7 @@ namespace luna
                     // and continue backtrack
                     auto index = current->function_->AddUpvalue(name, parent_local,
                                                                 register_index);
+                    CHECK_UPVALUE_MAX_COUNT(index, current->function_);
                     register_index = index;
                     parent_local = false;
                     parents.pop();
@@ -282,7 +301,9 @@ namespace luna
 
             // Add it as upvalue to current function
             assert(register_index >= 0);
-            return function->AddUpvalue(name, parent_local, register_index);
+            index = function->AddUpvalue(name, parent_local, register_index);
+            CHECK_UPVALUE_MAX_COUNT(index, function);
+            return index;
         }
 
         // Get current function data
@@ -298,13 +319,8 @@ namespace luna
             if (current_function_->register_id_ > current_function_->register_max_)
                 current_function_->register_max_ = current_function_->register_id_;
 
-            if (current_function_->register_max_ > MAX_FUNCTION_REGISTER_COUNT)
-            {
-                auto function = current_function_->function_;
-                throw CodeGenerateException("%d: too many local variables in function defined in %s",
-                                            function->GetLine(), function->GetModule()->GetCStr());
-            }
-
+            CHECK_REGISTER_MAX_COUNT(current_function_->register_max_,
+                                     current_function_->function_);
             return id;
         }
 
@@ -407,7 +423,8 @@ namespace luna
         {
             // Generate function code
             auto function = GetCurrentFunction();
-            function->SetBaseInfo(chunk->module_, 0);
+            function->SetModuleName(chunk->module_);
+            function->SetLine(1);
 
             CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
             chunk->block_->Accept(this, nullptr);
@@ -603,7 +620,10 @@ namespace luna
         int child_index = 0;
         {
             CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
+            auto function = GetCurrentFunction();
+            function->SetLine(func_body->line_);
             child_index = current_function_->func_index_;
+
             {
                 CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
                 // Child function generate code
