@@ -82,7 +82,9 @@ namespace luna
     public:
         std::unique_ptr<SyntaxTree> exp_list_;
 
-        ReturnStatement() { }
+        int line_;
+
+        explicit ReturnStatement(int line) : line_(line) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };

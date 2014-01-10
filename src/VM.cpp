@@ -93,6 +93,9 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     CopyVarArg(a, i);
                     break;
+                case OpType_Ret:
+                    a = GET_REGISTER_A(i);
+                    return Return(a, i);
                 default:
                     break;
             }
@@ -270,6 +273,37 @@ namespace luna
             for (; i < expect_count; ++i, ++a)
                 a->SetNil();
         }
+    }
+
+    void VM::Return(Value *a, Instruction i)
+    {
+        assert(!state_->calls_.empty());
+        auto call = &state_->calls_.back();
+
+        auto src = a;
+        auto dst = call->func_;
+
+        int expect_result = call->expect_result;
+        int result_count = state_->stack_.top_ - src;
+        if (expect_result == EXP_VALUE_COUNT_ANY)
+        {
+            for (int i = 0; i < result_count; ++i)
+                *dst++ = *src++;
+        }
+        else
+        {
+            int i = 0;
+            int count = std::min(expect_result, result_count);
+            for (; i < count; ++i)
+                *dst++ = *src++;
+            // No enough results for expect results, set remain as nil
+            for (; i < expect_result; ++i, ++dst)
+                dst->SetNil();
+        }
+
+        // Set new top and pop current CallInfo
+        state_->stack_.SetNewTop(dst);
+        state_->calls_.pop_back();
     }
 
     std::pair<const char *, const char *> VM::GetOperandNameAndScope(Value *a) const

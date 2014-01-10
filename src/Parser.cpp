@@ -227,7 +227,7 @@ namespace
             NextToken();                // skip 'return'
             assert(current_.token_ == Token_Return);
 
-            std::unique_ptr<ReturnStatement> return_stmt(new ReturnStatement);
+            std::unique_ptr<ReturnStatement> return_stmt(new ReturnStatement(current_.line_));
 
             if (LookAhead().token_ == Token_EOF ||
                 LookAhead().token_ == Token_End ||

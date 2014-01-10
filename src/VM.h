@@ -26,6 +26,7 @@ namespace luna
 
         void GenerateClosure(Value *a, Instruction i);
         void CopyVarArg(Value *a, Instruction i);
+        void Return(Value *a, Instruction i);
 
         // Debug help functions
         std::pair<const char *, const char *> GetOperandNameAndScope(Value *a) const;

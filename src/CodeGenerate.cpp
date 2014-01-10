@@ -448,8 +448,19 @@ namespace luna
             block->return_stmt_->Accept(this, nullptr);
     }
 
-    void CodeGenerateVisitor::Visit(ReturnStatement *, void *)
+    void CodeGenerateVisitor::Visit(ReturnStatement *ret_stmt, void *data)
     {
+        int register_id = GetNextRegisterId();
+        if (ret_stmt->exp_list_)
+        {
+            register_id = GenerateRegisterId();
+            ExpListData exp_list_data{ register_id, EXP_VALUE_COUNT_ANY };
+            ret_stmt->exp_list_->Accept(this, &exp_list_data);
+        }
+
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::ACode(OpType_Ret, register_id);
+        function->AddInstruction(instruction, ret_stmt->line_);
     }
 
     void CodeGenerateVisitor::Visit(BreakStatement *, void *)
