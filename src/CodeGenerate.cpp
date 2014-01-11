@@ -16,14 +16,6 @@ namespace luna
 #define MAX_FUNCTION_REGISTER_COUNT 250
 #define MAX_CLOSURE_UPVALUE_COUNT 250
 
-#define CHECK_REGISTER_MAX_COUNT(register_max, function)                \
-    if (register_max > MAX_FUNCTION_REGISTER_COUNT)                     \
-    {                                                                   \
-        throw CodeGenerateException(                                    \
-            "%d: too many local variables in function defined in %s",   \
-            function->GetLine(), function->GetModule()->GetCStr());     \
-    }
-
 #define CHECK_UPVALUE_MAX_COUNT(index, function)                        \
     if (index >= MAX_CLOSURE_UPVALUE_COUNT)                             \
     {                                                                   \
@@ -316,11 +308,7 @@ namespace luna
         int GenerateRegisterId()
         {
             int id = current_function_->register_id_++;
-            if (current_function_->register_id_ > current_function_->register_max_)
-                current_function_->register_max_ = current_function_->register_id_;
-
-            CHECK_REGISTER_MAX_COUNT(current_function_->register_max_,
-                                     current_function_->function_);
+            CheckMaxRegisterCount();
             return id;
         }
 
@@ -335,6 +323,7 @@ namespace luna
         void ResetRegisterIdGenerator(int generator)
         {
             current_function_->register_id_ = generator;
+            CheckMaxRegisterCount();
         }
 
     private:
@@ -368,6 +357,19 @@ namespace luna
                     auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
                     function->AddInstruction(instruction, line);
                 }
+            }
+        }
+
+        void CheckMaxRegisterCount()
+        {
+            if (current_function_->register_id_ > current_function_->register_max_)
+                current_function_->register_max_ = current_function_->register_id_;
+            if (current_function_->register_max_ > MAX_FUNCTION_REGISTER_COUNT)
+            {
+                throw CodeGenerateException(
+                    "%d: too many local variables in function defined in %s",
+                    current_function_->function_->GetLine(),
+                    current_function_->function_->GetModule()->GetCStr());
             }
         }
 
@@ -414,6 +416,17 @@ namespace luna
         int end_register_;
 
         ExpVarData(int start_register, int end_register)
+            : start_register_(start_register), end_register_(end_register) { }
+    };
+
+    // For VarList AST
+    struct VarListData
+    {
+        // VarList get results from range [start_register_, end_register_)
+        int start_register_;
+        int end_register_;
+
+        VarListData(int start_register, int end_register)
             : start_register_(start_register), end_register_(end_register) { }
     };
 
@@ -535,12 +548,38 @@ namespace luna
         l_namelist_stmt->name_list_->Accept(this, &name_list_data);
     }
 
-    void CodeGenerateVisitor::Visit(AssignmentStatement *, void *)
+    void CodeGenerateVisitor::Visit(AssignmentStatement *assign_stmt, void *data)
     {
+        REGISTER_GENERATOR_GUARD();
+
+        // Reserve registers for var list
+        int register_id = GetNextRegisterId();
+        int end_register = register_id + assign_stmt->var_count_;
+        ResetRegisterIdGenerator(end_register);
+
+        // Get exp list results placed into [register_id, end_register)
+        ExpListData exp_list_data{ register_id, end_register };
+        assign_stmt->exp_list_->Accept(this, &exp_list_data);
+
+        // Assign results to var list
+        VarListData var_list_data{ register_id, end_register };
+        assign_stmt->var_list_->Accept(this, &var_list_data);
     }
 
-    void CodeGenerateVisitor::Visit(VarList *, void *)
+    void CodeGenerateVisitor::Visit(VarList *var_list, void *data)
     {
+        auto var_list_data = static_cast<VarListData *>(data);
+        int register_id = var_list_data->start_register_;
+        int end_register = var_list_data->end_register_;
+        int var_count = var_list->var_list_.size();
+        assert(end_register - register_id == var_count);
+
+        // Assign results to each variable
+        for (int i = 0; i < var_count; ++i, ++register_id)
+        {
+            ExpVarData exp_var_data{ register_id, register_id + 1 };
+            var_list->var_list_[i]->Accept(this, &exp_var_data);
+        }
     }
 
     void CodeGenerateVisitor::Visit(Terminator *term, void *data)
@@ -549,6 +588,24 @@ namespace luna
         auto register_id = exp_var_data->start_register_;
         auto end_register = exp_var_data->end_register_;
 
+        // Generate code for SemanticOp_Write
+        if (term->semantic_ == SemanticOp_Write)
+        {
+            assert(term->token_.token_ == Token_Id);
+            assert(register_id + 1 == end_register);
+            if (term->scoping_ == LexicalScoping_Global)
+            {
+            }
+            else if (term->scoping_ == LexicalScoping_Local)
+            {
+            }
+            else if (term->scoping_ == LexicalScoping_Upvalue)
+            {
+            }
+            return ;
+        }
+
+        // Generate code for SemanticOp_Read
         // Just return when term is SemanticOp_Read and no registers to fill
         if (term->semantic_ == SemanticOp_Read &&
             end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
