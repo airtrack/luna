@@ -596,6 +596,7 @@ namespace luna
         auto exp_var_data = static_cast<ExpVarData *>(data);
         auto register_id = exp_var_data->start_register_;
         auto end_register = exp_var_data->end_register_;
+        auto function = GetCurrentFunction();
 
         // Generate code for SemanticOp_Write
         if (term->semantic_ == SemanticOp_Write)
@@ -604,6 +605,9 @@ namespace luna
             assert(register_id + 1 == end_register);
             if (term->scoping_ == LexicalScoping_Global)
             {
+                auto index = function->AddConstString(term->token_.str_);
+                auto instruction = Instruction::ABxCode(OpType_SetGlobal, register_id, index);
+                function->AddInstruction(instruction, term->token_.line_);
             }
             else if (term->scoping_ == LexicalScoping_Local)
             {
@@ -620,7 +624,6 @@ namespace luna
             end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
             return ;
 
-        auto function = GetCurrentFunction();
         if (term->token_.token_ == Token_Number || term->token_.token_ == Token_String)
         {
             // Load const to register

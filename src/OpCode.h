@@ -11,6 +11,7 @@ namespace luna
         OpType_Move,                    // AB   A: dst register B: src register
         OpType_GetUpvalue,              // AB   A: register B: upvalue index
         OpType_GetGlobal,               // ABx  A: value register Bx: const index
+        OpType_SetGlobal,               // ABx  A: value register Bx: const index
         OpType_Closure,                 // ABx  A: register Bx: proto index
         OpType_Call,                    // ABC  A: register B: arg value count + 1 C: expected result count + 1
         OpType_VarArg,                  // AsBx A: register sBx: expected result count

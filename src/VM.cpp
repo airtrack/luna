@@ -77,6 +77,11 @@ namespace luna
                     b = GET_CONST_VALUE(i);
                     *GET_REAL_VALUE(a) = state_->global_.table_->GetValue(*b);
                     break;
+                case OpType_SetGlobal:
+                    a = GET_REGISTER_A(i);
+                    b = GET_CONST_VALUE(i);
+                    state_->global_.table_->SetValue(*b, *a);
+                    break;
                 case OpType_Closure:
                     a = GET_REGISTER_A(i);
                     GenerateClosure(a, i);
