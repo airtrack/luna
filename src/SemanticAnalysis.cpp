@@ -401,15 +401,15 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(LocalNameListStatement *l_namelist_stmt, void *data)
     {
-        NameListData name_list_data;
-        l_namelist_stmt->name_list_->Accept(this, &name_list_data);
-        l_namelist_stmt->name_count_ = name_list_data.name_count_;
-
         if (l_namelist_stmt->exp_list_)
         {
             ExpListData exp_list_data;
             l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
         }
+
+        NameListData name_list_data;
+        l_namelist_stmt->name_list_->Accept(this, &name_list_data);
+        l_namelist_stmt->name_count_ = name_list_data.name_count_;
     }
 
     void SemanticAnalysisVisitor::Visit(AssignmentStatement *assign_stmt, void *data)
