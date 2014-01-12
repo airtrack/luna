@@ -611,6 +611,10 @@ namespace luna
             }
             else if (term->scoping_ == LexicalScoping_Local)
             {
+                auto local = SearchLocalName(term->token_.str_);
+                assert(local);
+                auto instruction = Instruction::ABCode(OpType_Move, local->register_id_, register_id);
+                function->AddInstruction(instruction, term->token_.line_);
             }
             else if (term->scoping_ == LexicalScoping_Upvalue)
             {
