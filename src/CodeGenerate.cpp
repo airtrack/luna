@@ -618,6 +618,9 @@ namespace luna
             }
             else if (term->scoping_ == LexicalScoping_Upvalue)
             {
+                auto index = PrepareUpvalue(term->token_.str_);
+                auto instruction = Instruction::ABCode(OpType_SetUpvalue, register_id, index);
+                function->AddInstruction(instruction, term->token_.line_);
             }
             return ;
         }

@@ -10,6 +10,7 @@ namespace luna
         OpType_LoadConst,               // ABx  A: register Bx: const index
         OpType_Move,                    // AB   A: dst register B: src register
         OpType_GetUpvalue,              // AB   A: register B: upvalue index
+        OpType_SetUpvalue,              // AB   A: register B: upvalue index
         OpType_GetGlobal,               // ABx  A: value register Bx: const index
         OpType_SetGlobal,               // ABx  A: value register Bx: const index
         OpType_Closure,                 // ABx  A: register Bx: proto index

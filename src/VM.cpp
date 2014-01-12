@@ -72,6 +72,11 @@ namespace luna
                     b = GET_UPVALUE_B(i)->GetValue();
                     *GET_REAL_VALUE(a) = *b;
                     break;
+                case OpType_SetUpvalue:
+                    a = GET_REGISTER_A(i);
+                    b = GET_UPVALUE_B(i)->GetValue();
+                    *b = *a;
+                    break;
                 case OpType_GetGlobal:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
