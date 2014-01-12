@@ -12,7 +12,6 @@ namespace luna
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
 #define GET_REGISTER_C(i)       (call->register_ + Instruction::GetParamC(i))
 #define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
-#define SET_NEW_TOP(a)          (state_->stack_.IncToNewTop(a + 1))
 #define GET_REAL_VALUE(a)       (a->type_ == ValueT_Upvalue ? a->upvalue_->GetValue() : a)
 
 #define GET_CALLINFO_AND_PROTO()                            \
@@ -49,24 +48,20 @@ namespace luna
                 case OpType_LoadNil:
                     a = GET_REGISTER_A(i);
                     GET_REAL_VALUE(a)->SetNil();
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_LoadBool:
                     a = GET_REGISTER_A(i);
                     GET_REAL_VALUE(a)->SetBool(Instruction::GetParamB(i) ? true : false);
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_LoadConst:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
                     *GET_REAL_VALUE(a) = *b;
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_Move:
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
                     *GET_REAL_VALUE(a) = *GET_REAL_VALUE(b);
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_Call:
                     a = GET_REGISTER_A(i);
@@ -76,18 +71,15 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_UPVALUE_B(i)->GetValue();
                     *GET_REAL_VALUE(a) = *b;
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_GetGlobal:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
                     *GET_REAL_VALUE(a) = state_->global_.table_->GetValue(*b);
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_Closure:
                     a = GET_REGISTER_A(i);
                     GenerateClosure(a, i);
-                    SET_NEW_TOP(a);
                     break;
                 case OpType_VarArg:
                     a = GET_REGISTER_A(i);
@@ -115,7 +107,12 @@ namespace luna
 
     bool VM::Call(Value *a, Instruction i)
     {
-        int expect_result = Instruction::GetParamsBx(i);
+        // Set stack top when arg_count is fixed
+        int arg_count = Instruction::GetParamB(i) - 1;
+        if (arg_count != EXP_VALUE_COUNT_ANY)
+            state_->stack_.top_ = a + 1 + arg_count;
+
+        int expect_result = Instruction::GetParamC(i) - 1;
         if (a->type_ == ValueT_Closure)
         {
             // We need enter next ExecuteFrame
@@ -147,12 +144,12 @@ namespace luna
         callee.expect_result = expect_result;
 
         Value *arg = a + 1;
-        Value *top = state_->stack_.top_;
         int fixed_args = callee_proto->FixedArgCount();
 
         // Fixed arg start from base register
         if (callee_proto->HasVararg())
         {
+            Value *top = state_->stack_.top_;
             callee.register_ = top;
             int count = top - arg;
             for (int i = 0; i < count && i < fixed_args; ++i)
@@ -277,6 +274,11 @@ namespace luna
 
     void VM::Return(Value *a, Instruction i)
     {
+        // Set stack top when return value count is fixed
+        int ret_value_count = Instruction::GetParamsBx(i);
+        if (ret_value_count != EXP_VALUE_COUNT_ANY)
+            state_->stack_.top_ = a + ret_value_count;
+
         assert(!state_->calls_.empty());
         auto call = &state_->calls_.back();
 

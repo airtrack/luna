@@ -234,9 +234,9 @@ namespace luna
     // For ExpList AST
     struct ExpListData
     {
-        std::size_t exp_count_;
+        int exp_value_count_;
 
-        ExpListData() : exp_count_(0) { }
+        ExpListData() : exp_value_count_(0) { }
     };
 
     // Expression type for semantic
@@ -256,9 +256,11 @@ namespace luna
     {
         SemanticOp semantic_op_;
         ExpType exp_type_;
+        bool results_any_count_;
 
         explicit ExpVarData(SemanticOp semantic_op = SemanticOp_None)
-            : semantic_op_(semantic_op), exp_type_(ExpType_Unknown) { }
+            : semantic_op_(semantic_op), exp_type_(ExpType_Unknown),
+              results_any_count_(false) { }
     };
 
     void SemanticAnalysisVisitor::Visit(Chunk *chunk, void *data)
@@ -284,6 +286,7 @@ namespace luna
         {
             ExpListData exp_list_data;
             ret_stmt->exp_list_->Accept(this, &exp_list_data);
+            ret_stmt->exp_value_count_ = exp_list_data.exp_value_count_;
         }
     }
 
@@ -416,7 +419,6 @@ namespace luna
         assign_stmt->var_list_->Accept(this, &var_list_data);
         assign_stmt->exp_list_->Accept(this, &exp_list_data);
         assign_stmt->var_count_ = var_list_data.var_count_;
-        assign_stmt->exp_count_ = exp_list_data.exp_count_;
     }
 
     void SemanticAnalysisVisitor::Visit(VarList *var_list, void *data)
@@ -453,6 +455,10 @@ namespace luna
         // Check function has vararg
         if (term->token_.token_ == Token_VarArg && !HasVararg())
             throw SemanticException("function has no '...' param", term->token_);
+
+        // Set results any count
+        if (term->token_.token_ == Token_VarArg)
+            exp_var_data->results_any_count_ = true;
     }
 
     void SemanticAnalysisVisitor::Visit(BinaryExpression *binary_exp, void *data)
@@ -647,6 +653,9 @@ namespace luna
         ExpVarData exp_var_data{ SemanticOp_Read };
         n_func_call->caller_->Accept(this, &exp_var_data);
         n_func_call->args_->Accept(this, &exp_var_data);
+
+        if (data)
+            static_cast<ExpVarData *>(data)->results_any_count_ = true;
     }
 
     void SemanticAnalysisVisitor::Visit(MemberFuncCall *m_func_call, void *data)
@@ -655,6 +664,9 @@ namespace luna
         ExpVarData exp_var_data{ SemanticOp_Read };
         m_func_call->caller_->Accept(this, &exp_var_data);
         m_func_call->args_->Accept(this, &exp_var_data);
+
+        if (data)
+            static_cast<ExpVarData *>(data)->results_any_count_ = true;
     }
 
     void SemanticAnalysisVisitor::Visit(FuncCallArgs *call_args, void *data)
@@ -665,23 +677,35 @@ namespace luna
             {
                 ExpListData exp_list_data;
                 call_args->arg_->Accept(this, &exp_list_data);
+                call_args->arg_value_count_ = exp_list_data.exp_value_count_;
             }
         }
         else
         {
             ExpVarData exp_var_data{ SemanticOp_Read };
             call_args->arg_->Accept(this, &exp_var_data);
+            call_args->arg_value_count_ = 1;
         }
     }
 
     void SemanticAnalysisVisitor::Visit(ExpressionList *exp_list, void *data)
     {
-        // Expressions in ExpressionList must be read semantic
-        ExpVarData exp_var_data{ SemanticOp_Read };
-        for (auto &exp : exp_list->exp_list_)
-            exp->Accept(this, &exp_var_data);
+        assert(!exp_list->exp_list_.empty());
 
-        static_cast<ExpListData *>(data)->exp_count_ = exp_list->exp_list_.size();
+        // Expressions in ExpressionList must be read semantic
+        std::size_t size = exp_list->exp_list_.size() - 1;
+        for (std::size_t i = 0; i < size; ++i)
+        {
+            ExpVarData exp_var_data{ SemanticOp_Read };
+            exp_list->exp_list_[i]->Accept(this, &exp_var_data);
+        }
+
+        // If the last expression in list which has any count value results,
+        // then this expression list has any count value results also
+        ExpVarData exp_var_data{ SemanticOp_Read };
+        exp_list->exp_list_.back()->Accept(this, &exp_var_data);
+        int count = exp_var_data.results_any_count_ ? EXP_VALUE_COUNT_ANY : size + 1;
+        static_cast<ExpListData *>(data)->exp_value_count_ = count;
     }
 
     void SemanticAnalysis(SyntaxTree *root)

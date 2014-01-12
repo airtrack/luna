@@ -83,8 +83,9 @@ namespace luna
         std::unique_ptr<SyntaxTree> exp_list_;
 
         int line_;
+        int exp_value_count_;
 
-        explicit ReturnStatement(int line) : line_(line) { }
+        explicit ReturnStatement(int line) : line_(line), exp_value_count_(0) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
@@ -317,12 +318,11 @@ namespace luna
 
         // For semantic
         std::size_t var_count_;
-        std::size_t exp_count_;
 
         AssignmentStatement(std::unique_ptr<SyntaxTree> var_list,
                             std::unique_ptr<SyntaxTree> exp_list)
             : var_list_(std::move(var_list)), exp_list_(std::move(exp_list)),
-              var_count_(0), exp_count_(0)
+              var_count_(0)
         {
         }
 
@@ -572,9 +572,12 @@ namespace luna
         std::unique_ptr<SyntaxTree> arg_;
         enum ArgType { ExpList, Table, String } type_;
 
+        // For code generate
+        int arg_value_count_;
+
         FuncCallArgs(std::unique_ptr<SyntaxTree> arg,
                      ArgType type)
-            : arg_(std::move(arg)), type_(type)
+            : arg_(std::move(arg)), type_(type), arg_value_count_(0)
         {
         }
 

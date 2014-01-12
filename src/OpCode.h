@@ -12,9 +12,9 @@ namespace luna
         OpType_GetUpvalue,              // AB   A: register B: upvalue index
         OpType_GetGlobal,               // ABx  A: value register Bx: const index
         OpType_Closure,                 // ABx  A: register Bx: proto index
-        OpType_Call,                    // AsBx A: register of closure sBx: expected result count
+        OpType_Call,                    // ABC  A: register B: arg value count + 1 C: expected result count + 1
         OpType_VarArg,                  // AsBx A: register sBx: expected result count
-        OpType_Ret,                     // A    A: return value start register
+        OpType_Ret,                     // AsBx A: return value start register sBx: return value count
     };
 
     struct Instruction

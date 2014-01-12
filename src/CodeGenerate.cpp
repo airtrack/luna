@@ -430,6 +430,14 @@ namespace luna
             : start_register_(start_register), end_register_(end_register) { }
     };
 
+    // For FuncCallArgs AST
+    struct FuncCallArgsData
+    {
+        int arg_value_count_;
+
+        FuncCallArgsData() : arg_value_count_(0) { }
+    };
+
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
     {
         CODE_GENERATE_GUARD(EnterFunction, LeaveFunction);
@@ -472,7 +480,8 @@ namespace luna
         }
 
         auto function = GetCurrentFunction();
-        auto instruction = Instruction::ACode(OpType_Ret, register_id);
+        auto instruction = Instruction::AsBxCode(OpType_Ret, register_id,
+                                                 ret_stmt->exp_value_count_);
         function->AddInstruction(instruction, ret_stmt->line_);
     }
 
@@ -787,15 +796,19 @@ namespace luna
         auto caller_register = GenerateRegisterId();
         ExpVarData caller_data{ caller_register, caller_register + 1 };
         func_call->caller_->Accept(this, &caller_data);
-        func_call->args_->Accept(this, nullptr);
+
+        FuncCallArgsData arg_data;
+        func_call->args_->Accept(this, &arg_data);
 
         // Generate call instruction
         auto function = GetCurrentFunction();
         // Calculate expect results count of function call
         auto results = end_register == EXP_VALUE_COUNT_ANY ?
             EXP_VALUE_COUNT_ANY : end_register - start_register;
-        auto instruction = Instruction::AsBxCode(OpType_Call,
-                                                 caller_register, results);
+        auto instruction = Instruction::ABCCode(OpType_Call,
+                                                caller_register,
+                                                arg_data.arg_value_count_ + 1,
+                                                results + 1);
         function->AddInstruction(instruction, func_call->line_);
 
         // Copy results of function call to dst registers
@@ -818,6 +831,8 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(FuncCallArgs *arg, void *data)
     {
+        static_cast<FuncCallArgsData *>(data)->arg_value_count_ = arg->arg_value_count_;
+
         if (arg->type_ == FuncCallArgs::ExpList)
         {
             if (arg->arg_)
