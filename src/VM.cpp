@@ -98,6 +98,19 @@ namespace luna
                 case OpType_Ret:
                     a = GET_REGISTER_A(i);
                     return Return(a, i);
+                case OpType_JmpFalse:
+                    a = GET_REGISTER_A(i);
+                    if (GET_REAL_VALUE(a)->IsFalse())
+                        call->instruction_ += -1 + Instruction::GetParamsBx(i);
+                    break;
+                case OpType_JmpTrue:
+                    a = GET_REGISTER_A(i);
+                    if (!GET_REAL_VALUE(a)->IsFalse())
+                        call->instruction_ += -1 + Instruction::GetParamsBx(i);
+                    break;
+                case OpType_Jmp:
+                    call->instruction_ += -1 + Instruction::GetParamsBx(i);
+                    break;
                 default:
                     break;
             }

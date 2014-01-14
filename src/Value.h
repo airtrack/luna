@@ -50,6 +50,8 @@ namespace luna
 
         void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
         void SetBool(bool bvalue) { bvalue_ = bvalue; type_ = ValueT_Bool; }
+        bool IsFalse() const
+        { return type_ == ValueT_Nil || (type_ == ValueT_Bool && !bvalue_); }
 
         void Accept(GCObjectVisitor *v) const;
 
