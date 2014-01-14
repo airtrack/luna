@@ -47,10 +47,11 @@ namespace luna
         return &opcodes_[index];
     }
 
-    void Function::AddInstruction(Instruction i, int line)
+    std::size_t Function::AddInstruction(Instruction i, int line)
     {
         opcodes_.push_back(i);
         opcode_lines_.push_back(line);
+        return opcodes_.size() - 1;
     }
 
     void Function::SetHasVararg()

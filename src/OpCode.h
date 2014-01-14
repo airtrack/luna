@@ -17,6 +17,8 @@ namespace luna
         OpType_Call,                    // ABC  A: register B: arg value count + 1 C: expected result count + 1
         OpType_VarArg,                  // AsBx A: register sBx: expected result count
         OpType_Ret,                     // AsBx A: return value start register sBx: return value count
+        OpType_JmpFalse,                // AsBx A: register sBx: diff of instruction index
+        OpType_Jmp,                     // sBx  sBx: diff of instruction index
     };
 
     struct Instruction

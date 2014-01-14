@@ -299,6 +299,8 @@ namespace
             NextToken();                // skip 'while'
             assert(current_.token_ == Token_While);
 
+            int first_line = current_.line_;
+
             std::unique_ptr<SyntaxTree> exp = ParseExp();
 
             if (NextToken().token_ != Token_Do)
@@ -309,7 +311,10 @@ namespace
             if (NextToken().token_ != Token_End)
                 throw ParseException("expect 'end' for while-statement", current_);
 
-            return std::unique_ptr<SyntaxTree>(new WhileStatement(std::move(exp), std::move(block)));
+            int last_line = current_.line_;
+
+            return std::unique_ptr<SyntaxTree>(new WhileStatement(std::move(exp), std::move(block),
+                                                                  first_line, last_line));
         }
 
         std::unique_ptr<SyntaxTree> ParseRepeatStatement()

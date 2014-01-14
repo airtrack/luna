@@ -125,9 +125,14 @@ namespace luna
         std::unique_ptr<SyntaxTree> exp_;
         std::unique_ptr<SyntaxTree> block_;
 
+        int first_line_;
+        int last_line_;
+
         WhileStatement(std::unique_ptr<SyntaxTree> exp,
-                       std::unique_ptr<SyntaxTree> block)
-            : exp_(std::move(exp)), block_(std::move(block))
+                       std::unique_ptr<SyntaxTree> block,
+                       int first_line, int last_line)
+            : exp_(std::move(exp)), block_(std::move(block)),
+              first_line_(first_line), last_line_(last_line)
         {
         }
 

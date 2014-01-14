@@ -474,6 +474,10 @@ namespace luna
     auto r = GetNextRegisterId();                                       \
     Guard g([]() { }, [=]() { this->ResetRegisterIdGenerator(r); })
 
+#define LOOP_GUARD(loop_ast)                                            \
+    Guard l([=]() { this->EnterLoop(loop_ast); },                       \
+            [=]() { this->LeaveLoop(); })
+
     // For NameList AST
     struct NameListData
     {
@@ -583,8 +587,27 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(WhileStatement *, void *)
+    void CodeGenerateVisitor::Visit(WhileStatement *while_stmt, void *data)
     {
+        CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+        LOOP_GUARD(while_stmt);
+
+        auto register_id = GenerateRegisterId();
+        ExpVarData exp_var_data{ register_id, register_id + 1 };
+        while_stmt->exp_->Accept(this, &exp_var_data);
+
+        // Jump to loop tail when expression is false
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
+        int index = function->AddInstruction(instruction, while_stmt->first_line_);
+        AddLoopJumpInfo(while_stmt, index, LoopJumpInfo::JumpTail);
+
+        while_stmt->block_->Accept(this, nullptr);
+
+        // Jump to loop head
+        instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
+        index = function->AddInstruction(instruction, while_stmt->last_line_);
+        AddLoopJumpInfo(while_stmt, index, LoopJumpInfo::JumpHead);
     }
 
     void CodeGenerateVisitor::Visit(RepeatStatement *, void *)

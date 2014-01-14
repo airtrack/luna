@@ -47,8 +47,9 @@ namespace luna
         // Get instruction pointer, then it can be changed
         Instruction * GetMutableInstruction(std::size_t index);
 
-        // Add instruction, 'line' is line number of the instruction 'i'
-        void AddInstruction(Instruction i, int line);
+        // Add instruction, 'line' is line number of the instruction 'i',
+        // return index of the new instruction
+        std::size_t AddInstruction(Instruction i, int line);
 
         // Set and get this function has vararg
         void SetHasVararg();
