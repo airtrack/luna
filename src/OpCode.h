@@ -40,6 +40,11 @@ namespace luna
             opcode_ = (opcode_ << 24) | ((a & 0xFF) << 16) | (static_cast<int>(b) & 0xFFFF);
         }
 
+        void RefillsBx(short b)
+        {
+            opcode_ = (opcode_ & 0xFFFF0000) | (static_cast<int>(b) & 0xFFFF);
+        }
+
         static int GetOpCode(Instruction i)
         {
             return (i.opcode_ >> 24) & 0xFF;

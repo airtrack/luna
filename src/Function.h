@@ -44,6 +44,8 @@ namespace luna
         // Get function instructions and size
         const Instruction * GetOpCodes() const;
         std::size_t OpCodeSize() const;
+        // Get instruction pointer, then it can be changed
+        Instruction * GetMutableInstruction(std::size_t index);
 
         // Add instruction, 'line' is line number of the instruction 'i'
         void AddInstruction(Instruction i, int line);

@@ -6,6 +6,7 @@
 #include "Guard.h"
 #include <vector>
 #include <stack>
+#include <list>
 #include <limits>
 #include <utility>
 #include <unordered_map>
@@ -40,6 +41,17 @@ namespace luna
               as_upvalue_(as_upvalue) { }
     };
 
+    // Loop AST info data in GenerateBlock
+    struct LoopInfo
+    {
+        // Loop AST
+        const SyntaxTree *loop_ast_;
+        // Start instruction index
+        int start_index_;
+
+        LoopInfo() : loop_ast_(nullptr), start_index_(0) { }
+    };
+
     // Lexical block struct for code generator
     struct GenerateBlock
     {
@@ -51,7 +63,28 @@ namespace luna
         // pointer as key is fine
         std::unordered_map<String *, LocalNameInfo> names_;
 
+        // Current loop ast info
+        LoopInfo current_loop_;
+
         GenerateBlock() : parent_(nullptr), register_start_id_(0) { }
+    };
+
+    // Jump info for loop AST
+    struct LoopJumpInfo
+    {
+        enum JumpType { JumpHead, JumpTail };
+        // Owner loop AST
+        const SyntaxTree *loop_ast_;
+        // Jump to AST head or tail
+        JumpType jump_type_;
+        // Instruction need to be filled
+        int instruction_index_;
+
+        LoopJumpInfo(const SyntaxTree *loop_ast,
+                     JumpType jump_type,
+                     int instruction_index)
+            : loop_ast_(loop_ast), jump_type_(jump_type),
+              instruction_index_(instruction_index) { }
     };
 
     // Lexical function struct for code generator
@@ -68,6 +101,8 @@ namespace luna
         int register_id_;
         // Max register count used in current function
         int register_max_;
+        // To be filled loop jump info
+        std::list<LoopJumpInfo> loop_jumps_;
 
         GenerateFunction()
             : parent_(nullptr), current_block_(nullptr),
@@ -174,6 +209,61 @@ namespace luna
             current_function_->current_block_ = block->parent_;
             current_function_->register_id_ = block->register_start_id_;
             delete block;
+        }
+
+        // Prepare data for loop AST
+        void EnterLoop(const SyntaxTree *loop_ast)
+        {
+            // Start instruction index of loop
+            int start_index = GetCurrentFunction()->OpCodeSize();
+            auto block = current_function_->current_block_;
+            block->current_loop_.loop_ast_ = loop_ast;
+            block->current_loop_.start_index_ = start_index;
+        }
+
+        // Complete loop AST in current block
+        void LeaveLoop()
+        {
+            auto function = GetCurrentFunction();
+            // Instruction index after loop
+            int end_index = function->OpCodeSize();
+
+            auto &loop = current_function_->current_block_->current_loop_;
+            if (loop.loop_ast_)
+            {
+                auto &loop_jumps = current_function_->loop_jumps_;
+                auto it = loop_jumps.begin();
+                while (it != loop_jumps.end())
+                {
+                    if (it->loop_ast_ == loop.loop_ast_)
+                    {
+                        // Calculate diff between current index with index of destination
+                        int diff = 0;
+                        if (it->jump_type_ == LoopJumpInfo::JumpHead)
+                            diff = loop.start_index_ - it->instruction_index_;
+                        else if (it->jump_type_ == LoopJumpInfo::JumpTail)
+                            diff = end_index - it->instruction_index_;
+
+                        // Get instruction and refill its jump diff
+                        auto i = function->GetMutableInstruction(it->instruction_index_);
+                        i->RefillsBx(diff);
+
+                        // Remove it from loop_jumps when it refilled
+                        loop_jumps.erase(it++);
+                    }
+                    else
+                        ++it;
+                }
+            }
+        }
+
+        // Add one LoopJumpInfo, the instruction will be refilled
+        // when the loop AST complete
+        void AddLoopJumpInfo(const SyntaxTree *loop_ast, int instruction_index,
+                             LoopJumpInfo::JumpType jump_type)
+        {
+            current_function_->loop_jumps_.push_back(LoopJumpInfo(loop_ast, jump_type,
+                                                                  instruction_index));
         }
 
         // Insert name into current local scope, replace its info when existed

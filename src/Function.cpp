@@ -42,6 +42,11 @@ namespace luna
         return opcodes_.size();
     }
 
+    Instruction * Function::GetMutableInstruction(std::size_t index)
+    {
+        return &opcodes_[index];
+    }
+
     void Function::AddInstruction(Instruction i, int line)
     {
         opcodes_.push_back(i);
