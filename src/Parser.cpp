@@ -532,6 +532,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseLocalNameList()
         {
+            int start_line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> name_list = ParseNameList();
             std::unique_ptr<SyntaxTree> exp_list;
 
@@ -542,7 +543,8 @@ namespace
             }
 
             return std::unique_ptr<SyntaxTree>(new LocalNameListStatement(std::move(name_list),
-                                                                          std::move(exp_list)));
+                                                                          std::move(exp_list),
+                                                                          start_line));
         }
 
         std::unique_ptr<SyntaxTree> ParseNameList()
@@ -567,6 +569,7 @@ namespace
         std::unique_ptr<SyntaxTree> ParseOtherStatement()
         {
             PrefixExpType type;
+            int start_line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> exp = ParsePrefixExp(&type);
 
             if (type == PrefixExpType_Var)
@@ -588,7 +591,8 @@ namespace
                 NextToken();            // skip '='
                 std::unique_ptr<SyntaxTree> exp_list = ParseExpList();
                 return std::unique_ptr<SyntaxTree>(new AssignmentStatement(std::move(var_list),
-                                                                           std::move(exp_list)));
+                                                                           std::move(exp_list),
+                                                                           start_line));
             }
             else if (type == PrefixExpType_Functioncall)
                 return exp;

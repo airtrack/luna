@@ -398,7 +398,13 @@ namespace luna
         int GenerateRegisterId()
         {
             int id = current_function_->register_id_++;
-            CheckMaxRegisterCount();
+            if (IsRegisterCountOverflow())
+            {
+                throw CodeGenerateException(
+                    "%d: too many local variables in function defined in %s",
+                    GetCurrentFunction()->GetLine(),
+                    GetCurrentFunction()->GetModule()->GetCStr());
+            }
             return id;
         }
 
@@ -413,7 +419,14 @@ namespace luna
         void ResetRegisterIdGenerator(int generator)
         {
             current_function_->register_id_ = generator;
-            CheckMaxRegisterCount();
+        }
+
+        // Is register count overflow
+        bool IsRegisterCountOverflow()
+        {
+            if (current_function_->register_id_ > current_function_->register_max_)
+                current_function_->register_max_ = current_function_->register_id_;
+            return current_function_->register_max_ > MAX_FUNCTION_REGISTER_COUNT;
         }
 
     private:
@@ -447,19 +460,6 @@ namespace luna
                     auto instruction = Instruction::ACode(OpType_LoadNil, register_id++);
                     function->AddInstruction(instruction, line);
                 }
-            }
-        }
-
-        void CheckMaxRegisterCount()
-        {
-            if (current_function_->register_id_ > current_function_->register_max_)
-                current_function_->register_max_ = current_function_->register_id_;
-            if (current_function_->register_max_ > MAX_FUNCTION_REGISTER_COUNT)
-            {
-                throw CodeGenerateException(
-                    "%d: too many local variables in function defined in %s",
-                    current_function_->function_->GetLine(),
-                    current_function_->function_->GetModule()->GetCStr());
             }
         }
 
@@ -661,8 +661,18 @@ namespace luna
             Guard g([=]() { this->ResetRegisterIdGenerator(end_register); },
                     [=]() { this->ResetRegisterIdGenerator(start_register); });
 
-            ExpListData exp_list_data{ start_register, end_register };
-            l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
+            try
+            {
+                ExpListData exp_list_data{ start_register, end_register };
+                l_namelist_stmt->exp_list_->Accept(this, &exp_list_data);
+            }
+            catch (const CodeGenerateException &)
+            {
+                throw CodeGenerateException(
+                    "%d: expression of local name list is too complex in %s",
+                    l_namelist_stmt->line_,
+                    GetCurrentFunction()->GetModule()->GetCStr());
+            }
         }
 
         // NameList need init itself when ExpList is not existed
@@ -678,10 +688,28 @@ namespace luna
         int register_id = GetNextRegisterId();
         int end_register = register_id + assign_stmt->var_count_;
         ResetRegisterIdGenerator(end_register);
+        if (IsRegisterCountOverflow())
+        {
+            throw CodeGenerateException(
+                "%d: assignment statement is too complex in %s",
+                assign_stmt->line_, GetCurrentFunction()->GetModule()->GetCStr());
+        }
 
-        // Get exp list results placed into [register_id, end_register)
-        ExpListData exp_list_data{ register_id, end_register };
-        assign_stmt->exp_list_->Accept(this, &exp_list_data);
+        try
+        {
+            // Get exp list results placed into [register_id, end_register)
+            ExpListData exp_list_data{ register_id, end_register };
+            assign_stmt->exp_list_->Accept(this, &exp_list_data);
+        }
+        catch (const CodeGenerateException &)
+        {
+            // Exp list consume some registers, and register count overflow,
+            // catch it, throw new exception to report assignment statement
+            // is too complex
+            throw CodeGenerateException(
+                "%d: assignment statement is too complex in %s",
+                assign_stmt->line_, GetCurrentFunction()->GetModule()->GetCStr());
+        }
 
         // Assign results to var list
         VarListData var_list_data{ register_id, end_register };
