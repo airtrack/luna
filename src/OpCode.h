@@ -20,6 +20,7 @@ namespace luna
         OpType_JmpFalse,                // AsBx A: register sBx: diff of instruction index
         OpType_JmpTrue,                 // AsBx A: register sBx: diff of instruction index
         OpType_Jmp,                     // sBx  sBx: diff of instruction index
+        OpType_Add,                     // ABC  A: dst register B: operand1 register C: operand2 register
     };
 
     struct Instruction

@@ -39,6 +39,7 @@ namespace luna
         Function *proto = cl ? cl->GetPrototype() : nullptr;
         Value *a = nullptr;
         Value *b = nullptr;
+        Value *c = nullptr;
 
         while (call->instruction_ < call->end_)
         {
@@ -110,6 +111,13 @@ namespace luna
                     break;
                 case OpType_Jmp:
                     call->instruction_ += -1 + Instruction::GetParamsBx(i);
+                    break;
+                case OpType_Add:
+                    a = GET_REGISTER_A(i);
+                    b = GET_REGISTER_B(i);
+                    c = GET_REGISTER_C(i);
+                    // TODO: check type
+                    a->num_ = b->num_ + c->num_;
                     break;
                 default:
                     break;

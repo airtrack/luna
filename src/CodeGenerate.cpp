@@ -807,8 +807,59 @@ namespace luna
         FillRemainRegisterNil(register_id, end_register, term->token_.line_);
     }
 
-    void CodeGenerateVisitor::Visit(BinaryExpression *, void *)
+    void CodeGenerateVisitor::Visit(BinaryExpression *bin_exp, void *data)
     {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+
+        if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+            return ;
+
+        int left_register = 0;
+        // Generate code for calculate left expression
+        {
+            ExpVarData exp_var_data{ register_id, register_id + 1 };
+            bin_exp->left_->Accept(this, &exp_var_data);
+            left_register = register_id;
+        }
+
+        int right_register = 0;
+        // Generate code for calculate right expression
+        {
+            if (end_register != EXP_VALUE_COUNT_ANY && register_id + 1 < end_register)
+            {
+                // If parent AST provide more than one register, then use the second
+                // register as temp register of right expression
+                ExpVarData exp_var_data{ register_id + 1, register_id + 2 };
+                bin_exp->right_->Accept(this, &exp_var_data);
+                right_register = register_id + 1;
+            }
+            else
+            {
+                // No more register, then generate a new register as temp register of
+                // right expression
+                REGISTER_GENERATOR_GUARD();
+                right_register = GenerateRegisterId();
+                ExpVarData exp_var_data{ right_register, right_register + 1 };
+                bin_exp->right_->Accept(this, &exp_var_data);
+            }
+        }
+
+        // Choose OpType by operator
+        OpType op_type;
+        switch (bin_exp->op_token_.token_) {
+            case '+': op_type = OpType_Add; break;
+            default: assert(0); break;
+        }
+
+        // Generate instruction to calculate
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::ABCCode(op_type, register_id++,
+                                                left_register, right_register);
+        function->AddInstruction(instruction, bin_exp->op_token_.line_);
+
+        FillRemainRegisterNil(register_id, end_register, bin_exp->op_token_.line_);
     }
 
     void CodeGenerateVisitor::Visit(UnaryExpression *, void *)
