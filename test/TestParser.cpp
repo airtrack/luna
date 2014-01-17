@@ -16,6 +16,134 @@ namespace
     }
 } // namespace
 
+TEST_CASE(parser_exp1)
+{
+    auto root = Parse("a = 1 + 2 + 3");
+    auto exp_list = ASTFind<luna::ExpressionList>(root, AcceptAST());
+    EXPECT_TRUE(exp_list->exp_list_.size() == 1);
+    auto &exp = exp_list->exp_list_[0];
+    auto bin_exp = dynamic_cast<luna::BinaryExpression *>(exp.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '+');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->right_.get()));
+
+    // 1 + 2
+    bin_exp = dynamic_cast<luna::BinaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '+');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->left_.get()));
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->right_.get()));
+}
+
+TEST_CASE(parser_exp2)
+{
+    auto root = Parse("a = 1 + 2 + 3 * 4");
+    auto exp_list = ASTFind<luna::ExpressionList>(root, AcceptAST());
+    EXPECT_TRUE(exp_list->exp_list_.size() == 1);
+    auto &exp = exp_list->exp_list_[0];
+    auto bin_exp = dynamic_cast<luna::BinaryExpression *>(exp.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '+');
+
+    // 1 + 2
+    auto left = dynamic_cast<luna::BinaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(left);
+    EXPECT_TRUE(left->op_token_.token_ == '+');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(left->left_.get()));
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(left->right_.get()));
+
+    // 3 * 4
+    auto right = dynamic_cast<luna::BinaryExpression *>(bin_exp->right_.get());
+    EXPECT_TRUE(right);
+    EXPECT_TRUE(right->op_token_.token_ == '*');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(right->left_.get()));
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(right->right_.get()));
+}
+
+TEST_CASE(parser_exp3)
+{
+    auto root = Parse("a = -1 + -1 ^ 2 ^ 2");
+    auto exp_list = ASTFind<luna::ExpressionList>(root, AcceptAST());
+    EXPECT_TRUE(exp_list->exp_list_.size() == 1);
+    auto &exp = exp_list->exp_list_[0];
+    auto bin_exp = dynamic_cast<luna::BinaryExpression *>(exp.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '+');
+
+    // -1
+    auto left = dynamic_cast<luna::UnaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(left);
+    EXPECT_TRUE(left->op_token_.token_ == '-');
+
+    // -(1 ^ 2 ^ 2)
+    auto right = dynamic_cast<luna::UnaryExpression *>(bin_exp->right_.get());
+    EXPECT_TRUE(right);
+    EXPECT_TRUE(right->op_token_.token_ == '-');
+
+    bin_exp = dynamic_cast<luna::BinaryExpression *>(right->exp_.get());
+    EXPECT_TRUE(bin_exp);
+
+    // 1 ^
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '^');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->left_.get()));
+
+    // 2 ^ 2
+    bin_exp = dynamic_cast<luna::BinaryExpression *>(bin_exp->right_.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '^');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->left_.get()));
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->right_.get()));
+}
+
+TEST_CASE(parser_exp4)
+{
+    auto root = Parse("a = (-1 + 1) * 2 / 1 ^ 2 and 1 or 2");
+    auto exp_list = ASTFind<luna::ExpressionList>(root, AcceptAST());
+    EXPECT_TRUE(exp_list->exp_list_.size() == 1);
+    auto &exp = exp_list->exp_list_[0];
+
+    // or
+    auto bin_exp = dynamic_cast<luna::BinaryExpression *>(exp.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == luna::Token_Or);
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->right_.get()));
+
+    // and
+    bin_exp = dynamic_cast<luna::BinaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(bin_exp);
+    EXPECT_TRUE(bin_exp->op_token_.token_ == luna::Token_And);
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(bin_exp->right_.get()));
+
+    // (-1 + 1) * 2 / 1 ^ 2
+    bin_exp = dynamic_cast<luna::BinaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(bin_exp->op_token_.token_ == '/');
+
+    // *
+    auto left = dynamic_cast<luna::BinaryExpression *>(bin_exp->left_.get());
+    EXPECT_TRUE(left);
+    EXPECT_TRUE(left->op_token_.token_ == '*');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(left->right_.get()));
+
+    // (-1 + 1)
+    left = dynamic_cast<luna::BinaryExpression *>(left->left_.get());
+    EXPECT_TRUE(left);
+    EXPECT_TRUE(left->op_token_.token_ == '+');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(left->right_.get()));
+
+    // -1
+    auto unary = dynamic_cast<luna::UnaryExpression *>(left->left_.get());
+    EXPECT_TRUE(unary);
+    EXPECT_TRUE(unary->op_token_.token_ == '-');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(unary->exp_.get()));
+
+    // 1 ^ 2
+    auto right = dynamic_cast<luna::BinaryExpression *>(bin_exp->right_.get());
+    EXPECT_TRUE(right);
+    EXPECT_TRUE(right->op_token_.token_ == '^');
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(right->left_.get()));
+    EXPECT_TRUE(dynamic_cast<luna::Terminator *>(right->right_.get()));
+}
+
 TEST_CASE(parser1)
 {
     EXPECT_TRUE(Parse("a = -123 ^ 2 ^ -2 * 1 / 2 % 2 * 2 ^ 10 + 10 - 5 .. 'str' == 'str' and true or false"));

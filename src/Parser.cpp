@@ -71,10 +71,11 @@ namespace
                     if (left_priority == 0)
                         return exp;
                     assert(left);
-                    left = std::unique_ptr<BinaryExpression>(
+                    exp = std::unique_ptr<BinaryExpression>(
                         new BinaryExpression(std::move(left), std::move(exp), op));
-                    op = NextToken();
-                    exp = ParseExp();
+                    op = TokenDetail();
+                    left_priority = 0;
+                    exp = ParseExp(std::move(exp), NextToken(), right_priority);
                 }
                 else
                 {
