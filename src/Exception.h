@@ -18,6 +18,15 @@ namespace luna
         std::string what_;
     };
 
+    class OpenFileFail : public Exception
+    {
+    public:
+        explicit OpenFileFail(const std::string &file)
+        {
+            what_ = file;
+        }
+    };
+
     class LexException : public Exception
     {
     public:

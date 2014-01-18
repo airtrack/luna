@@ -25,6 +25,10 @@ int main(int argc, const char **argv)
         bootstrap.Prepare();
         vm.Execute();
     }
+    catch (const luna::OpenFileFail &exp)
+    {
+        printf("%s: can not open file %s\n", argv[0], exp.What().c_str());
+    }
     catch (const luna::RuntimeException &exp)
     {
         printf("runtime: %s\n", exp.What().c_str());
