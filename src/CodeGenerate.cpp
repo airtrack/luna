@@ -878,6 +878,9 @@ namespace luna
         OpType op_type;
         switch (bin_exp->op_token_.token_) {
             case '+': op_type = OpType_Add; break;
+            case '-': op_type = OpType_Sub; break;
+            case '*': op_type = OpType_Mul; break;
+            case '/': op_type = OpType_Div; break;
             default: assert(0); break;
         }
 

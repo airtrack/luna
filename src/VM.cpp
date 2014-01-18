@@ -14,6 +14,11 @@ namespace luna
 #define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
 #define GET_REAL_VALUE(a)       (a->type_ == ValueT_Upvalue ? a->upvalue_->GetValue() : a)
 
+#define GET_REGISTER_ABC(i)                                 \
+    a = GET_REGISTER_A(i);                                  \
+    b = GET_REGISTER_B(i);                                  \
+    c = GET_REGISTER_C(i);
+
 #define GET_CALLINFO_AND_PROTO()                            \
     assert(!state_->calls_.empty());                        \
     auto call = &state_->calls_.back();                     \
@@ -113,11 +118,27 @@ namespace luna
                     call->instruction_ += -1 + Instruction::GetParamsBx(i);
                     break;
                 case OpType_Add:
-                    a = GET_REGISTER_A(i);
-                    b = GET_REGISTER_B(i);
-                    c = GET_REGISTER_C(i);
+                    GET_REGISTER_ABC(i);
                     CheckBinaryType(b, c, ValueT_Number, "add");
                     a->num_ = b->num_ + c->num_;
+                    a->type_ = ValueT_Number;
+                    break;
+                case OpType_Sub:
+                    GET_REGISTER_ABC(i);
+                    CheckBinaryType(b, c, ValueT_Number, "sub");
+                    a->num_ = b->num_ - c->num_;
+                    a->type_ = ValueT_Number;
+                    break;
+                case OpType_Mul:
+                    GET_REGISTER_ABC(i);
+                    CheckBinaryType(b, c, ValueT_Number, "multiply");
+                    a->num_ = b->num_ * c->num_;
+                    a->type_ = ValueT_Number;
+                    break;
+                case OpType_Div:
+                    GET_REGISTER_ABC(i);
+                    CheckBinaryType(b, c, ValueT_Number, "div");
+                    a->num_ = b->num_ / c->num_;
                     a->type_ = ValueT_Number;
                     break;
                 default:
