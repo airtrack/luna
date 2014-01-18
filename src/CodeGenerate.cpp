@@ -614,8 +614,31 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(IfStatement *, void *)
+    void CodeGenerateVisitor::Visit(IfStatement *if_stmt, void *data)
     {
+        {
+            REGISTER_GENERATOR_GUARD();
+            auto register_id = GenerateRegisterId();
+            ExpVarData exp_var_data{ register_id, register_id + 1 };
+            if_stmt->exp_->Accept(this, &exp_var_data);
+
+            auto function = GetCurrentFunction();
+            auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
+            int jmp_index = function->AddInstruction(instruction, 0);
+
+            {
+                // True branch block generate code
+                CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+                if_stmt->true_branch_->Accept(this, nullptr);
+            }
+
+            // Refill OpType_JmpFalse instruction
+            int index = function->OpCodeSize();
+            function->GetMutableInstruction(jmp_index)->RefillsBx(index - jmp_index);
+        }
+
+        if (if_stmt->false_branch_)
+            if_stmt->false_branch_->Accept(this, nullptr);
     }
 
     void CodeGenerateVisitor::Visit(ElseIfStatement *, void *)
