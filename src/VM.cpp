@@ -4,6 +4,7 @@
 #include "Function.h"
 #include "Exception.h"
 #include <assert.h>
+#include <math.h>
 
 namespace luna
 {
@@ -139,6 +140,18 @@ namespace luna
                     GET_REGISTER_ABC(i);
                     CheckBinaryType(b, c, ValueT_Number, "div");
                     a->num_ = b->num_ / c->num_;
+                    a->type_ = ValueT_Number;
+                    break;
+                case OpType_Pow:
+                    GET_REGISTER_ABC(i);
+                    CheckBinaryType(b, c, ValueT_Number, "power");
+                    a->num_ = pow(b->num_, c->num_);
+                    a->type_ = ValueT_Number;
+                    break;
+                case OpType_Mod:
+                    GET_REGISTER_ABC(i);
+                    CheckBinaryType(b, c, ValueT_Number, "mod");
+                    a->num_ = fmod(b->num_, c->num_);
                     a->type_ = ValueT_Number;
                     break;
                 default:

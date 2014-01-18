@@ -24,6 +24,8 @@ namespace luna
         OpType_Sub,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Mul,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Div,                     // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_Pow,                     // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_Mod,                     // ABC  A: dst register B: operand1 register C: operand2 register
     };
 
     struct Instruction

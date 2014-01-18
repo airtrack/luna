@@ -881,6 +881,8 @@ namespace luna
             case '-': op_type = OpType_Sub; break;
             case '*': op_type = OpType_Mul; break;
             case '/': op_type = OpType_Div; break;
+            case '^': op_type = OpType_Pow; break;
+            case '%': op_type = OpType_Mod; break;
             default: assert(0); break;
         }
 
