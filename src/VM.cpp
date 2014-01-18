@@ -154,6 +154,14 @@ namespace luna
                     a->num_ = fmod(b->num_, c->num_);
                     a->type_ = ValueT_Number;
                     break;
+                case OpType_Equal:
+                    GET_REGISTER_ABC(i);
+                    a->SetBool(*b == *c);
+                    break;
+                case OpType_UnEqual:
+                    GET_REGISTER_ABC(i);
+                    a->SetBool(*b != *c);
+                    break;
                 default:
                     break;
             }
