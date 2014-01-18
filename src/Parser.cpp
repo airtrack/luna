@@ -725,7 +725,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseExpList()
         {
-            std::unique_ptr<ExpressionList> exp_list(new ExpressionList);
+            std::unique_ptr<ExpressionList> exp_list(new ExpressionList(LookAhead().line_));
 
             bool anymore = true;
             while (anymore)

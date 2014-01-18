@@ -1064,6 +1064,20 @@ namespace luna
         auto register_id = exp_list_data->start_register_;
         auto end_register = exp_list_data->end_register_;
 
+        // When parent do not limit register count, reset register
+        // id generator as consume some registers, and check register
+        // count overflow or not
+        auto register_consumer = [=](int id) {
+            if (end_register == EXP_VALUE_COUNT_ANY)
+                ResetRegisterIdGenerator(id);
+            if (IsRegisterCountOverflow())
+            {
+                throw CodeGenerateException(
+                    "%d: too many local variables or too complex expression in %s",
+                    exp_list->line_, GetCurrentFunction()->GetModule()->GetCStr());
+            }
+        };
+
         assert(!exp_list->exp_list_.empty());
         int count = exp_list->exp_list_.size() - 1;
 
@@ -1073,6 +1087,8 @@ namespace luna
             std::numeric_limits<int>::max() : end_register;
         for (; i < count && register_id < max_register; ++i, ++register_id)
         {
+            register_consumer(register_id + 1);
+
             REGISTER_GENERATOR_GUARD();
             ExpVarData exp_var_data{ register_id, register_id + 1 };
             exp_list->exp_list_[i]->Accept(this, &exp_var_data);
@@ -1085,6 +1101,8 @@ namespace luna
             ExpVarData exp_var_data{ 0, 0 };
             exp_list->exp_list_[i]->Accept(this, &exp_var_data);
         }
+
+        register_consumer(register_id + 1);
 
         // Last expression consume all remain registers
         REGISTER_GENERATOR_GUARD();

@@ -602,6 +602,11 @@ namespace luna
     public:
         std::vector<std::unique_ptr<SyntaxTree>> exp_list_;
 
+        // Start line
+        int line_;
+
+        explicit ExpressionList(int start_line) : line_(start_line) { }
+
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
 } // namespace luna
