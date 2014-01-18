@@ -29,10 +29,6 @@ int main(int argc, const char **argv)
     {
         printf("%s: can not open file %s\n", argv[0], exp.What().c_str());
     }
-    catch (const luna::RuntimeException &exp)
-    {
-        printf("runtime: %s\n", exp.What().c_str());
-    }
     catch (const luna::Exception &exp)
     {
         printf("%s\n", exp.What().c_str());
