@@ -624,7 +624,7 @@ namespace luna
 
             auto function = GetCurrentFunction();
             auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
-            int jmp_index = function->AddInstruction(instruction, 0);
+            int jmp_index = function->AddInstruction(instruction, if_stmt->line_);
 
             {
                 // True branch block generate code

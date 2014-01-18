@@ -161,12 +161,16 @@ namespace luna
         std::unique_ptr<SyntaxTree> true_branch_;
         std::unique_ptr<SyntaxTree> false_branch_;
 
+        // Line of if
+        int line_;
+
         IfStatement(std::unique_ptr<SyntaxTree> exp,
                     std::unique_ptr<SyntaxTree> true_branch,
-                    std::unique_ptr<SyntaxTree> false_branch)
+                    std::unique_ptr<SyntaxTree> false_branch,
+                    int line)
             : exp_(std::move(exp)),
               true_branch_(std::move(true_branch)),
-              false_branch_(std::move(false_branch))
+              false_branch_(std::move(false_branch)), line_(line)
         {
         }
 

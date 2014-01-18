@@ -337,6 +337,7 @@ namespace
         {
             NextToken();                // skip 'if'
             assert(current_.token_ == Token_If);
+            int line = current_.line_;
 
             std::unique_ptr<SyntaxTree> exp = ParseExp();
 
@@ -348,7 +349,8 @@ namespace
 
             return std::unique_ptr<SyntaxTree>(new IfStatement(std::move(exp),
                                                                std::move(true_branch),
-                                                               std::move(false_branch)));
+                                                               std::move(false_branch),
+                                                               line));
         }
 
         std::unique_ptr<SyntaxTree> ParseElseIfStatement()
