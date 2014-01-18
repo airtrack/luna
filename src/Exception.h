@@ -94,6 +94,14 @@ namespace luna
                      line, op, v_scope, v_name, v->TypeName());
             what_ = buffer;
         }
+
+        RuntimeException(const Value *v1, const Value *v2, const char *op, int line)
+        {
+            char buffer[128] = { 0 };
+            snprintf(buffer, sizeof(buffer), "%d: attempt to %s %s with %s",
+                     line, op, v1->TypeName(), v2->TypeName());
+            what_ = buffer;
+        }
     };
 } // namespace luna
 

@@ -116,8 +116,9 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     b = GET_REGISTER_B(i);
                     c = GET_REGISTER_C(i);
-                    // TODO: check type
+                    CheckBinaryType(b, c, ValueT_Number, "add");
                     a->num_ = b->num_ + c->num_;
+                    a->type_ = ValueT_Number;
                     break;
                 default:
                     break;
@@ -339,7 +340,7 @@ namespace luna
         state_->calls_.pop_back();
     }
 
-    std::pair<const char *, const char *> VM::GetOperandNameAndScope(Value *a) const
+    std::pair<const char *, const char *> VM::GetOperandNameAndScope(const Value *a) const
     {
         GET_CALLINFO_AND_PROTO();
 
@@ -400,5 +401,15 @@ namespace luna
         GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
+    }
+
+    void VM::CheckBinaryType(const Value *v1, const Value *v2,
+                             ValueT type, const char *op) const
+    {
+        if (v1->type_ != type || v2->type_ != type)
+        {
+            auto line = GetCurrentInstructionLine();
+            throw RuntimeException(v1, v2, op, line);
+        }
     }
 } // namespace luna

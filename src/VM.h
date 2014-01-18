@@ -29,8 +29,13 @@ namespace luna
         void Return(Value *a, Instruction i);
 
         // Debug help functions
-        std::pair<const char *, const char *> GetOperandNameAndScope(Value *a) const;
+        std::pair<const char *, const char *>
+        GetOperandNameAndScope(const Value *a) const;
+
         int GetCurrentInstructionLine() const;
+
+        void CheckBinaryType(const Value *v1, const Value *v2,
+                             ValueT type, const char *op) const;
 
         State *state_;
     };
