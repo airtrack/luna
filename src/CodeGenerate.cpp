@@ -1025,9 +1025,16 @@ namespace luna
         auto end_register = exp_var_data ? exp_var_data->end_register_ : 0;
 
         // Generate code to get caller and its params
-        auto caller_register = GenerateRegisterId();
-        ExpVarData caller_data{ caller_register, caller_register + 1 };
-        func_call->caller_->Accept(this, &caller_data);
+        int caller_register = 0;
+        if (end_register == EXP_VALUE_COUNT_ANY)
+            caller_register = start_register;
+        else
+            caller_register = GenerateRegisterId();
+        {
+            REGISTER_GENERATOR_GUARD();
+            ExpVarData caller_data{ caller_register, caller_register + 1 };
+            func_call->caller_->Accept(this, &caller_data);
+        }
 
         FuncCallArgsData arg_data;
         func_call->args_->Accept(this, &arg_data);
@@ -1127,9 +1134,8 @@ namespace luna
             exp_list->exp_list_[i]->Accept(this, &exp_var_data);
         }
 
-        register_consumer(register_id + 1);
-
         // Last expression consume all remain registers
+        register_consumer(register_id + 1);
         REGISTER_GENERATOR_GUARD();
         ExpVarData exp_var_data{ register_id, end_register };
         exp_list->exp_list_.back()->Accept(this, &exp_var_data);

@@ -143,10 +143,7 @@ namespace
             if (NextToken().token_ != ')')
                 throw ParseException("unexpect token after param list, expect ')'", current_);
 
-            std::unique_ptr<SyntaxTree> block;
-
-            if (LookAhead().token_ != Token_End)
-                block = ParseBlock();
+            std::unique_ptr<SyntaxTree> block = ParseBlock();
 
             if (NextToken().token_ != Token_End)
                 throw ParseException("unexpect token after function body, expect 'end'", current_);
