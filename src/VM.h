@@ -34,8 +34,11 @@ namespace luna
 
         int GetCurrentInstructionLine() const;
 
-        void CheckBinaryType(const Value *v1, const Value *v2,
-                             ValueT type, const char *op) const;
+        void CheckArithType(const Value *v1, const Value *v2,
+                            const char *op) const;
+
+        void CheckInequalityType(const Value *v1, const Value *v2,
+                                 const char *op) const;
 
         State *state_;
     };

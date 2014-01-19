@@ -910,6 +910,7 @@ namespace luna
             case '/': op_type = OpType_Div; break;
             case '^': op_type = OpType_Pow; break;
             case '%': op_type = OpType_Mod; break;
+            case '<': op_type = OpType_Less; break;
             case Token_Equal: op_type = OpType_Equal; break;
             case Token_NotEqual: op_type = OpType_UnEqual; break;
             default: assert(0); break;

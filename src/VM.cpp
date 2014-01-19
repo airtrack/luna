@@ -120,39 +120,47 @@ namespace luna
                     break;
                 case OpType_Add:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "add");
+                    CheckArithType(b, c, "add");
                     a->num_ = b->num_ + c->num_;
                     a->type_ = ValueT_Number;
                     break;
                 case OpType_Sub:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "sub");
+                    CheckArithType(b, c, "sub");
                     a->num_ = b->num_ - c->num_;
                     a->type_ = ValueT_Number;
                     break;
                 case OpType_Mul:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "multiply");
+                    CheckArithType(b, c, "multiply");
                     a->num_ = b->num_ * c->num_;
                     a->type_ = ValueT_Number;
                     break;
                 case OpType_Div:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "div");
+                    CheckArithType(b, c, "div");
                     a->num_ = b->num_ / c->num_;
                     a->type_ = ValueT_Number;
                     break;
                 case OpType_Pow:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "power");
+                    CheckArithType(b, c, "power");
                     a->num_ = pow(b->num_, c->num_);
                     a->type_ = ValueT_Number;
                     break;
                 case OpType_Mod:
                     GET_REGISTER_ABC(i);
-                    CheckBinaryType(b, c, ValueT_Number, "mod");
+                    CheckArithType(b, c, "mod");
                     a->num_ = fmod(b->num_, c->num_);
                     a->type_ = ValueT_Number;
+                    break;
+                case OpType_Less:
+                    GET_REGISTER_ABC(i);
+                    CheckInequalityType(b, c, "compare(<)");
+                    if (b->type_ == ValueT_Number)
+                        a->SetBool(b->num_ < c->num_);
+                    else
+                        a->SetBool(*b->str_ < *c->str_);
                     break;
                 case OpType_Equal:
                     GET_REGISTER_ABC(i);
@@ -446,10 +454,20 @@ namespace luna
         return proto->GetInstructionLine(index);
     }
 
-    void VM::CheckBinaryType(const Value *v1, const Value *v2,
-                             ValueT type, const char *op) const
+    void VM::CheckArithType(const Value *v1, const Value *v2, const char *op) const
     {
-        if (v1->type_ != type || v2->type_ != type)
+        if (v1->type_ != ValueT_Number || v2->type_ != ValueT_Number)
+        {
+            auto line = GetCurrentInstructionLine();
+            throw RuntimeException(v1, v2, op, line);
+        }
+    }
+
+    void VM::CheckInequalityType(const Value *v1, const Value *v2,
+                                 const char *op) const
+    {
+        if (v1->type_ != v2->type_ ||
+            (v1->type_ != ValueT_Number && v1->type_ != ValueT_String))
         {
             auto line = GetCurrentInstructionLine();
             throw RuntimeException(v1, v2, op, line);
