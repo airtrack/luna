@@ -290,6 +290,7 @@ namespace luna
         a->closure_->SetPrototype(a_proto);
 
         // Prepare all upvalues
+        auto new_closure = a->closure_;
         auto closure = call->func_->closure_;
         auto count = a_proto->GetUpvalueCount();
         for (std::size_t i = 0; i < count; ++i)
@@ -305,18 +306,18 @@ namespace luna
                     upvalue->SetValue(*reg);
                     reg->type_ = ValueT_Upvalue;
                     reg->upvalue_ = upvalue;
-                    a->closure_->AddUpvalue(upvalue);
+                    new_closure->AddUpvalue(upvalue);
                 }
                 else
                 {
-                    a->closure_->AddUpvalue(reg->upvalue_);
+                    new_closure->AddUpvalue(reg->upvalue_);
                 }
             }
             else
             {
                 // Get upvalue from parent upvalue list
                 auto upvalue = closure->GetUpvalue(upvalue_info->register_index_);
-                a->closure_->AddUpvalue(upvalue);
+                new_closure->AddUpvalue(upvalue);
             }
         }
     }

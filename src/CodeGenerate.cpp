@@ -665,8 +665,12 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(LocalFunctionStatement *, void *)
+    void CodeGenerateVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
     {
+        auto register_id = GenerateRegisterId();
+        InsertName(l_func_stmt->name_.str_, register_id, l_func_stmt->name_ref_.is_upvalue_);
+        ExpVarData exp_var_data{ register_id, register_id + 1 };
+        l_func_stmt->func_body_->Accept(this, &exp_var_data);
     }
 
     void CodeGenerateVisitor::Visit(LocalNameListStatement *l_namelist_stmt, void *data)
