@@ -619,12 +619,19 @@ namespace luna
         function->AddInstruction(instruction, ret_stmt->line_);
     }
 
-    void CodeGenerateVisitor::Visit(BreakStatement *, void *)
+    void CodeGenerateVisitor::Visit(BreakStatement *break_stmt, void *data)
     {
+        assert(break_stmt->loop_);
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
+        int index = function->AddInstruction(instruction, break_stmt->break_.line_);
+        AddLoopJumpInfo(break_stmt->loop_, index, LoopJumpInfo::JumpTail);
     }
 
-    void CodeGenerateVisitor::Visit(DoStatement *, void *)
+    void CodeGenerateVisitor::Visit(DoStatement *do_stmt, void *data)
     {
+        CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+        do_stmt->block_->Accept(this, nullptr);
     }
 
     void CodeGenerateVisitor::Visit(WhileStatement *while_stmt, void *data)
