@@ -463,6 +463,9 @@ namespace luna
             }
         }
 
+        template<typename StatementType>
+        void IfStatementGenerateCode(StatementType *if_stmt);
+
         // Current code generating function
         GenerateFunction *current_function_;
     };
@@ -531,6 +534,43 @@ namespace luna
 
         FuncCallArgsData() : arg_value_count_(0) { }
     };
+
+    template<typename StatementType>
+    void CodeGenerateVisitor::IfStatementGenerateCode(StatementType *if_stmt)
+    {
+        auto function = GetCurrentFunction();
+        int jmp_end_index = 0;
+        {
+            REGISTER_GENERATOR_GUARD();
+            auto register_id = GenerateRegisterId();
+            ExpVarData exp_var_data{ register_id, register_id + 1 };
+            if_stmt->exp_->Accept(this, &exp_var_data);
+
+            auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
+            int jmp_index = function->AddInstruction(instruction, if_stmt->line_);
+
+            {
+                // True branch block generate code
+                CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+                if_stmt->true_branch_->Accept(this, nullptr);
+            }
+
+            // Jmp to the end of if-elseif-else statement after excute block
+            instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
+            jmp_end_index = function->AddInstruction(instruction, if_stmt->block_end_line_);
+
+            // Refill OpType_JmpFalse instruction
+            int index = function->OpCodeSize();
+            function->GetMutableInstruction(jmp_index)->RefillsBx(index - jmp_index);
+        }
+
+        if (if_stmt->false_branch_)
+            if_stmt->false_branch_->Accept(this, nullptr);
+
+        // Refill OpType_Jmp instruction
+        int end_index = function->OpCodeSize();
+        function->GetMutableInstruction(jmp_end_index)->RefillsBx(end_index - jmp_end_index);
+    }
 
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
     {
@@ -616,37 +656,17 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(IfStatement *if_stmt, void *data)
     {
-        {
-            REGISTER_GENERATOR_GUARD();
-            auto register_id = GenerateRegisterId();
-            ExpVarData exp_var_data{ register_id, register_id + 1 };
-            if_stmt->exp_->Accept(this, &exp_var_data);
-
-            auto function = GetCurrentFunction();
-            auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
-            int jmp_index = function->AddInstruction(instruction, if_stmt->line_);
-
-            {
-                // True branch block generate code
-                CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
-                if_stmt->true_branch_->Accept(this, nullptr);
-            }
-
-            // Refill OpType_JmpFalse instruction
-            int index = function->OpCodeSize();
-            function->GetMutableInstruction(jmp_index)->RefillsBx(index - jmp_index);
-        }
-
-        if (if_stmt->false_branch_)
-            if_stmt->false_branch_->Accept(this, nullptr);
+        IfStatementGenerateCode(if_stmt);
     }
 
-    void CodeGenerateVisitor::Visit(ElseIfStatement *, void *)
+    void CodeGenerateVisitor::Visit(ElseIfStatement *elseif_stmt, void *data)
     {
+        IfStatementGenerateCode(elseif_stmt);
     }
 
-    void CodeGenerateVisitor::Visit(ElseStatement *, void *)
+    void CodeGenerateVisitor::Visit(ElseStatement *else_stmt, void *data)
     {
+        else_stmt->block_->Accept(this, nullptr);
     }
 
     void CodeGenerateVisitor::Visit(NumericForStatement *, void *)

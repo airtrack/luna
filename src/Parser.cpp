@@ -342,18 +342,20 @@ namespace
                 throw ParseException("expect 'then' for if", current_);
 
             std::unique_ptr<SyntaxTree> true_branch = ParseBlock();
+            int block_end_line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> false_branch = ParseFalseBranchStatement();
 
             return std::unique_ptr<SyntaxTree>(new IfStatement(std::move(exp),
                                                                std::move(true_branch),
                                                                std::move(false_branch),
-                                                               line));
+                                                               line, block_end_line));
         }
 
         std::unique_ptr<SyntaxTree> ParseElseIfStatement()
         {
             NextToken();                // skip 'elseif'
             assert(current_.token_ == Token_Elseif);
+            int line = current_.line_;
 
             std::unique_ptr<SyntaxTree> exp = ParseExp();
 
@@ -361,11 +363,13 @@ namespace
                 throw ParseException("expect 'then' for elseif", current_);
 
             std::unique_ptr<SyntaxTree> true_branch = ParseBlock();
+            int block_end_line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> false_branch = ParseFalseBranchStatement();
 
             return std::unique_ptr<SyntaxTree>(new ElseIfStatement(std::move(exp),
                                                                    std::move(true_branch),
-                                                                   std::move(false_branch)));
+                                                                   std::move(false_branch),
+                                                                   line, block_end_line));
         }
 
         std::unique_ptr<SyntaxTree> ParseFalseBranchStatement()

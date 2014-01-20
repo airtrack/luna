@@ -163,14 +163,17 @@ namespace luna
 
         // Line of if
         int line_;
+        // End line of block
+        int block_end_line_;
 
         IfStatement(std::unique_ptr<SyntaxTree> exp,
                     std::unique_ptr<SyntaxTree> true_branch,
                     std::unique_ptr<SyntaxTree> false_branch,
-                    int line)
+                    int line, int block_end_line)
             : exp_(std::move(exp)),
               true_branch_(std::move(true_branch)),
-              false_branch_(std::move(false_branch)), line_(line)
+              false_branch_(std::move(false_branch)),
+              line_(line), block_end_line_(block_end_line)
         {
         }
 
@@ -184,12 +187,19 @@ namespace luna
         std::unique_ptr<SyntaxTree> true_branch_;
         std::unique_ptr<SyntaxTree> false_branch_;
 
+        // Line of elseif
+        int line_;
+        // End line of block
+        int block_end_line_;
+
         ElseIfStatement(std::unique_ptr<SyntaxTree> exp,
                         std::unique_ptr<SyntaxTree> true_branch,
-                        std::unique_ptr<SyntaxTree> false_branch)
+                        std::unique_ptr<SyntaxTree> false_branch,
+                        int line, int block_end_line)
             : exp_(std::move(exp)),
               true_branch_(std::move(true_branch)),
-              false_branch_(std::move(false_branch))
+              false_branch_(std::move(false_branch)),
+              line_(line), block_end_line_(block_end_line)
         {
         }
 
