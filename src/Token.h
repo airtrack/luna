@@ -14,7 +14,7 @@ namespace luna
         Token_Local, Token_Nil, Token_Not, Token_Or, Token_Repeat,
         Token_Return, Token_Then, Token_True, Token_Until, Token_While,
         Token_Id, Token_String, Token_Number,
-        Token_Equal, Token_NotEqual, Token_LessEqual, Token_BigEqual,
+        Token_Equal, Token_NotEqual, Token_LessEqual, Token_GreaterEqual,
         Token_Concat, Token_VarArg, Token_EOF,
     };
 

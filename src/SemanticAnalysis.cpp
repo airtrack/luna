@@ -483,7 +483,7 @@ namespace luna
                                             binary_exp->op_token_);
                 parent_exp_var_data->exp_type_ = ExpType_Number;
                 break;
-            case '<': case '>': case Token_LessEqual: case Token_BigEqual:
+            case '<': case '>': case Token_LessEqual: case Token_GreaterEqual:
                 if (l_exp_var_data.exp_type_ != ExpType_Unknown &&
                     r_exp_var_data.exp_type_ != ExpType_Unknown)
                 {

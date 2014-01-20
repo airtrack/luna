@@ -152,7 +152,7 @@ namespace luna
             case '=':
                 return LexXEqual(detail, Token_Equal);
             case '>':
-                return LexXEqual(detail, Token_BigEqual);
+                return LexXEqual(detail, Token_GreaterEqual);
             case '<':
                 return LexXEqual(detail, Token_LessEqual);
             case '[':

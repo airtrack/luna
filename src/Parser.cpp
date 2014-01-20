@@ -881,7 +881,7 @@ namespace
                 case Token_Concat:      return 60;
                 case '>':
                 case '<':
-                case Token_BigEqual:
+                case Token_GreaterEqual:
                 case Token_LessEqual:
                 case Token_NotEqual:
                 case Token_Equal:       return 50;

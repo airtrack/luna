@@ -27,8 +27,11 @@ namespace luna
         OpType_Pow,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Mod,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Less,                    // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_Greater,                 // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Equal,                   // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_UnEqual,                 // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_LessEqual,               // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_GreaterEqual,            // ABC  A: dst register B: operand1 register C: operand2 register
     };
 
     struct Instruction

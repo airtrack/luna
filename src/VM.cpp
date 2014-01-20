@@ -162,6 +162,14 @@ namespace luna
                     else
                         a->SetBool(*b->str_ < *c->str_);
                     break;
+                case OpType_Greater:
+                    GET_REGISTER_ABC(i);
+                    CheckInequalityType(b, c, "compare(>)");
+                    if (b->type_ == ValueT_Number)
+                        a->SetBool(b->num_ > c->num_);
+                    else
+                        a->SetBool(*b->str_ > *c->str_);
+                    break;
                 case OpType_Equal:
                     GET_REGISTER_ABC(i);
                     a->SetBool(*b == *c);
@@ -169,6 +177,22 @@ namespace luna
                 case OpType_UnEqual:
                     GET_REGISTER_ABC(i);
                     a->SetBool(*b != *c);
+                    break;
+                case OpType_LessEqual:
+                    GET_REGISTER_ABC(i);
+                    CheckInequalityType(b, c, "compare(<=)");
+                    if (b->type_ == ValueT_Number)
+                        a->SetBool(b->num_ <= c->num_);
+                    else
+                        a->SetBool(*b->str_ <= *c->str_);
+                    break;
+                case OpType_GreaterEqual:
+                    GET_REGISTER_ABC(i);
+                    CheckInequalityType(b, c, "compare(>=)");
+                    if (b->type_ == ValueT_Number)
+                        a->SetBool(b->num_ >= c->num_);
+                    else
+                        a->SetBool(*b->str_ >= *c->str_);
                     break;
                 default:
                     break;

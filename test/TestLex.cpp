@@ -88,7 +88,7 @@ TEST_CASE(lex5)
     EXPECT_TRUE(lexer.GetToken() == luna::Token_Equal);
     EXPECT_TRUE(lexer.GetToken() == luna::Token_NotEqual);
     EXPECT_TRUE(lexer.GetToken() == luna::Token_LessEqual);
-    EXPECT_TRUE(lexer.GetToken() == luna::Token_BigEqual);
+    EXPECT_TRUE(lexer.GetToken() == luna::Token_GreaterEqual);
     EXPECT_TRUE(lexer.GetToken() == '<');
     EXPECT_TRUE(lexer.GetToken() == '>');
     EXPECT_TRUE(lexer.GetToken() == '=');
