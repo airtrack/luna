@@ -657,8 +657,25 @@ namespace luna
         AddLoopJumpInfo(while_stmt, index, LoopJumpInfo::JumpHead);
     }
 
-    void CodeGenerateVisitor::Visit(RepeatStatement *, void *)
+    void CodeGenerateVisitor::Visit(RepeatStatement *repeat_stmt, void *data)
     {
+        CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+        LOOP_GUARD(repeat_stmt);
+        {
+            REGISTER_GENERATOR_GUARD();
+            repeat_stmt->block_->Accept(this, nullptr);
+        }
+
+        // Get exp value
+        auto register_id = GenerateRegisterId();
+        ExpVarData exp_var_data{ register_id, register_id + 1 };
+        repeat_stmt->exp_->Accept(this, &exp_var_data);
+
+        // Jump to head when exp value is true
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::AsBxCode(OpType_JmpFalse, register_id, 0);
+        int index = function->AddInstruction(instruction, repeat_stmt->line_);
+        AddLoopJumpInfo(repeat_stmt, index, LoopJumpInfo::JumpHead);
     }
 
     void CodeGenerateVisitor::Visit(IfStatement *if_stmt, void *data)

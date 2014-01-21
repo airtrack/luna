@@ -145,9 +145,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> block_;
         std::unique_ptr<SyntaxTree> exp_;
 
+        // Line of until
+        int line_;
+
         RepeatStatement(std::unique_ptr<SyntaxTree> block,
-                        std::unique_ptr<SyntaxTree> exp)
-            : block_(std::move(block)), exp_(std::move(exp))
+                        std::unique_ptr<SyntaxTree> exp,
+                        int line)
+            : block_(std::move(block)), exp_(std::move(exp)), line_(line)
         {
         }
 

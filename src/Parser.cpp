@@ -325,9 +325,12 @@ namespace
             if (NextToken().token_ != Token_Until)
                 throw ParseException("expect 'until' for repeat-statement", current_);
 
+            int line = current_.line_;
             std::unique_ptr<SyntaxTree> exp = ParseExp();
 
-            return std::unique_ptr<SyntaxTree>(new RepeatStatement(std::move(block), std::move(exp)));
+            return std::unique_ptr<SyntaxTree>(new RepeatStatement(std::move(block),
+                                                                   std::move(exp),
+                                                                   line));
         }
 
         std::unique_ptr<SyntaxTree> ParseIfStatement()
