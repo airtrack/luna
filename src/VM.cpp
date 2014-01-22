@@ -194,6 +194,11 @@ namespace luna
                     else
                         a->SetBool(*b->str_ >= *c->str_);
                     break;
+                case OpType_NewTable:
+                    a = GET_REGISTER_A(i);
+                    a->table_ = state_->NewTable();
+                    a->type_ = ValueT_Table;
+                    break;
                 default:
                     break;
             }

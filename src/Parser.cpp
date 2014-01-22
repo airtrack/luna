@@ -752,7 +752,7 @@ namespace
             NextToken();
             assert(current_.token_ == '{');
 
-            std::unique_ptr<TableDefine> table(new TableDefine);
+            std::unique_ptr<TableDefine> table(new TableDefine(current_.line_));
 
             while (LookAhead().token_ != '}')
             {

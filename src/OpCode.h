@@ -32,6 +32,7 @@ namespace luna
         OpType_UnEqual,                 // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_LessEqual,               // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_GreaterEqual,            // ABC  A: dst register B: operand1 register C: operand2 register
+        OpType_NewTable,                // A    A: register of table
     };
 
     struct Instruction

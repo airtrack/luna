@@ -1045,8 +1045,28 @@ namespace luna
         }
     }
 
-    void CodeGenerateVisitor::Visit(TableDefine *, void *)
+    void CodeGenerateVisitor::Visit(TableDefine *table, void *data)
     {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+
+        // No register, then do not generate code
+        if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+            return ;
+
+        // New table
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::ACode(OpType_NewTable, register_id);
+        function->AddInstruction(instruction, table->line_);
+
+        // Init table value
+        for (auto &field : table->fields_)
+        {
+            field->Accept(this, nullptr);
+        }
+
+        FillRemainRegisterNil(register_id + 1, end_register, table->line_);
     }
 
     void CodeGenerateVisitor::Visit(TableIndexField *, void *)

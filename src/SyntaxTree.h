@@ -476,7 +476,9 @@ namespace luna
     public:
         std::vector<std::unique_ptr<SyntaxTree>> fields_;
 
-        TableDefine() { }
+        int line_;
+
+        explicit TableDefine(int line) : line_(line) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };
