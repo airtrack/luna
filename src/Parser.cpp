@@ -663,10 +663,13 @@ namespace
 
             if (current_.token_ == '[')
             {
+                int line = LookAhead().line_;
                 std::unique_ptr<SyntaxTree> exp = ParseExp();
                 if (NextToken().token_ != ']')
                     throw ParseException("expect ']'", current_);
-                return std::unique_ptr<SyntaxTree>(new IndexAccessor(std::move(table), std::move(exp)));
+                return std::unique_ptr<SyntaxTree>(new IndexAccessor(std::move(table),
+                                                                     std::move(exp),
+                                                                     line));
             }
             else
             {

@@ -472,6 +472,11 @@ namespace luna
                                 int key_register,
                                 int line);
 
+        template<typename TableAccessorType, typename LoadKey>
+        void AccessTableField(TableAccessorType *accessor,
+                              void *data, int line,
+                              const LoadKey &load_key);
+
         // Current code generating function
         GenerateFunction *current_function_;
     };
@@ -607,6 +612,61 @@ namespace luna
         auto instruction = Instruction::ABCCode(OpType_SetTable, table_register,
                                                 key_register, value_register);
         GetCurrentFunction()->AddInstruction(instruction, line);
+    }
+
+    template<typename TableAccessorType, typename LoadKey>
+    void CodeGenerateVisitor::AccessTableField(TableAccessorType *accessor,
+                                               void *data, int line,
+                                               const LoadKey &load_key)
+    {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+        auto function = GetCurrentFunction();
+
+        int table_register = 0;
+        int key_register = 0;
+        int value_register = 0;
+        OpType op_type;
+        if (accessor->semantic_ == SemanticOp_Read)
+        {
+            // No more register, do nothing
+            if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+                return ;
+
+            if (end_register != EXP_VALUE_COUNT_ANY && register_id + 1 < end_register)
+                key_register = register_id + 1;
+            else
+                key_register = GenerateRegisterId();
+            table_register = register_id;
+            value_register = register_id;
+            op_type = OpType_GetTable;
+        }
+        else
+        {
+            assert(accessor->semantic_ == SemanticOp_Write);
+            assert(register_id + 1 == end_register);
+
+            table_register = GenerateRegisterId();
+            key_register = GenerateRegisterId();
+            value_register = register_id;
+            op_type = OpType_SetTable;
+        }
+
+        // Load table
+        ExpVarData table_exp_var_data{ table_register, table_register + 1 };
+        accessor->table_->Accept(this, &table_exp_var_data);
+
+        // Load key
+        load_key(key_register);
+
+        // Set/Get table value by key
+        auto instruction = Instruction::ABCCode(op_type, table_register,
+                                                key_register, value_register);
+        function->AddInstruction(instruction, line);
+
+        if (accessor->semantic_ == SemanticOp_Read)
+            FillRemainRegisterNil(register_id + 1, end_register, line);
     }
 
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
@@ -1143,62 +1203,27 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(IndexAccessor *, void *)
+    void CodeGenerateVisitor::Visit(IndexAccessor *accessor, void *data)
     {
+        AccessTableField(accessor, data, accessor->line_,
+                         [=](int key_register) {
+                             ExpVarData data{ key_register, key_register + 1 };
+                             accessor->index_->Accept(this, &data);
+                         });
     }
 
-    void CodeGenerateVisitor::Visit(MemberAccessor *m_accessor, void *data)
+    void CodeGenerateVisitor::Visit(MemberAccessor *accessor, void *data)
     {
-        auto exp_var_data = static_cast<ExpVarData *>(data);
-        auto register_id = exp_var_data->start_register_;
-        auto end_register = exp_var_data->end_register_;
-        auto function = GetCurrentFunction();
-
-        int table_register = 0;
-        int key_register = 0;
-        int value_register = 0;
-        OpType op_type;
-        if (m_accessor->semantic_ == SemanticOp_Read)
-        {
-            // No more register, do nothing
-            if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
-                return ;
-
-            if (end_register != EXP_VALUE_COUNT_ANY && register_id + 1 < end_register)
-                key_register = register_id + 1;
-            else
-                key_register = GenerateRegisterId();
-            table_register = register_id;
-            value_register = register_id;
-            op_type = OpType_GetTable;
-        }
-        else
-        {
-            assert(m_accessor->semantic_ == SemanticOp_Write);
-            assert(register_id + 1 == end_register);
-
-            table_register = GenerateRegisterId();
-            key_register = GenerateRegisterId();
-            value_register = register_id;
-            op_type = OpType_SetTable;
-        }
-
-        // Load table
-        ExpVarData table_exp_var_data{ table_register, table_register + 1 };
-        m_accessor->table_->Accept(this, &table_exp_var_data);
-
-        // Load key
-        auto key_index = function->AddConstString(m_accessor->member_.str_);
-        auto instruction = Instruction::ABxCode(OpType_LoadConst, key_register, key_index);
-        function->AddInstruction(instruction, m_accessor->member_.line_);
-
-        // Set/Get table value by key
-        instruction = Instruction::ABCCode(op_type, table_register,
-                                           key_register, value_register);
-        function->AddInstruction(instruction, m_accessor->member_.line_);
-
-        if (m_accessor->semantic_ == SemanticOp_Read)
-            FillRemainRegisterNil(register_id + 1, end_register, m_accessor->member_.line_);
+        AccessTableField(accessor, data, accessor->member_.line_,
+                         [=](int key_register) {
+                             auto function = GetCurrentFunction();
+                             auto key_index = function->
+                                AddConstString(accessor->member_.str_);
+                             auto instruction = Instruction::
+                                ABxCode(OpType_LoadConst, key_register, key_index);
+                             function->AddInstruction(instruction,
+                                                      accessor->member_.line_);
+                         });
     }
 
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call, void *data)

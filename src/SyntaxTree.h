@@ -536,13 +536,16 @@ namespace luna
         std::unique_ptr<SyntaxTree> table_;
         std::unique_ptr<SyntaxTree> index_;
 
+        int line_;
+
         // For semantic
         SemanticOp semantic_;
 
         IndexAccessor(std::unique_ptr<SyntaxTree> table,
-                      std::unique_ptr<SyntaxTree> index)
+                      std::unique_ptr<SyntaxTree> index,
+                      int line)
             : table_(std::move(table)), index_(std::move(index)),
-              semantic_(SemanticOp_None)
+              line_(line), semantic_(SemanticOp_None)
         {
         }
 
