@@ -1123,8 +1123,48 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(MemberAccessor *, void *)
+    void CodeGenerateVisitor::Visit(MemberAccessor *m_accessor, void *data)
     {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+        auto function = GetCurrentFunction();
+
+        if (m_accessor->semantic_ == SemanticOp_Read)
+        {
+            // No more register, do nothing
+            if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+                return ;
+
+            // Load table to register(register_id)
+            m_accessor->table_->Accept(this, data);
+
+            // Prepare registers
+            int table_register = register_id;
+            int value_register = register_id;
+            int key_register = 0;
+            if (end_register != EXP_VALUE_COUNT_ANY && register_id + 1 < end_register)
+                key_register = register_id + 1;
+            else
+                key_register = GenerateRegisterId();
+
+            // Load key
+            auto key_index = function->AddConstString(m_accessor->member_.str_);
+            auto instruction = Instruction::ABxCode(OpType_LoadConst, key_register, key_index);
+            function->AddInstruction(instruction, m_accessor->member_.line_);
+
+            // Get table value by key
+            instruction = Instruction::ABCCode(OpType_GetTable, table_register,
+                                               key_register, value_register);
+            function->AddInstruction(instruction, m_accessor->member_.line_);
+
+            FillRemainRegisterNil(register_id + 1, end_register, m_accessor->member_.line_);
+        }
+        else
+        {
+            assert(m_accessor->semantic_ == SemanticOp_Write);
+            assert(register_id + 1 == end_register);
+        }
     }
 
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call, void *data)

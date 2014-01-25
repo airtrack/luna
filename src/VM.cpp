@@ -204,6 +204,11 @@ namespace luna
                     CheckType(a, ValueT_Table, "set table");
                     a->table_->SetValue(*b, *c);
                     break;
+                case OpType_GetTable:
+                    GET_REGISTER_ABC(i);
+                    CheckType(a, ValueT_Table, "get table");
+                    *c = a->table_->GetValue(*b);
+                    break;
                 default:
                     break;
             }
