@@ -489,9 +489,13 @@ namespace luna
         std::unique_ptr<SyntaxTree> index_;
         std::unique_ptr<SyntaxTree> value_;
 
+        int line_;
+
         TableIndexField(std::unique_ptr<SyntaxTree> index,
-                        std::unique_ptr<SyntaxTree> value)
-            : index_(std::move(index)), value_(std::move(value))
+                        std::unique_ptr<SyntaxTree> value,
+                        int line)
+            : index_(std::move(index)), value_(std::move(value)),
+              line_(line)
         {
         }
 

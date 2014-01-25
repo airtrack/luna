@@ -466,6 +466,12 @@ namespace luna
         template<typename StatementType>
         void IfStatementGenerateCode(StatementType *if_stmt);
 
+        template<typename TableFieldType>
+        void SetTableFieldValue(TableFieldType *field,
+                                int table_register,
+                                int key_register,
+                                int line);
+
         // Current code generating function
         GenerateFunction *current_function_;
     };
@@ -584,6 +590,23 @@ namespace luna
         // Refill OpType_Jmp instruction
         int end_index = function->OpCodeSize();
         function->GetMutableInstruction(jmp_end_index)->RefillsBx(end_index - jmp_end_index);
+    }
+
+    template<typename TableFieldType>
+    void CodeGenerateVisitor::SetTableFieldValue(TableFieldType *field,
+                                                 int table_register,
+                                                 int key_register,
+                                                 int line)
+    {
+        // Load value
+        auto value_register = GenerateRegisterId();
+        ExpVarData exp_var_data{ value_register, value_register + 1 };
+        field->value_->Accept(this, &exp_var_data);
+
+        // Set table field
+        auto instruction = Instruction::ABCCode(OpType_SetTable, table_register,
+                                                key_register, value_register);
+        GetCurrentFunction()->AddInstruction(instruction, line);
     }
 
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
@@ -1088,31 +1111,32 @@ namespace luna
         FillRemainRegisterNil(register_id + 1, end_register, table->line_);
     }
 
-    void CodeGenerateVisitor::Visit(TableIndexField *, void *)
+    void CodeGenerateVisitor::Visit(TableIndexField *field, void *data)
     {
+        auto field_data = static_cast<TableFieldData *>(data);
+        auto table_register = field_data->table_register_;
+
+        // Load key
+        auto key_register = GenerateRegisterId();
+        ExpVarData exp_var_data{ key_register, key_register + 1 };
+        field->index_->Accept(this, &exp_var_data);
+
+        SetTableFieldValue(field, table_register, key_register, field->line_);
     }
 
     void CodeGenerateVisitor::Visit(TableNameField *field, void *data)
     {
         auto field_data = static_cast<TableFieldData *>(data);
         auto table_register = field_data->table_register_;
-        auto function = GetCurrentFunction();
 
         // Load key
+        auto function = GetCurrentFunction();
         auto key_index = function->AddConstString(field->name_.str_);
         auto key_register = GenerateRegisterId();
         auto instruction = Instruction::ABxCode(OpType_LoadConst, key_register, key_index);
         function->AddInstruction(instruction, field->name_.line_);
 
-        // Load value
-        auto value_register = GenerateRegisterId();
-        ExpVarData exp_var_data{ value_register, value_register + 1 };
-        field->value_->Accept(this, &exp_var_data);
-
-        // Set table key-value pair
-        instruction = Instruction::ABCCode(OpType_SetTable, table_register,
-                                           key_register, value_register);
-        function->AddInstruction(instruction, field->name_.line_);
+        SetTableFieldValue(field, table_register, key_register, field->name_.line_);
     }
 
     void CodeGenerateVisitor::Visit(TableArrayField *, void *)

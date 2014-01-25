@@ -781,6 +781,7 @@ namespace
             NextToken();
             assert(current_.token_ == '[');
 
+            int line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> index = ParseExp();
 
             if (NextToken().token_ != ']')
@@ -791,7 +792,9 @@ namespace
 
             std::unique_ptr<SyntaxTree> value = ParseExp();
 
-            return std::unique_ptr<SyntaxTree>(new TableIndexField(std::move(index), std::move(value)));
+            return std::unique_ptr<SyntaxTree>(new TableIndexField(std::move(index),
+                                                                   std::move(value),
+                                                                   line));
         }
 
         std::unique_ptr<SyntaxTree> ParseTableNameField()
