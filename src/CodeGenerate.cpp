@@ -527,6 +527,20 @@ namespace luna
             : start_register_(start_register), end_register_(end_register) { }
     };
 
+    // For table field
+    struct TableFieldData
+    {
+        // Table register
+        int table_register_;
+
+        // Array part index, start from 1
+        int array_index_;
+
+        explicit TableFieldData(int table_register)
+            : table_register_(table_register),
+              array_index_(1) { }
+    };
+
     // For FuncCallArgs AST
     struct FuncCallArgsData
     {
@@ -1060,10 +1074,15 @@ namespace luna
         auto instruction = Instruction::ACode(OpType_NewTable, register_id);
         function->AddInstruction(instruction, table->line_);
 
-        // Init table value
-        for (auto &field : table->fields_)
+        if (!table->fields_.empty())
         {
-            field->Accept(this, nullptr);
+            // Init table value
+            TableFieldData field_data{ register_id };
+            for (auto &field : table->fields_)
+            {
+                REGISTER_GENERATOR_GUARD();
+                field->Accept(this, &field_data);
+            }
         }
 
         FillRemainRegisterNil(register_id + 1, end_register, table->line_);
@@ -1073,8 +1092,27 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(TableNameField *, void *)
+    void CodeGenerateVisitor::Visit(TableNameField *field, void *data)
     {
+        auto field_data = static_cast<TableFieldData *>(data);
+        auto table_register = field_data->table_register_;
+        auto function = GetCurrentFunction();
+
+        // Load key
+        auto key_index = function->AddConstString(field->name_.str_);
+        auto key_register = GenerateRegisterId();
+        auto instruction = Instruction::ABxCode(OpType_LoadConst, key_register, key_index);
+        function->AddInstruction(instruction, field->name_.line_);
+
+        // Load value
+        auto value_register = GenerateRegisterId();
+        ExpVarData exp_var_data{ value_register, value_register + 1 };
+        field->value_->Accept(this, &exp_var_data);
+
+        // Set table key-value pair
+        instruction = Instruction::ABCCode(OpType_SetTable, table_register,
+                                           key_register, value_register);
+        function->AddInstruction(instruction, field->name_.line_);
     }
 
     void CodeGenerateVisitor::Visit(TableArrayField *, void *)

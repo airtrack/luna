@@ -199,6 +199,11 @@ namespace luna
                     a->table_ = state_->NewTable();
                     a->type_ = ValueT_Table;
                     break;
+                case OpType_SetTable:
+                    GET_REGISTER_ABC(i);
+                    CheckType(a, ValueT_Table, "set table");
+                    a->table_->SetValue(*b, *c);
+                    break;
                 default:
                     break;
             }
@@ -481,6 +486,16 @@ namespace luna
         GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
+    }
+
+    void VM::CheckType(const Value *v, ValueT type, const char *op) const
+    {
+        if (v->type_ != type)
+        {
+            auto ns = GetOperandNameAndScope(v);
+            auto line = GetCurrentInstructionLine();
+            throw RuntimeException(v, ns.first, ns.second, op, line);
+        }
     }
 
     void VM::CheckArithType(const Value *v1, const Value *v2, const char *op) const

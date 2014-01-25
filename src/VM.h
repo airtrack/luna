@@ -34,6 +34,8 @@ namespace luna
 
         int GetCurrentInstructionLine() const;
 
+        void CheckType(const Value *v, ValueT type, const char *op) const;
+
         void CheckArithType(const Value *v1, const Value *v2,
                             const char *op) const;
 
