@@ -118,6 +118,15 @@ namespace luna
                 case OpType_Jmp:
                     call->instruction_ += -1 + Instruction::GetParamsBx(i);
                     break;
+                case OpType_Neg:
+                    a = GET_REGISTER_A(i);
+                    CheckType(a, ValueT_Number, "neg");
+                    a->num_ = -a->num_;
+                    break;
+                case OpType_Not:
+                    a = GET_REGISTER_A(i);
+                    a->SetBool(a->IsFalse() ? true : false);
+                    break;
                 case OpType_Add:
                     GET_REGISTER_ABC(i);
                     CheckArithType(b, c, "add");
