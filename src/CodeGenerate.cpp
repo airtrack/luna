@@ -1069,8 +1069,33 @@ namespace luna
         FillRemainRegisterNil(register_id, end_register, bin_exp->op_token_.line_);
     }
 
-    void CodeGenerateVisitor::Visit(UnaryExpression *, void *)
+    void CodeGenerateVisitor::Visit(UnaryExpression *unexp, void *data)
     {
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto register_id = exp_var_data->start_register_;
+        auto end_register = exp_var_data->end_register_;
+
+        if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
+            return ;
+
+        unexp->exp_->Accept(this, exp_var_data);
+
+        // Choose OpType by operator
+        OpType op_type;
+        switch (unexp->op_token_.token_)
+        {
+            case '-': op_type = OpType_Neg; break;
+            case '#': op_type = OpType_Len; break;
+            case Token_Not: op_type = OpType_Not; break;
+            default: assert(0); break;
+        }
+
+        // Generate instruction
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::ACode(op_type, register_id++);
+        function->AddInstruction(instruction, unexp->op_token_.line_);
+
+        FillRemainRegisterNil(register_id, end_register, unexp->op_token_.line_);
     }
 
     void CodeGenerateVisitor::Visit(FunctionBody *func_body, void *data)

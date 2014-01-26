@@ -20,6 +20,9 @@ namespace luna
         OpType_JmpFalse,                // AsBx A: register sBx: diff of instruction index
         OpType_JmpTrue,                 // AsBx A: register sBx: diff of instruction index
         OpType_Jmp,                     // sBx  sBx: diff of instruction index
+        OpType_Neg,                     // A    A: operand register and dst register
+        OpType_Not,                     // A    A: operand register and dst register
+        OpType_Len,                     // A    A: operand register and dst register
         OpType_Add,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Sub,                     // ABC  A: dst register B: operand1 register C: operand2 register
         OpType_Mul,                     // ABC  A: dst register B: operand1 register C: operand2 register
