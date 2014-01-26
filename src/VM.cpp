@@ -127,6 +127,16 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     a->SetBool(a->IsFalse() ? true : false);
                     break;
+                case OpType_Len:
+                    a = GET_REGISTER_A(i);
+                    if (a->type_ == ValueT_Table)
+                        a->num_ = a->table_->ArraySize();
+                    else if (a->type_ == ValueT_String)
+                        a->num_ = a->str_->GetLength();
+                    else
+                        ReportTypeError(a, "length of");
+                    a->type_ = ValueT_Number;
+                    break;
                 case OpType_Add:
                     GET_REGISTER_ABC(i);
                     CheckArithType(b, c, "add");
@@ -256,9 +266,7 @@ namespace luna
         }
         else
         {
-            auto ns = GetOperandNameAndScope(a);
-            auto line = GetCurrentInstructionLine();
-            throw RuntimeException(a, ns.first, ns.second, "call", line);
+            ReportTypeError(a, "call");
             return true;
         }
     }
@@ -505,11 +513,7 @@ namespace luna
     void VM::CheckType(const Value *v, ValueT type, const char *op) const
     {
         if (v->type_ != type)
-        {
-            auto ns = GetOperandNameAndScope(v);
-            auto line = GetCurrentInstructionLine();
-            throw RuntimeException(v, ns.first, ns.second, op, line);
-        }
+            ReportTypeError(v, op);
     }
 
     void VM::CheckArithType(const Value *v1, const Value *v2, const char *op) const
@@ -530,5 +534,12 @@ namespace luna
             auto line = GetCurrentInstructionLine();
             throw RuntimeException(v1, v2, op, line);
         }
+    }
+
+    void VM::ReportTypeError(const Value *v, const char *op) const
+    {
+        auto ns = GetOperandNameAndScope(v);
+        auto line = GetCurrentInstructionLine();
+        throw RuntimeException(v, ns.first, ns.second, op, line);
     }
 } // namespace luna

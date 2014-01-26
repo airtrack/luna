@@ -42,6 +42,8 @@ namespace luna
         void CheckInequalityType(const Value *v1, const Value *v2,
                                  const char *op) const;
 
+        void ReportTypeError(const Value *v, const char *op) const;
+
         State *state_;
     };
 } // namespace luna

@@ -39,11 +39,11 @@ namespace luna
         // is no key-value pair any more.
         bool NextKeyValue(const Value &key, Value &next_key, Value &next_value);
 
+        std::size_t ArraySize() const;
+
     private:
         typedef std::vector<Value> Array;
         typedef std::unordered_map<Value, Value> Hash;
-
-        std::size_t ArraySize() const;
 
         // Append value to array.
         void AppendToArray(const Value &value);
