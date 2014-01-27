@@ -522,8 +522,11 @@ namespace luna
     public:
         std::unique_ptr<SyntaxTree> value_;
 
-        explicit TableArrayField(std::unique_ptr<SyntaxTree> value)
-            : value_(std::move(value))
+        int line_;
+
+        explicit TableArrayField(std::unique_ptr<SyntaxTree> value,
+                                 int line)
+            : value_(std::move(value)), line_(line)
         {
         }
 

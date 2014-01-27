@@ -814,8 +814,9 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseTableArrayField()
         {
+            int line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> value = ParseExp();
-            return std::unique_ptr<SyntaxTree>(new TableArrayField(std::move(value)));
+            return std::unique_ptr<SyntaxTree>(new TableArrayField(std::move(value), line));
         }
 
     private:

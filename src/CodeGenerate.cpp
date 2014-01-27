@@ -545,7 +545,7 @@ namespace luna
         int table_register_;
 
         // Array part index, start from 1
-        int array_index_;
+        unsigned int array_index_;
 
         explicit TableFieldData(int table_register)
             : table_register_(table_register),
@@ -1303,8 +1303,20 @@ namespace luna
         SetTableFieldValue(field, table_register, key_register, field->name_.line_);
     }
 
-    void CodeGenerateVisitor::Visit(TableArrayField *, void *)
+    void CodeGenerateVisitor::Visit(TableArrayField *field, void *data)
     {
+        auto field_data = static_cast<TableFieldData *>(data);
+        auto table_register = field_data->table_register_;
+
+        // Load key
+        auto function = GetCurrentFunction();
+        auto key_register = GenerateRegisterId();
+        auto instruction = Instruction::ACode(OpType_LoadInt, key_register);
+        function->AddInstruction(instruction, field->line_);
+        instruction.opcode_ = field_data->array_index_++;
+        function->AddInstruction(instruction, field->line_);
+
+        SetTableFieldValue(field, table_register, key_register, field->line_);
     }
 
     void CodeGenerateVisitor::Visit(IndexAccessor *accessor, void *data)
