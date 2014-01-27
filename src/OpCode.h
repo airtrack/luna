@@ -7,6 +7,7 @@ namespace luna
     {
         OpType_LoadNil = 1,             // A    A: register
         OpType_LoadBool,                // AB   A: register B: 1 true 0 false
+        OpType_LoadInt,                 // A    A: register Next instruction opcode is const unsigned int
         OpType_LoadConst,               // ABx  A: register Bx: const index
         OpType_Move,                    // AB   A: dst register B: src register
         OpType_GetUpvalue,              // AB   A: register B: upvalue index
@@ -38,6 +39,7 @@ namespace luna
         OpType_NewTable,                // A    A: register of table
         OpType_SetTable,                // ABC  A: register of table B: key register C: value register
         OpType_GetTable,                // ABC  A: register of table B: key register C: value register
+        OpType_ForStep,                 // ABC  A: step register, instruction index diff B: step > 0 C: step <= 0
     };
 
     struct Instruction

@@ -790,8 +790,87 @@ namespace luna
         else_stmt->block_->Accept(this, nullptr);
     }
 
-    void CodeGenerateVisitor::Visit(NumericForStatement *, void *)
+    void CodeGenerateVisitor::Visit(NumericForStatement *num_for, void *data)
     {
+        CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+
+        auto name_register = GenerateRegisterId();
+        auto limit_register = GenerateRegisterId();
+        auto step_register = GenerateRegisterId();
+        auto function = GetCurrentFunction();
+
+        // Init name, limit, step
+        {
+            REGISTER_GENERATOR_GUARD();
+            ExpVarData name_exp_data{ name_register, name_register + 1 };
+            num_for->exp1_->Accept(this, &name_exp_data);
+        }
+        {
+            REGISTER_GENERATOR_GUARD();
+            ExpVarData limit_exp_data{ limit_register, limit_register + 1 };
+            num_for->exp2_->Accept(this, &limit_exp_data);
+        }
+        {
+            REGISTER_GENERATOR_GUARD();
+            if (num_for->exp3_)
+            {
+                ExpVarData step_exp_data{ step_register, step_register + 1 };
+                num_for->exp3_->Accept(this, &step_exp_data);
+            }
+            else
+            {
+                // Default step is 1
+                auto instruction = Instruction::ACode(OpType_LoadInt, step_register);
+                function->AddInstruction(instruction, num_for->name_.line_);
+                // Int value 1
+                instruction.opcode_ = 1;
+                function->AddInstruction(instruction, num_for->name_.line_);
+            }
+        }
+
+        InsertName(num_for->name_.str_, name_register, num_for->name_ref_.is_upvalue_);
+
+        LOOP_GUARD(num_for);
+        {
+            REGISTER_GENERATOR_GUARD();
+            // Check step value and choose compare instruction
+            // diff 1: when step > 0
+            // diff 3: when step <= 0
+            auto instruction = Instruction::ABCCode(OpType_ForStep, step_register, 1, 3);
+            function->AddInstruction(instruction, num_for->name_.line_);
+
+            auto temp_register = GenerateRegisterId();
+            // 1.Compare instruction when step > 0
+            instruction = Instruction::ABCCode(OpType_LessEqual, temp_register,
+                                               name_register, limit_register);
+            function->AddInstruction(instruction, num_for->name_.line_);
+
+            // 2.Jump to OpType_JmpFalse instruction
+            instruction = Instruction::AsBxCode(OpType_Jmp, 0, 2);
+            function->AddInstruction(instruction, num_for->name_.line_);
+
+            // 3.Compare instruction when step <= 0
+            instruction = Instruction::ABCCode(OpType_GreaterEqual, temp_register,
+                                               name_register, limit_register);
+            function->AddInstruction(instruction, num_for->name_.line_);
+
+            // 4.Jump to end of for-loop when name compare with limit is false
+            instruction = Instruction::AsBxCode(OpType_JmpFalse, temp_register, 0);
+            int index = function->AddInstruction(instruction, num_for->name_.line_);
+            AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpTail);
+        }
+
+        num_for->block_->Accept(this, nullptr);
+
+        // name = name + step
+        auto instruction = Instruction::ABCCode(OpType_Add, name_register,
+                                                name_register, step_register);
+        function->AddInstruction(instruction, num_for->name_.line_);
+
+        // Jump to loop start
+        instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
+        int index = function->AddInstruction(instruction, num_for->name_.line_);
+        AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpHead);
     }
 
     void CodeGenerateVisitor::Visit(GenericForStatement *, void *)

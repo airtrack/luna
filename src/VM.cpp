@@ -60,6 +60,12 @@ namespace luna
                     a = GET_REGISTER_A(i);
                     GET_REAL_VALUE(a)->SetBool(Instruction::GetParamB(i) ? true : false);
                     break;
+                case OpType_LoadInt:
+                    a = GET_REGISTER_A(i);
+                    assert(call->instruction_ < call->end_);
+                    a->num_ = (*call->instruction_++).opcode_;
+                    a->type_ = ValueT_Number;
+                    break;
                 case OpType_LoadConst:
                     a = GET_REGISTER_A(i);
                     b = GET_CONST_VALUE(i);
@@ -227,6 +233,15 @@ namespace luna
                     GET_REGISTER_ABC(i);
                     CheckType(a, ValueT_Table, "get table");
                     *c = a->table_->GetValue(*b);
+                    break;
+                case OpType_ForStep:
+                    a = GET_REGISTER_A(i);
+                    assert(a->type_ == ValueT_Number);
+                    if (a->num_ > 0.0)
+                        call->instruction_ += - 1 + Instruction::GetParamB(i);
+                    else
+                        call->instruction_ += - 1 + Instruction::GetParamC(i);
+                    assert(call->instruction_ < call->end_);
                     break;
                 default:
                     break;
