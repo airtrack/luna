@@ -55,8 +55,8 @@ namespace luna
         void SetHasVararg();
         bool HasVararg() const;
 
-        // Set and get fixed arg count
-        void SetFixedArgCount(int count);
+        // Add and get fixed arg count
+        void AddFixedArgCount(int count);
         int FixedArgCount() const;
 
         // Set module and function define start line

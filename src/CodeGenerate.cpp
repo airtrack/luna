@@ -1295,6 +1295,16 @@ namespace luna
             {
                 CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
                 // Child function generate code
+                if (func_body->has_self_)
+                {
+                    auto register_id = GenerateRegisterId();
+                    auto self = state_->GetString("self");
+                    InsertName(self, register_id, func_body->self_ref_.is_upvalue_);
+
+                    auto function = GetCurrentFunction();
+                    function->AddFixedArgCount(1);
+                }
+
                 if (func_body->param_list_)
                     func_body->param_list_->Accept(this, nullptr);
                 func_body->block_->Accept(this, nullptr);
@@ -1320,7 +1330,7 @@ namespace luna
     void CodeGenerateVisitor::Visit(ParamList *param_list, void *data)
     {
         auto function = GetCurrentFunction();
-        function->SetFixedArgCount(param_list->fix_arg_count_);
+        function->AddFixedArgCount(param_list->fix_arg_count_);
         if (param_list->vararg_) function->SetHasVararg();
 
         if (param_list->name_list_)

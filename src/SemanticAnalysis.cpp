@@ -1,6 +1,7 @@
 #include "SemanticAnalysis.h"
 #include "Visitor.h"
 #include "Exception.h"
+#include "State.h"
 #include "String.h"
 #include "Guard.h"
 #include <unordered_map>
@@ -71,7 +72,9 @@ namespace luna
         virtual void Visit(FuncCallArgs *, void *);
         virtual void Visit(ExpressionList *, void *);
 
-        SemanticAnalysisVisitor() : current_function_(nullptr) { }
+        explicit SemanticAnalysisVisitor(State *state)
+            : state_(state), current_function_(nullptr) { }
+
         ~SemanticAnalysisVisitor()
         {
             // delete all functions
@@ -203,6 +206,7 @@ namespace luna
             }
         }
 
+        State *state_;
         // Current lexical function for all names finding
         LexicalFunction *current_function_;
     };
@@ -261,6 +265,14 @@ namespace luna
         explicit ExpVarData(SemanticOp semantic_op = SemanticOp_None)
             : semantic_op_(semantic_op), exp_type_(ExpType_Unknown),
               results_any_count_(false) { }
+    };
+
+    // For FunctionName
+    struct FunctionNameData
+    {
+        bool has_member_token_;
+
+        FunctionNameData() : has_member_token_(false) { }
     };
 
     void SemanticAnalysisVisitor::Visit(Chunk *chunk, void *data)
@@ -385,7 +397,16 @@ namespace luna
 
     void SemanticAnalysisVisitor::Visit(FunctionStatement *func_stmt, void *data)
     {
-        func_stmt->func_name_->Accept(this, nullptr);
+        FunctionNameData name_data;
+        func_stmt->func_name_->Accept(this, &name_data);
+
+        // Set FunctionBody has 'self' param when FunctionName has member token
+        if (name_data.has_member_token_)
+        {
+            auto body = static_cast<FunctionBody *>(func_stmt->func_body_.get());
+            body->has_self_ = true;
+        }
+
         func_stmt->func_body_->Accept(this, nullptr);
     }
 
@@ -394,6 +415,10 @@ namespace luna
         assert(!func_name->names_.empty());
         // Get the scoping of first token of FunctionName
         func_name->scoping_ = SearchName(func_name->names_[0].str_);
+
+        // Set FunctionNameData
+        static_cast<FunctionNameData *>(data)->has_member_token_ =
+            func_name->member_name_.token_ == Token_Id;
     }
 
     void SemanticAnalysisVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
@@ -568,6 +593,12 @@ namespace luna
         {
             SEMANTIC_ANALYSIS_GUARD(EnterBlock, LeaveBlock);
 
+            if (func_body->has_self_)
+            {
+                auto self = state_->GetString("self");
+                InsertName(self, &func_body->self_ref_);
+            }
+
             if (func_body->param_list_)
                 func_body->param_list_->Accept(this, nullptr);
 
@@ -711,10 +742,10 @@ namespace luna
         static_cast<ExpListData *>(data)->exp_value_count_ = count;
     }
 
-    void SemanticAnalysis(SyntaxTree *root)
+    void SemanticAnalysis(SyntaxTree *root, State *state)
     {
-        assert(root);
-        SemanticAnalysisVisitor semantic_analysis;
+        assert(root && state);
+        SemanticAnalysisVisitor semantic_analysis(state);
         root->Accept(&semantic_analysis, nullptr);
     }
 } // namespace luna

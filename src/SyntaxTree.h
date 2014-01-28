@@ -430,13 +430,17 @@ namespace luna
         std::unique_ptr<SyntaxTree> param_list_;
         std::unique_ptr<SyntaxTree> block_;
 
+        // For code generate, has 'self' param or not
+        bool has_self_;
+        NameRefInfo self_ref_;
+
         int line_;
 
         FunctionBody() { }
         FunctionBody(std::unique_ptr<SyntaxTree> param_list,
                      std::unique_ptr<SyntaxTree> block, int line)
             : param_list_(std::move(param_list)),
-              block_(std::move(block)), line_(line)
+              block_(std::move(block)), has_self_(false), line_(line)
         {
         }
 

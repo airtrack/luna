@@ -64,9 +64,9 @@ namespace luna
         return is_vararg_;
     }
 
-    void Function::SetFixedArgCount(int count)
+    void Function::AddFixedArgCount(int count)
     {
-        args_ = count;
+        args_ += count;
     }
 
     int Function::FixedArgCount() const

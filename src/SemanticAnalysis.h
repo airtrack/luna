@@ -5,7 +5,9 @@
 
 namespace luna
 {
-    void SemanticAnalysis(SyntaxTree *root);
+    class State;
+
+    void SemanticAnalysis(SyntaxTree *root, State *state);
 }
 
 #endif // SEMANTIC_ANALYSIS_H

@@ -29,7 +29,7 @@ namespace luna
         auto ast = parser.Parse(&lexer);
 
         // Semantic analysis
-        SemanticAnalysis(ast.get());
+        SemanticAnalysis(ast.get(), state_);
 
         // AST generate code
         auto visitor = GenerateVisitor(state_);

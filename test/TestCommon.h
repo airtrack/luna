@@ -36,6 +36,11 @@ public:
         return parser_.Parse(&lexer_);
     }
 
+    luna::State * GetState()
+    {
+        return &state_;
+    }
+
 private:
     io::text::InStringStream iss_;
     luna::State state_;
