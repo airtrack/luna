@@ -291,7 +291,10 @@ namespace luna
         std::vector<TokenDetail> names_;
         TokenDetail member_name_;
 
-        FunctionName() { }
+        // First token scoping
+        LexicalScoping scoping_;
+
+        FunctionName() : scoping_(LexicalScoping_Unknown) { }
 
         SYNTAX_TREE_ACCEPT_VISITOR_DECL();
     };

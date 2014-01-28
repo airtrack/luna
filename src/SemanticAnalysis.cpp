@@ -389,8 +389,11 @@ namespace luna
         func_stmt->func_body_->Accept(this, nullptr);
     }
 
-    void SemanticAnalysisVisitor::Visit(FunctionName *, void *data)
+    void SemanticAnalysisVisitor::Visit(FunctionName *func_name, void *data)
     {
+        assert(!func_name->names_.empty());
+        // Get the scoping of first token of FunctionName
+        func_name->scoping_ = SearchName(func_name->names_[0].str_);
     }
 
     void SemanticAnalysisVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)

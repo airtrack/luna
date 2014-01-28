@@ -906,29 +906,88 @@ namespace luna
         bool has_member = func_name->names_.size() > 1 ||
             func_name->member_name_.token_ == Token_Id;
 
+        auto first_name = func_name->names_[0].str_;
+        auto first_line = func_name->names_[0].line_;
+
         if (!has_member)
         {
             assert(func_name->names_.size() == 1);
             Instruction instruction;
-            auto local_name = SearchLocalName(func_name->names_[0].str_);
-            if (local_name)
-            {
-                // Define a local function when local name existed
-                instruction = Instruction::ABCode(OpType_Move,
-                                                  local_name->register_id_,
-                                                  func_register);
-            }
-            else
+            if (func_name->scoping_ == LexicalScoping_Global)
             {
                 // Define a global function
-                auto index = function->AddConstString(func_name->names_[0].str_);
-                instruction = Instruction::AsBxCode(OpType_SetGlobal,
-                                                    func_register, index);
+                auto index = function->AddConstString(first_name);
+                instruction = Instruction::ABxCode(OpType_SetGlobal, func_register, index);
             }
-            function->AddInstruction(instruction, func_name->names_[0].line_);
+            else if (func_name->scoping_ == LexicalScoping_Upvalue)
+            {
+                // Change a upvalue to a function
+                auto index = PrepareUpvalue(first_name);
+                instruction = Instruction::ABCode(OpType_SetUpvalue, func_register, index);
+            }
+            else if (func_name->scoping_ == LexicalScoping_Local)
+            {
+                // Change a local variable to a function
+                auto local_name = SearchLocalName(first_name);
+                instruction = Instruction::ABCode(OpType_Move, local_name->register_id_,
+                                                  func_register);
+            }
+            function->AddInstruction(instruction, first_line);
         }
         else
         {
+            Instruction instruction;
+            auto table_register = GenerateRegisterId();
+            if (func_name->scoping_ == LexicalScoping_Global)
+            {
+                // Load global variable to table register
+                auto index = function->AddConstString(first_name);
+                instruction = Instruction::ABxCode(OpType_GetGlobal,
+                                                   table_register, index);
+            }
+            else if (func_name->scoping_ == LexicalScoping_Upvalue)
+            {
+                // Load upvalue to table register
+                auto index = PrepareUpvalue(first_name);
+                instruction = Instruction::ABCode(OpType_GetUpvalue, table_register, index);
+            }
+            else if (func_name->scoping_ == LexicalScoping_Local)
+            {
+                // Load local variable to table register
+                auto local_name = SearchLocalName(first_name);
+                instruction = Instruction::ABCode(OpType_Move, table_register,
+                                                  local_name->register_id_);
+            }
+            function->AddInstruction(instruction, first_line);
+
+            bool member = func_name->member_name_.token_ == Token_Id;
+            auto size = func_name->names_.size();
+            auto count = member ? size : size - 1;
+            auto key_register = GenerateRegisterId();
+
+            auto load_key = [=](String *name, int line) {
+                auto index = function->AddConstString(name);
+                auto instruction = Instruction::ABxCode(OpType_LoadConst, key_register, index);
+                function->AddInstruction(instruction, line);
+            };
+
+            for (std::size_t i = 1; i < count; ++i)
+            {
+                // Get value from table by key
+                auto name = func_name->names_[i].str_;
+                auto line = func_name->names_[i].line_;
+                load_key(name, line);
+                instruction = Instruction::ABCCode(OpType_GetTable, table_register,
+                                                   key_register, table_register);
+                function->AddInstruction(instruction, line);
+            }
+
+            // Set function as value of table by key 'token'
+            const auto &token = member ? func_name->member_name_ : func_name->names_.back();
+            load_key(token.str_, token.line_);
+            instruction = Instruction::ABCCode(OpType_SetTable, table_register,
+                                               key_register, func_register);
+            function->AddInstruction(instruction, token.line_);
         }
     }
 
