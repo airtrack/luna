@@ -560,6 +560,15 @@ namespace luna
         FuncCallArgsData() : arg_value_count_(0) { }
     };
 
+    // For FunctionName AST
+    struct FunctionNameData
+    {
+        int func_register_;
+
+        explicit FunctionNameData(int func_register)
+            : func_register_(func_register) { }
+    };
+
     template<typename StatementType>
     void CodeGenerateVisitor::IfStatementGenerateCode(StatementType *if_stmt)
     {
@@ -877,12 +886,50 @@ namespace luna
     {
     }
 
-    void CodeGenerateVisitor::Visit(FunctionStatement *, void *)
+    void CodeGenerateVisitor::Visit(FunctionStatement *func_stmt, void *data)
     {
+        REGISTER_GENERATOR_GUARD();
+        auto func_register = GenerateRegisterId();
+        ExpVarData exp_var_data{ func_register, func_register + 1 };
+        func_stmt->func_body_->Accept(this, &exp_var_data);
+
+        FunctionNameData name_data{ func_register };
+        func_stmt->func_name_->Accept(this, &name_data);
     }
 
-    void CodeGenerateVisitor::Visit(FunctionName *, void *)
+    void CodeGenerateVisitor::Visit(FunctionName *func_name, void *data)
     {
+        assert(!func_name->names_.empty());
+        auto func_register = static_cast<FunctionNameData *>(data)->func_register_;
+        auto function = GetCurrentFunction();
+
+        bool has_member = func_name->names_.size() > 1 ||
+            func_name->member_name_.token_ == Token_Id;
+
+        if (!has_member)
+        {
+            assert(func_name->names_.size() == 1);
+            Instruction instruction;
+            auto local_name = SearchLocalName(func_name->names_[0].str_);
+            if (local_name)
+            {
+                // Define a local function when local name existed
+                instruction = Instruction::ABCode(OpType_Move,
+                                                  local_name->register_id_,
+                                                  func_register);
+            }
+            else
+            {
+                // Define a global function
+                auto index = function->AddConstString(func_name->names_[0].str_);
+                instruction = Instruction::AsBxCode(OpType_SetGlobal,
+                                                    func_register, index);
+            }
+            function->AddInstruction(instruction, func_name->names_[0].line_);
+        }
+        else
+        {
+        }
     }
 
     void CodeGenerateVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
