@@ -606,10 +606,15 @@ namespace luna
         TokenDetail member_;
         std::unique_ptr<SyntaxTree> args_;
 
+        // Function call line in source
+        int line_;
+
         MemberFuncCall(std::unique_ptr<SyntaxTree> caller,
                        const TokenDetail &member,
-                       std::unique_ptr<SyntaxTree> args)
-            : caller_(std::move(caller)), member_(member), args_(std::move(args))
+                       std::unique_ptr<SyntaxTree> args,
+                       int line)
+            : caller_(std::move(caller)), member_(member),
+              args_(std::move(args)), line_(line)
         {
         }
 

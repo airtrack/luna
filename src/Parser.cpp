@@ -688,14 +688,17 @@ namespace
                     throw ParseException("expect 'id' after ':'", current_);
 
                 TokenDetail member = current_;
+                int line = LookAhead().line_;
                 std::unique_ptr<SyntaxTree> args = ParseArgs();
-                return std::unique_ptr<SyntaxTree>(new MemberFuncCall(std::move(caller), member, std::move(args)));
+                return std::unique_ptr<SyntaxTree>(new MemberFuncCall(std::move(caller), member,
+                                                                      std::move(args), line));
             }
             else
             {
                 int line = LookAhead().line_;
                 std::unique_ptr<SyntaxTree> args = ParseArgs();
-                return std::unique_ptr<SyntaxTree>(new NormalFuncCall(std::move(caller), std::move(args), line));
+                return std::unique_ptr<SyntaxTree>(new NormalFuncCall(std::move(caller),
+                                                                      std::move(args), line));
             }
         }
 

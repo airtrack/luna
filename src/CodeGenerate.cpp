@@ -477,6 +477,10 @@ namespace luna
                               void *data, int line,
                               const LoadKey &load_key);
 
+        template<typename FuncCallType, typename CallerArgAdjuster>
+        void FunctionCall(FuncCallType *func_call, void *data,
+                          const CallerArgAdjuster &adjust_caller_arg);
+
         // Current code generating function
         GenerateFunction *current_function_;
     };
@@ -676,6 +680,64 @@ namespace luna
 
         if (accessor->semantic_ == SemanticOp_Read)
             FillRemainRegisterNil(register_id + 1, end_register, line);
+    }
+
+    template<typename FuncCallType, typename CallerArgAdjuster>
+    void CodeGenerateVisitor::FunctionCall(FuncCallType *func_call, void *data,
+                                           const CallerArgAdjuster &adjust_caller_arg)
+    {
+        REGISTER_GENERATOR_GUARD();
+        auto exp_var_data = static_cast<ExpVarData *>(data);
+        auto start_register = exp_var_data ? exp_var_data->start_register_ : 0;
+        auto end_register = exp_var_data ? exp_var_data->end_register_ : 0;
+
+        // Generate code to get caller
+        int caller_register = 0;
+        if (end_register == EXP_VALUE_COUNT_ANY)
+            caller_register = start_register;
+        else
+            caller_register = GenerateRegisterId();
+        {
+            REGISTER_GENERATOR_GUARD();
+            ExpVarData caller_data{ caller_register, caller_register + 1 };
+            func_call->caller_->Accept(this, &caller_data);
+        }
+
+        // Adjust caller, and also adjust args,
+        // return how many args adjusted
+        int adjust_args = adjust_caller_arg(caller_register);
+
+        FuncCallArgsData arg_data;
+        func_call->args_->Accept(this, &arg_data);
+
+        // Calculate total args
+        int total_args = arg_data.arg_value_count_ == EXP_VALUE_COUNT_ANY ?
+            EXP_VALUE_COUNT_ANY : arg_data.arg_value_count_ + adjust_args;
+
+        // Calculate expect results count of function call
+        auto results = end_register == EXP_VALUE_COUNT_ANY ?
+            EXP_VALUE_COUNT_ANY : end_register - start_register;
+
+        // Generate call instruction
+        auto function = GetCurrentFunction();
+        auto instruction = Instruction::ABCCode(OpType_Call,
+                                                caller_register,
+                                                total_args + 1,
+                                                results + 1);
+        function->AddInstruction(instruction, func_call->line_);
+
+        // Copy results of function call to dst registers
+        // if end_register == EXP_VALUE_COUNT_ANY, then do not
+        // copy results to dst registers, just keep it
+        if (end_register != EXP_VALUE_COUNT_ANY)
+        {
+            auto src = caller_register;
+            for (auto dst = start_register; dst < end_register; ++dst, ++src)
+            {
+                auto i = Instruction::ABCode(OpType_Move, dst, src);
+                function->AddInstruction(i, func_call->line_);
+            }
+        }
     }
 
     void CodeGenerateVisitor::Visit(Chunk *chunk, void *data)
@@ -1460,53 +1522,34 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(NormalFuncCall *func_call, void *data)
     {
-        REGISTER_GENERATOR_GUARD();
-        auto exp_var_data = static_cast<ExpVarData *>(data);
-        auto start_register = exp_var_data ? exp_var_data->start_register_ : 0;
-        auto end_register = exp_var_data ? exp_var_data->end_register_ : 0;
-
-        // Generate code to get caller and its params
-        int caller_register = 0;
-        if (end_register == EXP_VALUE_COUNT_ANY)
-            caller_register = start_register;
-        else
-            caller_register = GenerateRegisterId();
-        {
-            REGISTER_GENERATOR_GUARD();
-            ExpVarData caller_data{ caller_register, caller_register + 1 };
-            func_call->caller_->Accept(this, &caller_data);
-        }
-
-        FuncCallArgsData arg_data;
-        func_call->args_->Accept(this, &arg_data);
-
-        // Generate call instruction
-        auto function = GetCurrentFunction();
-        // Calculate expect results count of function call
-        auto results = end_register == EXP_VALUE_COUNT_ANY ?
-            EXP_VALUE_COUNT_ANY : end_register - start_register;
-        auto instruction = Instruction::ABCCode(OpType_Call,
-                                                caller_register,
-                                                arg_data.arg_value_count_ + 1,
-                                                results + 1);
-        function->AddInstruction(instruction, func_call->line_);
-
-        // Copy results of function call to dst registers
-        // if end_register == EXP_VALUE_COUNT_ANY, then do not
-        // copy results to dst registers, just keep it
-        if (end_register != EXP_VALUE_COUNT_ANY)
-        {
-            auto src = caller_register;
-            for (auto dst = start_register; dst < end_register; ++dst, ++src)
-            {
-                auto i = Instruction::ABCode(OpType_Move, dst, src);
-                function->AddInstruction(i, func_call->line_);
-            }
-        }
+        FunctionCall(func_call, data, [](int) { return 0; });
     }
 
-    void CodeGenerateVisitor::Visit(MemberFuncCall *, void *)
+    void CodeGenerateVisitor::Visit(MemberFuncCall *func_call, void *data)
     {
+        FunctionCall(func_call, data, [=](int caller_register) {
+            auto function = GetCurrentFunction();
+            // Copy table to arg_register as first argument
+            auto arg_register = GenerateRegisterId();
+            auto instruction = Instruction::ABCode(OpType_Move, arg_register, caller_register);
+            function->AddInstruction(instruction, func_call->member_.line_);
+
+            {
+                REGISTER_GENERATOR_GUARD();
+                // Get key
+                auto index = function->AddConstString(func_call->member_.str_);
+                auto key_register = GenerateRegisterId();
+                instruction = Instruction::ABxCode(OpType_LoadConst, key_register, index);
+                function->AddInstruction(instruction, func_call->member_.line_);
+
+                // Get caller function from table
+                instruction = Instruction::ABCCode(OpType_GetTable, caller_register,
+                                                   key_register, caller_register);
+                function->AddInstruction(instruction, func_call->member_.line_);
+            }
+
+            return 1;
+        });
     }
 
     void CodeGenerateVisitor::Visit(FuncCallArgs *arg, void *data)
