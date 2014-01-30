@@ -1300,6 +1300,7 @@ namespace luna
             case '%': op_type = OpType_Mod; break;
             case '<': op_type = OpType_Less; break;
             case '>': op_type = OpType_Greater; break;
+            case Token_Concat: op_type = OpType_Concat; break;
             case Token_Equal: op_type = OpType_Equal; break;
             case Token_NotEqual: op_type = OpType_UnEqual; break;
             case Token_LessEqual: op_type = OpType_LessEqual; break;

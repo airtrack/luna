@@ -28,6 +28,8 @@ namespace luna
         void CopyVarArg(Value *a, Instruction i);
         void Return(Value *a, Instruction i);
 
+        void Concat(Value *dst, Value *op1, Value *op2);
+
         // Debug help functions
         std::pair<const char *, const char *>
         GetOperandNameAndScope(const Value *a) const;

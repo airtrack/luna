@@ -6,6 +6,20 @@
 #include <assert.h>
 #include <math.h>
 
+namespace
+{
+    std::string NumberToStr(luna::Value *num)
+    {
+        assert(num->type_ == luna::ValueT_Number);
+        char temp[64];
+        if (floor(num->num_) == num->num_)
+            snprintf(temp, sizeof(temp), "%lld", static_cast<long long>(num->num_));
+        else
+            snprintf(temp, sizeof(temp), "%g", num->num_);
+        return temp;
+    }
+} // namespace
+
 namespace luna
 {
 #define GET_CONST_VALUE(i)      (proto->GetConstValue(Instruction::GetParamBx(i)))
@@ -178,6 +192,10 @@ namespace luna
                     CheckArithType(b, c, "mod");
                     a->num_ = fmod(b->num_, c->num_);
                     a->type_ = ValueT_Number;
+                    break;
+                case OpType_Concat:
+                    GET_REGISTER_ABC(i);
+                    Concat(a, b, c);
                     break;
                 case OpType_Less:
                     GET_REGISTER_ABC(i);
@@ -460,6 +478,32 @@ namespace luna
         // Set new top and pop current CallInfo
         state_->stack_.SetNewTop(dst);
         state_->calls_.pop_back();
+    }
+
+    void VM::Concat(Value *dst, Value *op1, Value *op2)
+    {
+        if (op1->type_ == ValueT_String && op2->type_ == ValueT_String)
+        {
+            dst->str_ = state_->GetString(op1->str_->GetStdString() +
+                                          op2->str_->GetCStr());
+        }
+        else if (op1->type_ == ValueT_String && op2->type_ == ValueT_Number)
+        {
+            dst->str_ = state_->GetString(op1->str_->GetCStr() +
+                                          NumberToStr(op2));
+        }
+        else if (op1->type_ == ValueT_Number && op2->type_ == ValueT_String)
+        {
+            dst->str_ = state_->GetString(NumberToStr(op1) +
+                                          op2->str_->GetCStr());
+        }
+        else
+        {
+            auto line = GetCurrentInstructionLine();
+            throw RuntimeException(op1, op2, "concat", line);
+        }
+
+        dst->type_ = ValueT_String;
     }
 
     std::pair<const char *, const char *> VM::GetOperandNameAndScope(const Value *a) const
