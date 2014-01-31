@@ -31,14 +31,10 @@ namespace luna
         int register_id_;
         // Name begin instruction
         int begin_pc_;
-        // Name as upvalue or not
-        bool as_upvalue_;
 
-        explicit LocalNameInfo(int register_id = 0, int begin_pc = 0,
-                               bool as_upvalue = false)
+        explicit LocalNameInfo(int register_id = 0, int begin_pc = 0)
             : register_id_(register_id),
-              begin_pc_(begin_pc),
-              as_upvalue_(as_upvalue) { }
+              begin_pc_(begin_pc) { }
     };
 
     // Loop AST info data in GenerateBlock
@@ -267,7 +263,7 @@ namespace luna
         }
 
         // Insert name into current local scope, replace its info when existed
-        void InsertName(String *name, int register_id, bool as_upvalue)
+        void InsertName(String *name, int register_id)
         {
             assert(current_function_ && current_function_->current_block_);
 
@@ -284,12 +280,12 @@ namespace luna
                                       it->second.begin_pc_, end_pc);
 
                 // New variable replace the old one
-                it->second = LocalNameInfo(register_id, begin_pc, as_upvalue);
+                it->second = LocalNameInfo(register_id, begin_pc);
             }
             else
             {
                 // Variable not existed, then insert into
-                LocalNameInfo local(register_id, begin_pc, as_upvalue);
+                LocalNameInfo local(register_id, begin_pc);
                 block->names_.insert(std::make_pair(name, local));
             }
         }
@@ -899,7 +895,7 @@ namespace luna
             }
         }
 
-        InsertName(num_for->name_.str_, name_register, num_for->name_ref_.is_upvalue_);
+        InsertName(num_for->name_.str_, name_register);
 
         LOOP_GUARD(num_for);
         {
@@ -1056,7 +1052,7 @@ namespace luna
     void CodeGenerateVisitor::Visit(LocalFunctionStatement *l_func_stmt, void *data)
     {
         auto register_id = GenerateRegisterId();
-        InsertName(l_func_stmt->name_.str_, register_id, l_func_stmt->name_ref_.is_upvalue_);
+        InsertName(l_func_stmt->name_.str_, register_id);
         ExpVarData exp_var_data{ register_id, register_id + 1 };
         l_func_stmt->func_body_->Accept(this, &exp_var_data);
     }
@@ -1386,7 +1382,7 @@ namespace luna
                 {
                     auto register_id = GenerateRegisterId();
                     auto self = state_->GetString("self");
-                    InsertName(self, register_id, func_body->self_ref_.is_upvalue_);
+                    InsertName(self, register_id);
 
                     auto function = GetCurrentFunction();
                     function->AddFixedArgCount(1);
@@ -1429,15 +1425,13 @@ namespace luna
 
     void CodeGenerateVisitor::Visit(NameList *name_list, void *data)
     {
-        assert(name_list->names_.size() == name_list->names_ref_.size());
         auto need_init = static_cast<NameListData *>(data)->need_init_;
 
         auto size = name_list->names_.size();
         for (std::size_t i = 0; i < size; ++i)
         {
             auto register_id = GenerateRegisterId();
-            auto as_upvalue = name_list->names_ref_[i].is_upvalue_;
-            InsertName(name_list->names_[i].str_, register_id, as_upvalue);
+            InsertName(name_list->names_[i].str_, register_id);
 
             // Add init instructions when need
             if (need_init)

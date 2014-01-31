@@ -29,15 +29,6 @@ namespace luna
         LexicalScoping_Local,           // Expression or variable in current function
     };
 
-    // Reference info of local name
-    struct NameRefInfo
-    {
-        // Name is referenced by inner function as a upvalue
-        bool is_upvalue_;
-
-        NameRefInfo() : is_upvalue_(false) { }
-    };
-
     class String;
     class Visitor;
 
@@ -232,9 +223,6 @@ namespace luna
         std::unique_ptr<SyntaxTree> exp3_;
         std::unique_ptr<SyntaxTree> block_;
 
-        // For semantic
-        NameRefInfo name_ref_;
-
         NumericForStatement(const TokenDetail &name,
                             std::unique_ptr<SyntaxTree> exp1,
                             std::unique_ptr<SyntaxTree> exp2,
@@ -304,9 +292,6 @@ namespace luna
     public:
         TokenDetail name_;
         std::unique_ptr<SyntaxTree> func_body_;
-
-        // For semantic
-        NameRefInfo name_ref_;
 
         LocalFunctionStatement(const TokenDetail &name,
                                std::unique_ptr<SyntaxTree> func_body)
@@ -432,7 +417,6 @@ namespace luna
 
         // For code generate, has 'self' param or not
         bool has_self_;
-        NameRefInfo self_ref_;
 
         int line_;
 
@@ -469,9 +453,6 @@ namespace luna
     {
     public:
         std::vector<TokenDetail> names_;
-
-        // For semantic
-        std::vector<NameRefInfo> names_ref_;
 
         NameList() { }
 
