@@ -1259,8 +1259,33 @@ namespace luna
         if (end_register != EXP_VALUE_COUNT_ANY && register_id >= end_register)
             return ;
 
+        auto function = GetCurrentFunction();
+        auto line = bin_exp->op_token_.line_;
+        auto token = bin_exp->op_token_.token_;
+        if (token == Token_And || token == Token_Or)
+        {
+            // Calculate left expression
+            ExpVarData left_data{ register_id, register_id + 1 };
+            bin_exp->left_->Accept(this, &left_data);
+
+            // Do not calculate right expression when the result of left expression
+            // satisfy semantics of operator
+            auto op_type = token == Token_And ? OpType_JmpFalse : OpType_JmpTrue;
+            auto instruction = Instruction::AsBxCode(op_type, register_id, 0);
+            int index = function->AddInstruction(instruction, line);
+
+            // Calculate right expression
+            ExpVarData right_data{ register_id, register_id + 1 };
+            bin_exp->right_->Accept(this, &right_data);
+
+            int dst_index = function->OpCodeSize();
+            function->GetMutableInstruction(index)->RefillsBx(dst_index - index);
+
+            return FillRemainRegisterNil(register_id + 1, end_register, line);
+        }
+
         int left_register = 0;
-        // Generate code for calculate left expression
+        // Generate code to calculate left expression
         {
             ExpVarData exp_var_data{ register_id, register_id + 1 };
             bin_exp->left_->Accept(this, &exp_var_data);
@@ -1268,7 +1293,7 @@ namespace luna
         }
 
         int right_register = 0;
-        // Generate code for calculate right expression
+        // Generate code to calculate right expression
         {
             if (end_register != EXP_VALUE_COUNT_ANY && register_id + 1 < end_register)
             {
@@ -1291,7 +1316,7 @@ namespace luna
 
         // Choose OpType by operator
         OpType op_type;
-        switch (bin_exp->op_token_.token_) {
+        switch (token) {
             case '+': op_type = OpType_Add; break;
             case '-': op_type = OpType_Sub; break;
             case '*': op_type = OpType_Mul; break;
@@ -1309,12 +1334,11 @@ namespace luna
         }
 
         // Generate instruction to calculate
-        auto function = GetCurrentFunction();
         auto instruction = Instruction::ABCCode(op_type, register_id++,
                                                 left_register, right_register);
-        function->AddInstruction(instruction, bin_exp->op_token_.line_);
+        function->AddInstruction(instruction, line);
 
-        FillRemainRegisterNil(register_id, end_register, bin_exp->op_token_.line_);
+        FillRemainRegisterNil(register_id, end_register, line);
     }
 
     void CodeGenerateVisitor::Visit(UnaryExpression *unexp, void *data)
