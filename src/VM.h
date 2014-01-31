@@ -44,6 +44,9 @@ namespace luna
         void CheckInequalityType(const Value *v1, const Value *v2,
                                  const char *op) const;
 
+        void CheckTableType(const Value *t, const Value *k,
+                            const char *op, const char *desc) const;
+
         void ReportTypeError(const Value *v, const char *op) const;
 
         State *state_;

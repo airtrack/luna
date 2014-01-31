@@ -244,12 +244,12 @@ namespace luna
                     break;
                 case OpType_SetTable:
                     GET_REGISTER_ABC(i);
-                    CheckType(a, ValueT_Table, "set table");
+                    CheckTableType(a, b, "set", "to");
                     a->table_->SetValue(*b, *c);
                     break;
                 case OpType_GetTable:
                     GET_REGISTER_ABC(i);
-                    CheckType(a, ValueT_Table, "get table");
+                    CheckTableType(a, b, "get", "from");
                     *c = a->table_->GetValue(*b);
                     break;
                 case OpType_ForStep:
@@ -518,6 +518,7 @@ namespace luna
         const char *scope_global = "global";
         const char *scope_local = "local";
         const char *scope_upvalue = "upvalue";
+        const char *scope_table = "table member";
         const char *scope_null = "";
 
         // Search last instruction which dst register is reg,
@@ -556,6 +557,17 @@ namespace luna
                         return { upvalue_info->name_->GetCStr(), scope_upvalue };
                     }
                     break;
+                case OpType_GetTable:
+                    if (reg == Instruction::GetParamC(*instruction))
+                    {
+                        auto key = Instruction::GetParamB(*instruction);
+                        auto key_reg = call->register_ + key;
+                        if (key_reg->type_ == ValueT_String)
+                            return { key_reg->str_->GetCStr(), scope_table };
+                        else
+                            return { unknown_name, scope_table };
+                    }
+                    break;
             }
         }
 
@@ -592,6 +604,19 @@ namespace luna
         {
             auto line = GetCurrentInstructionLine();
             throw RuntimeException(v1, v2, op, line);
+        }
+    }
+
+    void VM::CheckTableType(const Value *t, const Value *k,
+                            const char *op, const char *desc) const
+    {
+        if (t->type_ != ValueT_Table)
+        {
+            auto ns = GetOperandNameAndScope(t);
+            auto line = GetCurrentInstructionLine();
+            auto key_name = k->type_ == ValueT_String ? k->str_->GetCStr() : "?";
+            std::string op_desc = std::string(op) + " table key '" + key_name + "' " + desc;
+            throw RuntimeException(t, ns.first, ns.second, op_desc.c_str(), line);
         }
     }
 
