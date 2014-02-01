@@ -940,8 +940,66 @@ namespace luna
         AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpHead);
     }
 
-    void CodeGenerateVisitor::Visit(GenericForStatement *, void *)
+    void CodeGenerateVisitor::Visit(GenericForStatement *gen_for, void *data)
     {
+        CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+
+        // Init generic for statement data
+        auto func_register = GenerateRegisterId();
+        auto state_register = GenerateRegisterId();
+        auto var_register = GenerateRegisterId();
+        ExpListData exp_list_data{ func_register, var_register + 1 };
+        gen_for->exp_list_->Accept(this, &exp_list_data);
+
+        // Alloca registers for names
+        auto name_start = GetNextRegisterId();
+        NameListData name_list_data{ false };
+        gen_for->name_list_->Accept(this, &name_list_data);
+        auto name_end = GetNextRegisterId();
+        assert(name_start < name_end);
+
+        auto function = GetCurrentFunction();
+        auto line = gen_for->line_;
+        LOOP_GUARD(gen_for);
+        {
+            REGISTER_GENERATOR_GUARD();
+            // Alloca temp registers for call iterate function
+            auto temp_func = GenerateRegisterId();
+            auto temp_state = GenerateRegisterId();
+            auto temp_var = GenerateRegisterId();
+
+            // Call iterate function
+            auto move = [=](int dst, int src) {
+                auto instruction = Instruction::ABCode(OpType_Move, dst, src);
+                function->AddInstruction(instruction, line);
+            };
+            move(temp_func, func_register);
+            move(temp_state, state_register);
+            move(temp_var, var_register);
+
+            auto instruction = Instruction::ABCCode(OpType_Call, temp_func,
+                                                    2 + 1,  // Two args
+                                                    name_end - name_start + 1);
+            function->AddInstruction(instruction, line);
+
+            // Copy results to registers of names
+            for (auto name = name_start; name < name_end; ++name, ++temp_func)
+                move(name, temp_func);
+
+            // Break the loop when the first name value is nil
+            instruction = Instruction::AsBxCode(OpType_JmpNil, name_start, 0);
+            int index = function->AddInstruction(instruction, line);
+            AddLoopJumpInfo(gen_for, index, LoopJumpInfo::JumpTail);
+
+            // Copy first name value to var_register
+            move(var_register, name_start);
+        }
+        gen_for->block_->Accept(this, nullptr);
+
+        // Jump to loop start
+        auto instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
+        int index = function->AddInstruction(instruction, line);
+        AddLoopJumpInfo(gen_for, index, LoopJumpInfo::JumpHead);
     }
 
     void CodeGenerateVisitor::Visit(FunctionStatement *func_stmt, void *data)

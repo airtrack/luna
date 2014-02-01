@@ -487,6 +487,7 @@ namespace
 
         std::unique_ptr<SyntaxTree> ParseGenericForStatement()
         {
+            int line = LookAhead().line_;
             std::unique_ptr<SyntaxTree> name_list = ParseNameList();
 
             if (NextToken().token_ != Token_In)
@@ -504,7 +505,7 @@ namespace
 
             return std::unique_ptr<SyntaxTree>(new GenericForStatement(std::move(name_list),
                                                                        std::move(exp_list),
-                                                                       std::move(block)));
+                                                                       std::move(block), line));
         }
 
         std::unique_ptr<SyntaxTree> ParseLocalStatement()

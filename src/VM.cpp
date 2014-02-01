@@ -135,6 +135,11 @@ namespace luna
                     if (!GET_REAL_VALUE(a)->IsFalse())
                         call->instruction_ += -1 + Instruction::GetParamsBx(i);
                     break;
+                case OpType_JmpNil:
+                    a = GET_REGISTER_A(i);
+                    if (a->type_ == ValueT_Nil)
+                        call->instruction_ += -1 + Instruction::GetParamsBx(i);
+                    break;
                 case OpType_Jmp:
                     call->instruction_ += -1 + Instruction::GetParamsBx(i);
                     break;

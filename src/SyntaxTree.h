@@ -246,12 +246,16 @@ namespace luna
         std::unique_ptr<SyntaxTree> exp_list_;
         std::unique_ptr<SyntaxTree> block_;
 
+        int line_;
+
         GenericForStatement(std::unique_ptr<SyntaxTree> name_list,
                             std::unique_ptr<SyntaxTree> exp_list,
-                            std::unique_ptr<SyntaxTree> block)
+                            std::unique_ptr<SyntaxTree> block,
+                            int line)
             : name_list_(std::move(name_list)),
               exp_list_(std::move(exp_list)),
-              block_(std::move(block))
+              block_(std::move(block)),
+              line_(line)
         {
         }
 
