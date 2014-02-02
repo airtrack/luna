@@ -353,7 +353,9 @@ namespace luna
 
         // Call c function
         CFunctionType cfunc = a->cfunc_;
+        state_->ClearCFunctionError();
         int res_count = cfunc(state_);
+        CheckCFuntionError();
 
         Value *src = nullptr;
         if (res_count > 0)
@@ -607,6 +609,35 @@ namespace luna
         GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
+    }
+
+    void VM::CheckCFuntionError() const
+    {
+        auto error = state_->GetCFunctionErrorData();
+        if (error->type_ == CFuntionErrorType_NoError)
+            return ;
+
+        char buffer[128] = { 0 };
+        if (error->type_ == CFuntionErrorType_ArgCount)
+        {
+            snprintf(buffer, sizeof(buffer), "expect %d arguments",
+                     error->expect_arg_count_);
+        }
+        else if (error->type_ == CFuntionErrorType_ArgType)
+        {
+            auto &call = state_->calls_.back();
+            auto arg = call.register_ + error->arg_index_;
+            snprintf(buffer, sizeof(buffer),
+                     "argument #%d is a %s value, expect a %s value",
+                     error->arg_index_ + 1, arg->TypeName(),
+                     Value::TypeName(error->expect_type_));
+        }
+
+        // Pop the c function CallInfo, then GetCurrentInstructionLine
+        // can calculate line number of the call
+        state_->calls_.pop_back();
+        int line = GetCurrentInstructionLine();
+        throw RuntimeException(buffer, line);
     }
 
     void VM::CheckType(const Value *v, ValueT type, const char *op) const

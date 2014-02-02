@@ -111,6 +111,14 @@ namespace luna
                      line, v_name, v->TypeName(), expect_type);
             what_ = buffer;
         }
+
+        RuntimeException(const char *desc, int line)
+        {
+            char buffer[128] = { 0 };
+            snprintf(buffer, sizeof(buffer), "%d: %s",
+                     line, desc);
+            what_ = buffer;
+        }
     };
 } // namespace luna
 

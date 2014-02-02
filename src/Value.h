@@ -56,6 +56,7 @@ namespace luna
         void Accept(GCObjectVisitor *v) const;
 
         const char * TypeName() const;
+        static const char *TypeName(ValueT type);
     };
 
     inline bool operator == (const Value &left, const Value &right)

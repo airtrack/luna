@@ -50,6 +50,10 @@ namespace luna
         void PushCFunction(CFunctionType function);
         void PushValue(const Value &value);
 
+        // For report argument error
+        void ArgCountError(int expect_count);
+        void ArgTypeError(int arg_index, ValueT expect_type);
+
     private:
         // Push value to stack, and return the value
         Value * PushValue();

@@ -14,6 +14,31 @@ namespace luna
 {
     class VM;
 
+    // Error type reported by called c function
+    enum CFuntionErrorType
+    {
+        CFuntionErrorType_NoError,
+        CFuntionErrorType_ArgCount,
+        CFuntionErrorType_ArgType,
+    };
+
+    // Error reported by called c function
+    struct CFunctionError
+    {
+        CFuntionErrorType type_;
+        union
+        {
+            int expect_arg_count_;
+            struct
+            {
+                int arg_index_;
+                ValueT expect_type_;
+            };
+        };
+
+        CFunctionError() : type_(CFuntionErrorType_NoError) { }
+    };
+
     class State
     {
         friend class VM;
@@ -50,12 +75,22 @@ namespace luna
         // Get global table value
         Value * GetGlobal();
 
+        // For call c function
+        void ClearCFunctionError()
+        { cfunc_error_.type_ = CFuntionErrorType_NoError; }
+
+        CFunctionError * GetCFunctionErrorData()
+        { return &cfunc_error_; }
+
     private:
         std::unique_ptr<ModuleManager> module_manager_;
         std::unique_ptr<StringPool> string_pool_;
         std::unique_ptr<GC> gc_;
 
-        // for VM
+        // For c function error
+        CFunctionError cfunc_error_;
+
+        // For VM
         Stack stack_;
         std::list<CallInfo> calls_;
         Value global_;

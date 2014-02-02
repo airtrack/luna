@@ -35,7 +35,12 @@ namespace luna
 
     const char * Value::TypeName() const
     {
-        switch (type_)
+        return TypeName(type_);
+    }
+
+    const char * Value::TypeName(ValueT type)
+    {
+        switch (type)
         {
             case ValueT_Nil: return "nil";
             case ValueT_Bool: return "bool";

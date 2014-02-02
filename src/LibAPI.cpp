@@ -135,6 +135,21 @@ namespace luna
         *PushValue() = value;
     }
 
+    void StackAPI::ArgCountError(int expect_count)
+    {
+        auto cfunc_error = state_->GetCFunctionErrorData();
+        cfunc_error->type_ = CFuntionErrorType_ArgCount;
+        cfunc_error->expect_arg_count_ = expect_count;
+    }
+
+    void StackAPI::ArgTypeError(int arg_index, ValueT expect_type)
+    {
+        auto cfunc_error = state_->GetCFunctionErrorData();
+        cfunc_error->type_ = CFuntionErrorType_ArgType;
+        cfunc_error->arg_index_ = arg_index;
+        cfunc_error->expect_type_ = expect_type;
+    }
+
     Value * StackAPI::PushValue()
     {
         return stack_->top_++;
