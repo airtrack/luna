@@ -41,7 +41,8 @@ namespace luna
         OpType_NewTable,                // A    A: register of table
         OpType_SetTable,                // ABC  A: register of table B: key register C: value register
         OpType_GetTable,                // ABC  A: register of table B: key register C: value register
-        OpType_ForStep,                 // ABC  A: step register, instruction index diff B: step > 0 C: step <= 0
+        OpType_ForInit,                 // ABC  A: var register B: limit register    C: step register
+        OpType_ForStep,                 // ABC  ABC same with OpType_ForInit, next instruction sBx: diff of instruction index
     };
 
     struct Instruction

@@ -257,14 +257,16 @@ namespace luna
                     CheckTableType(a, b, "get", "from");
                     *c = a->table_->GetValue(*b);
                     break;
+                case OpType_ForInit:
+                    GET_REGISTER_ABC(i);
+                    ForInit(a, b, c);
+                    break;
                 case OpType_ForStep:
-                    a = GET_REGISTER_A(i);
-                    assert(a->type_ == ValueT_Number);
-                    if (a->num_ > 0.0)
-                        call->instruction_ += - 1 + Instruction::GetParamB(i);
-                    else
-                        call->instruction_ += - 1 + Instruction::GetParamC(i);
-                    assert(call->instruction_ < call->end_);
+                    GET_REGISTER_ABC(i);
+                    i = *call->instruction_++;
+                    if ((c->num_ > 0.0 && a->num_ > b->num_) ||
+                        (c->num_ <= 0.0 && a->num_ < b->num_))
+                        call->instruction_ += -1 + Instruction::GetParamsBx(i);
                     break;
                 default:
                     break;
@@ -509,6 +511,27 @@ namespace luna
         }
 
         dst->type_ = ValueT_String;
+    }
+
+    void VM::ForInit(Value *var, Value *limit, Value *step)
+    {
+        if (var->type_ != ValueT_Number)
+        {
+            throw RuntimeException(var, "'for' init", "number",
+                                   GetCurrentInstructionLine());
+        }
+
+        if (limit->type_ != ValueT_Number)
+        {
+            throw RuntimeException(limit, "'for' limit", "number",
+                                   GetCurrentInstructionLine());
+        }
+
+        if (step->type_ != ValueT_Number)
+        {
+            throw RuntimeException(step, "'for' step", "number",
+                                   GetCurrentInstructionLine());
+        }
     }
 
     std::pair<const char *, const char *> VM::GetOperandNameAndScope(const Value *a) const

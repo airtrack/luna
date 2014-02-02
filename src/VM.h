@@ -29,6 +29,7 @@ namespace luna
         void Return(Value *a, Instruction i);
 
         void Concat(Value *dst, Value *op1, Value *op2);
+        void ForInit(Value *var, Value *limit, Value *step);
 
         // Debug help functions
         std::pair<const char *, const char *>

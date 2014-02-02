@@ -861,15 +861,16 @@ namespace luna
     {
         CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
 
-        auto name_register = GenerateRegisterId();
+        auto var_register = GenerateRegisterId();
         auto limit_register = GenerateRegisterId();
         auto step_register = GenerateRegisterId();
         auto function = GetCurrentFunction();
+        auto line = num_for->name_.line_;
 
         // Init name, limit, step
         {
             REGISTER_GENERATOR_GUARD();
-            ExpVarData name_exp_data{ name_register, name_register + 1 };
+            ExpVarData name_exp_data{ var_register, var_register + 1 };
             num_for->exp1_->Accept(this, &name_exp_data);
         }
         {
@@ -888,55 +889,46 @@ namespace luna
             {
                 // Default step is 1
                 auto instruction = Instruction::ACode(OpType_LoadInt, step_register);
-                function->AddInstruction(instruction, num_for->name_.line_);
+                function->AddInstruction(instruction, line);
                 // Int value 1
                 instruction.opcode_ = 1;
-                function->AddInstruction(instruction, num_for->name_.line_);
+                function->AddInstruction(instruction, line);
             }
         }
 
+        // Init 'for' var, limit, step value
+        auto instruction = Instruction::ABCCode(OpType_ForInit, var_register,
+                                                limit_register, step_register);
+        function->AddInstruction(instruction, line);
+
+        auto name_register = GenerateRegisterId();
         InsertName(num_for->name_.str_, name_register);
 
         LOOP_GUARD(num_for);
-        {
-            REGISTER_GENERATOR_GUARD();
-            // Check step value and choose compare instruction
-            // diff 1: when step > 0
-            // diff 3: when step <= 0
-            auto instruction = Instruction::ABCCode(OpType_ForStep, step_register, 1, 3);
-            function->AddInstruction(instruction, num_for->name_.line_);
+        // Prepare name value
+        instruction = Instruction::ABCode(OpType_Move, name_register, var_register);
+        function->AddInstruction(instruction, line);
 
-            auto temp_register = GenerateRegisterId();
-            // 1.Compare instruction when step > 0
-            instruction = Instruction::ABCCode(OpType_LessEqual, temp_register,
-                                               name_register, limit_register);
-            function->AddInstruction(instruction, num_for->name_.line_);
+        // Check 'for', continue loop or not
+        instruction = Instruction::ABCCode(OpType_ForStep, var_register,
+                                           limit_register, step_register);
+        function->AddInstruction(instruction, line);
 
-            // 2.Jump to OpType_JmpFalse instruction
-            instruction = Instruction::AsBxCode(OpType_Jmp, 0, 2);
-            function->AddInstruction(instruction, num_for->name_.line_);
-
-            // 3.Compare instruction when step <= 0
-            instruction = Instruction::ABCCode(OpType_GreaterEqual, temp_register,
-                                               name_register, limit_register);
-            function->AddInstruction(instruction, num_for->name_.line_);
-
-            // 4.Jump to end of for-loop when name compare with limit is false
-            instruction = Instruction::AsBxCode(OpType_JmpFalse, temp_register, 0);
-            int index = function->AddInstruction(instruction, num_for->name_.line_);
-            AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpTail);
-        }
+        // Break loop, prepare to jump to the end of the loop
+        instruction.opcode_ = 0;
+        int index = function->AddInstruction(instruction, line);
+        AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpTail);
 
         num_for->block_->Accept(this, nullptr);
 
-        // name = name + step
-        auto instruction = Instruction::ABCCode(OpType_Add, name_register,
-                                                name_register, step_register);
-        function->AddInstruction(instruction, num_for->name_.line_);
+        // var = var + step
+        instruction = Instruction::ABCCode(OpType_Add, var_register,
+                                           var_register, step_register);
+        function->AddInstruction(instruction, line);
 
-        // Jump to loop start
+        // Jump to the begin of the loop
         instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
-        int index = function->AddInstruction(instruction, num_for->name_.line_);
+        index = function->AddInstruction(instruction, line);
         AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpHead);
     }
 
