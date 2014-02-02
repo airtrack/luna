@@ -109,11 +109,66 @@ namespace base {
         return 3;
     }
 
+    int DoPairs(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        int params = api.GetStackSize();
+        if (params < 2)
+        {
+            api.ArgCountError(2);
+            return 0;
+        }
+
+        if (!api.IsTable(0))
+        {
+            api.ArgTypeError(0, luna::ValueT_Table);
+            return 0;
+        }
+
+        luna::Table *t = api.GetTable(0);
+        luna::Value *last_key = api.GetValue(1);
+
+        luna::Value key;
+        luna::Value value;
+        if (last_key->type_ == luna::ValueT_Nil)
+            t->FirstKeyValue(key, value);
+        else
+            t->NextKeyValue(*last_key, key, value);
+
+        api.PushValue(key);
+        api.PushValue(value);
+        return 2;
+    }
+
+    int Pairs(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        int params = api.GetStackSize();
+        if (params < 1)
+        {
+            api.ArgCountError(1);
+            return 0;
+        }
+
+        if (!api.IsTable(0))
+        {
+            api.ArgTypeError(0, luna::ValueT_Table);
+            return 0;
+        }
+
+        luna::Table *t = api.GetTable(0);
+        api.PushCFunction(DoPairs);
+        api.PushTable(t);
+        api.PushNil();
+        return 3;
+    }
+
     void RegisterBaseLib(luna::State *state)
     {
         luna::Library lib(state);
         lib.RegisterFunc("print", Print);
         lib.RegisterFunc("ipairs", IPairs);
+        lib.RegisterFunc("pairs", Pairs);
     }
 
 } // namespace base

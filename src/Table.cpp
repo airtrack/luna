@@ -150,6 +150,14 @@ namespace luna
         if (hash_)
         {
             auto it = hash_->find(key);
+            if (it == hash_->end() && !hash_->empty())
+            {
+                it = hash_->begin();
+                next_key = it->first;
+                next_value = it->second;
+                return true;
+            }
+
             if (it != hash_->end() && ++it != hash_->end())
             {
                 next_key = it->first;

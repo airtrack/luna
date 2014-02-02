@@ -94,6 +94,11 @@ namespace luna
         else
             return v;
     }
+
+    void StackAPI::PushNil()
+    {
+        PushValue()->type_ = ValueT_Nil;
+    }
     
     void StackAPI::PushNumber(double num)
     {

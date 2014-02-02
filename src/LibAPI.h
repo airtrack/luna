@@ -43,6 +43,7 @@ namespace luna
         Value * GetValue(int index);
 
         // Push value to stack
+        void PushNil();
         void PushNumber(double num);
         void PushString(const char *string);
         void PushBool(bool value);
