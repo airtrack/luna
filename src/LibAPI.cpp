@@ -80,6 +80,21 @@ namespace luna
             return nullptr;
     }
 
+    Value * StackAPI::GetValue(int index)
+    {
+        assert(!state_->calls_.empty());
+        Value *v = nullptr;
+        if (index < 0)
+            v = stack_->top_ + index;
+        else
+            v = state_->calls_.back().register_ + index;
+
+        if (v >= stack_->top_ || v < state_->calls_.back().register_)
+            return nullptr;
+        else
+            return v;
+    }
+    
     void StackAPI::PushNumber(double num)
     {
         Value *v = PushValue();
@@ -94,19 +109,30 @@ namespace luna
         v->str_ = state_->GetString(string);
     }
 
-    Value * StackAPI::GetValue(int index)
+    void StackAPI::PushBool(bool value)
     {
-        assert(!state_->calls_.empty());
-        Value *v = nullptr;
-        if (index < 0)
-            v = stack_->top_ + index;
-        else
-            v = state_->calls_.back().register_ + index;
+        Value *v = PushValue();
+        v->type_ = ValueT_Bool;
+        v->bvalue_ = value;
+    }
 
-        if (v >= stack_->top_ || v < state_->calls_.back().register_)
-            return nullptr;
-        else
-            return v;
+    void StackAPI::PushTable(Table *table)
+    {
+        Value *v = PushValue();
+        v->type_ = ValueT_Table;
+        v->table_ = table;
+    }
+
+    void StackAPI::PushCFunction(CFunctionType function)
+    {
+        Value *v = PushValue();
+        v->type_ = ValueT_CFunction;
+        v->cfunc_ = function;
+    }
+
+    void StackAPI::PushValue(const Value &value)
+    {
+        *PushValue() = value;
     }
 
     Value * StackAPI::PushValue()

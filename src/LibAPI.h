@@ -22,8 +22,16 @@ namespace luna
         // Get count of value in this function stack
         int GetStackSize() const;
 
-        // Get value type by index from stack
+        // Get value type by index of stack
         ValueT GetValueType(int index);
+
+        // Check value type by index of stack
+        bool IsNumber(int index) { return GetValueType(index) == ValueT_Number; }
+        bool IsString(int index) { return GetValueType(index) == ValueT_String; }
+        bool IsBool(int index) { return GetValueType(index) == ValueT_Bool; }
+        bool IsClosure(int index) { return GetValueType(index) == ValueT_Closure; }
+        bool IsTable(int index) { return GetValueType(index) == ValueT_Table; }
+        bool IsCFunction(int index) { return GetValueType(index) == ValueT_CFunction; }
 
         // Get value from stack by index
         double GetNumber(int index);
@@ -32,14 +40,17 @@ namespace luna
         Closure * GetClosure(int index);
         Table * GetTable(int index);
         CFunctionType GetCFunction(int index);
+        Value * GetValue(int index);
 
         // Push value to stack
         void PushNumber(double num);
         void PushString(const char *string);
+        void PushBool(bool value);
+        void PushTable(Table *table);
+        void PushCFunction(CFunctionType function);
+        void PushValue(const Value &value);
 
     private:
-        // Get value by index
-        Value * GetValue(int index);
         // Push value to stack, and return the value
         Value * PushValue();
 
