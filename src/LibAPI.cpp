@@ -35,13 +35,22 @@ namespace luna
             return 0.0;
     }
 
-    const char * StackAPI::GetString(int index)
+    const char * StackAPI::GetCString(int index)
     {
         Value *v = GetValue(index);
         if (v)
             return v->str_->GetCStr();
         else
             return "";
+    }
+
+    const String * StackAPI::GetString(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->str_;
+        else
+            return nullptr;
     }
 
     bool StackAPI::GetBool(int index)

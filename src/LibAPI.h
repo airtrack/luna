@@ -35,7 +35,8 @@ namespace luna
 
         // Get value from stack by index
         double GetNumber(int index);
-        const char * GetString(int index);
+        const char * GetCString(int index);
+        const String * GetString(int index);
         bool GetBool(int index);
         Closure * GetClosure(int index);
         Table * GetTable(int index);
