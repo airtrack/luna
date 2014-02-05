@@ -1,8 +1,10 @@
 #include "BaseLib.h"
 #include "Table.h"
 #include "String.h"
+#include "Upvalue.h"
 #include <string>
 #include <iostream>
+#include <assert.h>
 #include <stdio.h>
 
 namespace lib {
@@ -49,6 +51,47 @@ namespace base {
 
         printf("\n");
         return 0;
+    }
+
+    int Type(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        int params = api.GetStackSize();
+        if (params < 1)
+        {
+            api.ArgCountError(1);
+            return 0;
+        }
+
+        const luna::Value *v = api.GetValue(0);
+        luna::ValueT type = v->type_ == luna::ValueT_Upvalue ?
+            v->upvalue_->GetValue()->type_ : v->type_;
+
+        switch (type) {
+            case luna::ValueT_Nil:
+                api.PushString("nil");
+                break;
+            case luna::ValueT_Bool:
+                api.PushString("boolean");
+                break;
+            case luna::ValueT_Number:
+                api.PushString("number");
+                break;
+            case luna::ValueT_String:
+                api.PushString("string");
+                break;
+            case luna::ValueT_Table:
+                api.PushString("table");
+                break;
+            case luna::ValueT_Closure:
+            case luna::ValueT_CFunction:
+                api.PushString("function");
+                break;
+            default:
+                assert(0);
+                return 0;
+        }
+        return 1;
     }
 
     int DoIPairs(luna::State *state)
@@ -213,6 +256,7 @@ namespace base {
         lib.RegisterFunc("print", Print);
         lib.RegisterFunc("ipairs", IPairs);
         lib.RegisterFunc("pairs", Pairs);
+        lib.RegisterFunc("type", Type);
         lib.RegisterFunc("getline", GetLine);
         lib.RegisterFunc("getstrchar", GetStrChar);
     }
