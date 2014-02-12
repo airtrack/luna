@@ -64,6 +64,13 @@ namespace luna
         Stack *stack_;
     };
 
+    // For register table functions
+    struct TableFuncReg
+    {
+        const char *name_;
+        CFunctionType func_;
+    };
+
     // This class register C function to luna
     class Library
     {
@@ -73,7 +80,19 @@ namespace luna
         // Register global function 'func' as 'name'
         void RegisterFunc(const char *name, CFunctionType func);
 
+        // Register a table of functions
+        void RegisterTableFunction(const char *name, const TableFuncReg *table,
+                                   std::size_t size);
+
+        template<std::size_t N>
+        void RegisterTableFunction(const char *name, const TableFuncReg (&table)[N])
+        {
+            RegisterTableFunction(name, table, N);
+        }
+
     private:
+        void RegisterFunc(Table *table, const char *name, CFunctionType func);
+
         State *state_;
         Table *global_;
     };

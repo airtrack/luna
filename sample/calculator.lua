@@ -1,5 +1,5 @@
 local function char(s)
-    return getstrchar(s, 0)
+    return string.byte(s)
 end
 
 local _0 = char('0')
@@ -22,12 +22,12 @@ local token_eof = { type = token_type_eof }
 local error_exp = "error expression"
 
 local function get_lexer(str)
-    local i = 0
+    local i = 1
     local len = #str
 
     local function next_char()
-        if i < len then
-            local c = getstrchar(str, i)
+        if i <= len then
+            local c = string.byte(str, i)
             i = i + 1
             return c
         else
@@ -36,8 +36,8 @@ local function get_lexer(str)
     end
 
     local function look_ahead()
-        if i < len then
-            return getstrchar(str, i)
+        if i <= len then
+            return string.byte(str, i)
         else
             return eof
         end
