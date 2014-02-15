@@ -123,6 +123,13 @@ namespace luna
         v->str_ = state_->GetString(string);
     }
 
+    void StackAPI::PushString(const std::string &str)
+    {
+        Value *v = PushValue();
+        v->type_ = ValueT_String;
+        v->str_ = state_->GetString(str);
+    }
+
     void StackAPI::PushBool(bool value)
     {
         Value *v = PushValue();

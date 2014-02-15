@@ -1,5 +1,6 @@
 #include "StringLib.h"
 #include "String.h"
+#include <string>
 
 namespace lib {
 namespace string {
@@ -61,11 +62,35 @@ namespace string {
         return count;
     }
 
+    int Char(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        int params = api.GetStackSize();
+
+        std::string str;
+        for (int i = 0; i < params; ++i)
+        {
+            if (!api.IsNumber(i))
+            {
+                api.ArgTypeError(i, luna::ValueT_Number);
+                return 0;
+            }
+            else
+            {
+                str.push_back(static_cast<int>(api.GetNumber(i)));
+            }
+        }
+
+        api.PushString(str);
+        return 1;
+    }
+
     void RegisterStringLib(luna::State *state)
     {
         luna::Library lib(state);
         luna::TableFuncReg string[] = {
-            { "byte", Byte }
+            { "byte", Byte },
+            { "char", Char }
         };
         lib.RegisterTableFunction("string", string);
     }

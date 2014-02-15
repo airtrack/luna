@@ -2,6 +2,7 @@
 #define LIB_API_H
 
 #include "Value.h"
+#include <string>
 
 namespace luna
 {
@@ -47,6 +48,7 @@ namespace luna
         void PushNil();
         void PushNumber(double num);
         void PushString(const char *string);
+        void PushString(const std::string &str);
         void PushBool(bool value);
         void PushTable(Table *table);
         void PushCFunction(CFunctionType function);
