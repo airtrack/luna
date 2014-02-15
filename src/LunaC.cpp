@@ -3,6 +3,7 @@
 #include "Bootstrap.h"
 #include "Exception.h"
 #include "BaseLib.h"
+#include "StringLib.h"
 #include <stdio.h>
 
 int main(int argc, const char **argv)
@@ -20,6 +21,7 @@ int main(int argc, const char **argv)
         luna::Bootstrap bootstrap(&state);
 
         lib::base::RegisterBaseLib(&state);
+        lib::string::RegisterStringLib(&state);
 
         state.LoadModule(argv[1]);
         bootstrap.Prepare();
