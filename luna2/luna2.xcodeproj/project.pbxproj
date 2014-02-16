@@ -18,6 +18,8 @@
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
 		CE1E7BE6182E6C0100ADFFF7 /* GCTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1E7BE4182E6C0100ADFFF7 /* GCTest.cpp */; };
 		CE1E7BE7182E6CA800ADFFF7 /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; };
+		CE2BEAEE18B08FD9002E49EA /* LibMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2BEAEC18B08FD9002E49EA /* LibMath.cpp */; };
+		CE2BEAEF18B08FD9002E49EA /* LibMath.h in Headers */ = {isa = PBXBuildFile; fileRef = CE2BEAED18B08FD9002E49EA /* LibMath.h */; };
 		CE30E90116F75B7A006CB767 /* LibBase.h in Headers */ = {isa = PBXBuildFile; fileRef = CE30E90016F75B7A006CB767 /* LibBase.h */; };
 		CE30E90316F75C06006CB767 /* LibBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE30E90216F75C06006CB767 /* LibBase.cpp */; };
 		CE477AF116F5E588001F2B0A /* LibAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = CE477AF016F5E588001F2B0A /* LibAPI.h */; };
@@ -132,6 +134,8 @@
 		CE1E694916941F940060DE44 /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Token.h; path = ../src/Token.h; sourceTree = "<group>"; };
 		CE1E7BD9182E6AF900ADFFF7 /* gctest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE1E7BE4182E6C0100ADFFF7 /* GCTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCTest.cpp; path = ../test/GCTest.cpp; sourceTree = "<group>"; };
+		CE2BEAEC18B08FD9002E49EA /* LibMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LibMath.cpp; path = ../src/LibMath.cpp; sourceTree = "<group>"; };
+		CE2BEAED18B08FD9002E49EA /* LibMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibMath.h; path = ../src/LibMath.h; sourceTree = "<group>"; };
 		CE2EA6F616763B2700E59BBC /* Lex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Lex.h; path = ../src/Lex.h; sourceTree = "<group>"; };
 		CE2EA6F716763B2700E59BBC /* TextInStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextInStream.cpp; path = ../src/TextInStream.cpp; sourceTree = "<group>"; };
 		CE2EA6F816763B2700E59BBC /* TextInStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TextInStream.h; path = ../src/TextInStream.h; sourceTree = "<group>"; };
@@ -235,6 +239,8 @@
 				CE477AF016F5E588001F2B0A /* LibAPI.h */,
 				CE30E90216F75C06006CB767 /* LibBase.cpp */,
 				CE30E90016F75B7A006CB767 /* LibBase.h */,
+				CE2BEAEC18B08FD9002E49EA /* LibMath.cpp */,
+				CE2BEAED18B08FD9002E49EA /* LibMath.h */,
 				CE77044C18AF5EA90090C063 /* LibString.cpp */,
 				CE77044A18AF5E630090C063 /* LibString.h */,
 				CE1302D216BC2E0400DC6A08 /* LunaC.cpp */,
@@ -321,6 +327,7 @@
 				CE5BDB98186F184700838999 /* Guard.h in Headers */,
 				CEFF9B89184E3075008A7A25 /* SemanticAnalysis.h in Headers */,
 				CE1E694A16941F940060DE44 /* Token.h in Headers */,
+				CE2BEAEF18B08FD9002E49EA /* LibMath.h in Headers */,
 				CE597F2E169DBF3B00407019 /* GC.h in Headers */,
 				CE597F33169DC07E00407019 /* Table.h in Headers */,
 				CE597F35169DC0F700407019 /* Function.h in Headers */,
@@ -472,6 +479,7 @@
 				CE8F1B01168760EA001FBAA6 /* TextInStream.cpp in Sources */,
 				CEC60A281690121500E15ADE /* Parser.cpp in Sources */,
 				CEC60A2E1690792A00E15ADE /* SyntaxTree.cpp in Sources */,
+				CE2BEAEE18B08FD9002E49EA /* LibMath.cpp in Sources */,
 				CE597F31169DBFB000407019 /* GC.cpp in Sources */,
 				CE597F39169DC30700407019 /* StringPool.cpp in Sources */,
 				CEB6C99216A432AC007E72D9 /* Token.cpp in Sources */,
