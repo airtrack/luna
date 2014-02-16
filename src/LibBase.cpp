@@ -1,4 +1,4 @@
-#include "BaseLib.h"
+#include "LibBase.h"
 #include "Table.h"
 #include "Upvalue.h"
 #include <string>
@@ -217,7 +217,7 @@ namespace base {
         return 1;
     }
 
-    void RegisterBaseLib(luna::State *state)
+    void RegisterLibBase(luna::State *state)
     {
         luna::Library lib(state);
         lib.RegisterFunc("print", Print);

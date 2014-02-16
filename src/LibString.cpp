@@ -1,4 +1,4 @@
-#include "StringLib.h"
+#include "LibString.h"
 #include "String.h"
 #include <string>
 
@@ -85,7 +85,7 @@ namespace string {
         return 1;
     }
 
-    void RegisterStringLib(luna::State *state)
+    void RegisterLibString(luna::State *state)
     {
         luna::Library lib(state);
         luna::TableFuncReg string[] = {
