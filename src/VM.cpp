@@ -63,6 +63,7 @@ namespace luna
 
         while (call->instruction_ < call->end_)
         {
+            state_->CheckRunGC();
             Instruction i = *call->instruction_++;
 
             switch (Instruction::GetOpCode(i)) {

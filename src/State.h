@@ -79,10 +79,22 @@ namespace luna
         void ClearCFunctionError()
         { cfunc_error_.type_ = CFuntionErrorType_NoError; }
 
+        // Error data for call c function
         CFunctionError * GetCFunctionErrorData()
         { return &cfunc_error_; }
 
+        // Get the GC
+        GC& GetGC()
+        { return *gc_; }
+
+        // Check and run GC
+        void CheckRunGC()
+        { gc_->CheckGC(); }
+
     private:
+        // Full GC root
+        void FullGCRoot(GCObjectVisitor *v);
+
         std::unique_ptr<ModuleManager> module_manager_;
         std::unique_ptr<StringPool> string_pool_;
         std::unique_ptr<GC> gc_;

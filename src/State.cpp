@@ -13,10 +13,16 @@ namespace luna
         module_manager_.reset(new ModuleManager(this));
         string_pool_.reset(new StringPool);
 
+        // Init GC
         gc_.reset(new GC([&](GCObject *obj, unsigned int type) {
             if (type == GCObjectType_String)
+            {
                 string_pool_->DeleteString(static_cast<String *>(obj));
+            }
+            delete obj;
         }));
+        auto root = std::bind(&State::FullGCRoot, this, std::placeholders::_1);
+        gc_->SetRootTraveller(root, root);
 
         // New global table
         global_.table_ = NewTable();
@@ -108,5 +114,27 @@ namespace luna
     Value * State::GetGlobal()
     {
         return &global_;
+    }
+
+    void State::FullGCRoot(GCObjectVisitor *v)
+    {
+        // Visit global table
+        global_.Accept(v);
+
+        // Visit stack values
+        for (const auto &value : stack_.stack_)
+        {
+            value.Accept(v);
+        }
+
+        // Visit call info
+        for (const auto &call : calls_)
+        {
+            call.register_->Accept(v);
+            if (call.func_)
+            {
+                call.func_->Accept(v);
+            }
+        }
     }
 } // namespace luna

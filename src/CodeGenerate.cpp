@@ -162,7 +162,10 @@ namespace luna
             auto parent = current_function_;
             function->parent_ = parent;
             current_function_ = function;
+
+            // New function is default on GCGen2, so barrier it
             current_function_->function_ = state_->NewFunction();
+            CHECK_BARRIER(state_->GetGC(), current_function_->function_);
 
             if (parent)
             {
