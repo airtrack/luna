@@ -1697,8 +1697,10 @@ namespace luna
         exp_list->exp_list_.back()->Accept(this, &exp_var_data);
     }
 
-    std::unique_ptr<Visitor> GenerateVisitor(State *state)
+    void CodeGenerate(SyntaxTree *root, State *state)
     {
-        return std::unique_ptr<Visitor>(new CodeGenerateVisitor(state));
+        assert(root && state);
+        CodeGenerateVisitor code_generator(state);
+        root->Accept(&code_generator, nullptr);
     }
 } // namespace luna

@@ -7,7 +7,7 @@
 namespace luna
 {
     class Closure;
-    class Instruction;
+    struct Instruction;
 
     // Runtime stack, registers of each function is one part of stack.
     struct Stack

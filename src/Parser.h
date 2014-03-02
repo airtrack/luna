@@ -12,15 +12,11 @@ namespace luna
     class Parser
     {
     public:
-        explicit Parser(State *state);
-
+        Parser() = default;
         Parser(const Parser&) = delete;
         void operator = (const Parser&) = delete;
 
         std::unique_ptr<SyntaxTree> Parse(Lexer *lexer);
-
-    private:
-        State *state_;
     };
 } // namespace luna
 

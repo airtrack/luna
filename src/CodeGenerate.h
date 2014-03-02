@@ -8,7 +8,7 @@ namespace luna
 {
     class State;
 
-    std::unique_ptr<Visitor> GenerateVisitor(State *state);
+    void CodeGenerate(SyntaxTree *root, State *state);
 } // namespace luna
 
 #endif // CODE_GENERATE_H

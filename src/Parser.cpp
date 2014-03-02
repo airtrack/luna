@@ -18,8 +18,8 @@ namespace
     class ParserImpl
     {
     public:
-        ParserImpl(State *state, Lexer *lexer)
-            : state_(state), lexer_(lexer)
+        explicit ParserImpl(Lexer *lexer)
+            : lexer_(lexer)
         {
         }
 
@@ -905,7 +905,6 @@ namespace
             }
         }
 
-        State *state_;
         Lexer *lexer_;
         TokenDetail current_;
         TokenDetail look_ahead_;
@@ -915,14 +914,9 @@ namespace
 
 namespace luna
 {
-    Parser::Parser(State *state)
-        : state_(state)
-    {
-    }
-
     std::unique_ptr<SyntaxTree> Parser::Parse(Lexer *lexer)
     {
-        ParserImpl impl(state_, lexer);
+        ParserImpl impl(lexer);
         return impl.Parse();
     }
 } // namespace luna

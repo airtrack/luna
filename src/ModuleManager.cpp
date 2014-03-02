@@ -25,14 +25,13 @@ namespace luna
                     [&is] () { return is.GetChar(); });
 
         // Parse to AST
-        Parser parser(state_);
+        Parser parser;
         auto ast = parser.Parse(&lexer);
 
         // Semantic analysis
         SemanticAnalysis(ast.get(), state_);
 
-        // AST generate code
-        auto visitor = GenerateVisitor(state_);
-        ast->Accept(visitor.get(), nullptr);
+        // Generate code
+        CodeGenerate(ast.get(), state_);
     }
 } // namespace luna
