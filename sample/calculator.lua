@@ -216,7 +216,7 @@ local function get_parser(lexer)
 end
 
 while true do
-    print("calculator >")
+    puts("calculator > ")
     local line = getline()
     local parser = get_parser(get_lexer(line))
     if parser.look_ahead().type ~= token_type_eof then

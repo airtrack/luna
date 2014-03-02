@@ -52,6 +52,26 @@ namespace base {
         return 0;
     }
 
+    int Puts(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        int params = api.GetStackSize();
+        if (params < 1)
+        {
+            api.ArgCountError(1);
+            return 0;
+        }
+
+        if (!api.IsString(0))
+        {
+            api.ArgTypeError(0, luna::ValueT_String);
+            return 0;
+        }
+
+        printf("%s", api.GetCString(0));
+        return 0;
+    }
+
     int Type(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -221,6 +241,7 @@ namespace base {
     {
         luna::Library lib(state);
         lib.RegisterFunc("print", Print);
+        lib.RegisterFunc("puts", Puts);
         lib.RegisterFunc("ipairs", IPairs);
         lib.RegisterFunc("pairs", Pairs);
         lib.RegisterFunc("type", Type);
