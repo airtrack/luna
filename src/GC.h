@@ -78,7 +78,8 @@ namespace luna
 
     // GC object barrier checker
     inline bool CheckBarrier(GCObject *obj) { return obj->generation_ != GCGen0; }
-    #define CHECK_BARRIER(gc, obj) if (luna::CheckBarrier(obj)) gc.SetBarrier(obj)
+    #define CHECK_BARRIER(gc, obj) \
+        do { if (luna::CheckBarrier(obj)) gc.SetBarrier(obj); } while (0)
 
     class GC
     {
