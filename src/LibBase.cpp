@@ -26,7 +26,7 @@ namespace base {
                     printf("%s", api.GetBool(i) ? "true" : "false");
                     break;
                 case luna::ValueT_Number:
-                    printf("%g", api.GetNumber(i));
+                    printf("%.14g", api.GetNumber(i));
                     break;
                 case luna::ValueT_String:
                     printf("%s", api.GetCString(i));
