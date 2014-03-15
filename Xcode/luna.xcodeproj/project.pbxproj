@@ -427,7 +427,7 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 			};
-			buildConfigurationList = CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna2" */;
+			buildConfigurationList = CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -801,7 +801,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna2" */ = {
+		CE2EA6F216763B0500E59BBC /* Build configuration list for PBXProject "luna" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CE2EA6F416763B0500E59BBC /* Debug */,
