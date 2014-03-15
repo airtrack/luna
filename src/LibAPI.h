@@ -6,8 +6,8 @@
 
 namespace luna
 {
+    struct Stack;
     class State;
-    class Stack;
     class Table;
     class Closure;
 

@@ -7,6 +7,11 @@
 #include <string>
 #include <utility>
 
+#ifdef _MSC_VER
+#define snprintf(buffer, size, fmt, ...)	\
+    _snprintf_s(buffer, size, _TRUNCATE, fmt, __VA_ARGS__)
+#endif // _MSC_VER
+
 namespace luna
 {
     class Exception

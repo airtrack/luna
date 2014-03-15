@@ -11,8 +11,13 @@ namespace math {
     {
     public:
         typedef unsigned int result_type;
+#ifdef _MSC_VER
+        static result_type min() { return 0; }
+        static result_type max() { return RAND_MAX; }
+#else
         static constexpr result_type min() { return 0; }
         static constexpr result_type max() { return RAND_MAX; }
+#endif // _MSC_VER
         result_type operator() () { return rand(); }
 
         RandEngine() { }

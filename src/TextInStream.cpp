@@ -5,7 +5,11 @@ namespace text {
     InStream::InStream(const std::string &path)
         : stream_(nullptr)
     {
+#ifdef _MSC_VER
+        fopen_s(&stream_, path.c_str(), "rb");
+#else
         stream_ = fopen(path.c_str(), "rb");
+#endif // _MSC_VER
     }
 
     InStream::~InStream()

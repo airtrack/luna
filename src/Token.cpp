@@ -2,6 +2,11 @@
 #include "String.h"
 #include <stdio.h>
 
+#ifdef _MSC_VER
+#define snprintf(buffer, size, fmt, ...)	\
+    _snprintf_s(buffer, size, _TRUNCATE, fmt, __VA_ARGS__)
+#endif // _MSC_VER
+
 namespace luna
 {
     const char *token_str[] = {

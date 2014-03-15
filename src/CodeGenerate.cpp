@@ -1120,8 +1120,8 @@ namespace luna
         if (l_namelist_stmt->exp_list_)
         {
             // Reserve registers for NameList
-            auto start_register = GetNextRegisterId();
-            auto end_register = start_register + l_namelist_stmt->name_count_;
+            int start_register = GetNextRegisterId();
+            int end_register = start_register + l_namelist_stmt->name_count_;
             Guard g([=]() { this->ResetRegisterIdGenerator(end_register); },
                     [=]() { this->ResetRegisterIdGenerator(start_register); });
 
