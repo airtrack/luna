@@ -12,12 +12,12 @@ public:
         static UnitTestManager instance;
         return instance;
     }
-    
+
     void AddUnitTest(UnitTestBase *test)
     {
         all_.push_back(test);
     }
-    
+
     void RunAllTestCase()
     {
         int pass = 0;
@@ -53,7 +53,7 @@ public:
                 printf("\033[31m[%s] catch exception\033[0m\n", test->GetTestName().c_str());
             }
         }
-        
+
         printf("%d cases: %d passed, %d failed\n", pass + failed, pass, failed);
     }
 

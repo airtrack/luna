@@ -424,7 +424,7 @@ namespace luna
 
             if (current_ == '\r' || current_ == '\n')
                 throw LexException(line_, column_, "incomplete string at this line");
-            
+
             LexStringChar();
         }
 
