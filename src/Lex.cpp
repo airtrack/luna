@@ -19,7 +19,10 @@ namespace
     bool IsKeyWord(const std::string& name, int *token)
     {
         assert(token);
-        auto result = std::equal_range(keyword, keyword + sizeof(keyword) / sizeof(keyword[0]), name);
+        auto result = std::equal_range(keyword, keyword + sizeof(keyword) / sizeof(keyword[0]),
+                                       name.c_str(), [](const char *left, const char *right) {
+                                           return strcmp(left, right) < 0;
+                                       });
         if (result.first == result.second)
             return false;
 
@@ -130,7 +133,8 @@ namespace luna
                         token_buffer_.clear();
                         token_buffer_.push_back(current_);
                         current_ = next;
-                        return LexNumberXFractional(detail, false, true, isdigit,
+                        return LexNumberXFractional(detail, false, true,
+                                                    [](int c) { return isdigit(c) != 0; },
                                                     [](int c) { return c == 'e' || c == 'E'; });
                     }
                     else
@@ -260,7 +264,8 @@ namespace luna
             }
         }
 
-        return LexNumberX(detail, integer_part, isdigit,
+        return LexNumberX(detail, integer_part,
+                          [](int c) { return isdigit(c) != 0; },
                           [](int c) { return c == 'e' || c == 'E'; });
     }
 
@@ -461,7 +466,7 @@ namespace luna
                     hex[i] = current_;
                 if (i == 0)
                     throw LexException(line_, column_, "unexpect character after '\\x'");
-                token_buffer_.push_back(strtoul(hex, 0, 16));
+                token_buffer_.push_back(static_cast<char>(strtoul(hex, 0, 16)));
                 return ;
             }
             else if (isdigit(current_))
@@ -469,7 +474,7 @@ namespace luna
                 char oct[4] = { 0 };
                 for (int i = 0; i < 3 && isdigit(current_); ++i, current_ = Next())
                     oct[i] = current_;
-                token_buffer_.push_back(strtoul(oct, 0, 8));
+                token_buffer_.push_back(static_cast<char>(strtoul(oct, 0, 8)));
                 return ;
             }
             else

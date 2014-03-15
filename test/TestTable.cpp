@@ -1,6 +1,6 @@
 #include "UnitTest.h"
-#include "Table.h"
-#include "String.h"
+#include "../src/Table.h"
+#include "../src/String.h"
 
 TEST_CASE(table1)
 {

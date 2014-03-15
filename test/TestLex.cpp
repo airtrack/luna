@@ -1,9 +1,9 @@
 #include "UnitTest.h"
-#include "Lex.h"
-#include "State.h"
-#include "String.h"
-#include "TextInStream.h"
-#include "Exception.h"
+#include "../src/Lex.h"
+#include "../src/State.h"
+#include "../src/String.h"
+#include "../src/TextInStream.h"
+#include "../src/Exception.h"
 #include <functional>
 
 namespace

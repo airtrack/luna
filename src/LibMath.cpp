@@ -43,11 +43,11 @@ namespace math {
                 api.ArgTypeError(0, luna::ValueT_Number);
                 return 0;
             }
-            auto max = api.GetNumber(0);
+            auto max = static_cast<unsigned long long>(api.GetNumber(0));
 
             RandEngine engine;
             std::uniform_int_distribution<unsigned long long> dis(1, max);
-            api.PushNumber(dis(engine));
+            api.PushNumber(static_cast<double>(dis(engine)));
         }
         else if (params >= 2)
         {
@@ -62,12 +62,12 @@ namespace math {
                 return 0;
             }
 
-            auto min = api.GetNumber(0);
-            auto max = api.GetNumber(1);
+            auto min = static_cast<long long>(api.GetNumber(0));
+            auto max = static_cast<long long>(api.GetNumber(1));
 
             RandEngine engine;
             std::uniform_int_distribution<long long> dis(min, max);
-            api.PushNumber(dis(engine));
+            api.PushNumber(static_cast<double>(dis(engine)));
         }
 
         return 1;
@@ -89,7 +89,7 @@ namespace math {
             return 0;
         }
 
-        srand(api.GetNumber(0));
+        srand(static_cast<unsigned int>(api.GetNumber(0)));
         return 0;
     }
 

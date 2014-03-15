@@ -1,10 +1,17 @@
-#include "GC.h"
-#include "Table.h"
-#include "Function.h"
-#include "String.h"
-#include "Value.h"
+#include "../src/GC.h"
+#include "../src/Table.h"
+#include "../src/Function.h"
+#include "../src/String.h"
+#include "../src/Value.h"
+
+#ifdef _MSC_VER
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif // _MSC_VER
+
 #include <stdlib.h>
+#include <time.h>
 #include <deque>
 #include <string>
 
@@ -336,7 +343,11 @@ void RandomLoop()
             free_global_count_max = 20;
 
         g_gc.CheckGC();
+#ifdef _MSC_VER
+        Sleep(RandomRange(1, 20));
+#else
         usleep(RandomRange(1000, 20000));
+#endif // _MSC_VER
     }
 }
 

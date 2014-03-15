@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luna", "luna\luna.vcxproj", "{37ABBAA5-38C9-4A52-B43E-C73E944296A6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unittest", "unittest\unittest.vcxproj", "{04C3F244-9971-4EA1-AE0F-7FA1FF234CA3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6} = {37ABBAA5-38C9-4A52-B43E-C73E944296A6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gctest", "gctest\gctest.vcxproj", "{D83FE06F-3007-4B51-AF59-248A0E633009}"
+	ProjectSection(ProjectDependencies) = postProject
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6} = {37ABBAA5-38C9-4A52-B43E-C73E944296A6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lunac", "lunac\lunac.vcxproj", "{7110DAFF-D20B-4068-A00C-1806F8FB0549}"
+	ProjectSection(ProjectDependencies) = postProject
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6} = {37ABBAA5-38C9-4A52-B43E-C73E944296A6}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6}.Debug|Win32.Build.0 = Debug|Win32
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6}.Release|Win32.ActiveCfg = Release|Win32
+		{37ABBAA5-38C9-4A52-B43E-C73E944296A6}.Release|Win32.Build.0 = Release|Win32
+		{04C3F244-9971-4EA1-AE0F-7FA1FF234CA3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{04C3F244-9971-4EA1-AE0F-7FA1FF234CA3}.Debug|Win32.Build.0 = Debug|Win32
+		{04C3F244-9971-4EA1-AE0F-7FA1FF234CA3}.Release|Win32.ActiveCfg = Release|Win32
+		{04C3F244-9971-4EA1-AE0F-7FA1FF234CA3}.Release|Win32.Build.0 = Release|Win32
+		{D83FE06F-3007-4B51-AF59-248A0E633009}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D83FE06F-3007-4B51-AF59-248A0E633009}.Debug|Win32.Build.0 = Debug|Win32
+		{D83FE06F-3007-4B51-AF59-248A0E633009}.Release|Win32.ActiveCfg = Release|Win32
+		{D83FE06F-3007-4B51-AF59-248A0E633009}.Release|Win32.Build.0 = Release|Win32
+		{7110DAFF-D20B-4068-A00C-1806F8FB0549}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7110DAFF-D20B-4068-A00C-1806F8FB0549}.Debug|Win32.Build.0 = Debug|Win32
+		{7110DAFF-D20B-4068-A00C-1806F8FB0549}.Release|Win32.ActiveCfg = Release|Win32
+		{7110DAFF-D20B-4068-A00C-1806F8FB0549}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

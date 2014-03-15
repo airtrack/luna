@@ -1,13 +1,13 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
-#include "Lex.h"
-#include "Parser.h"
-#include "State.h"
-#include "String.h"
-#include "TextInStream.h"
-#include "Exception.h"
-#include "Visitor.h"
+#include "../src/Lex.h"
+#include "../src/Parser.h"
+#include "../src/State.h"
+#include "../src/String.h"
+#include "../src/TextInStream.h"
+#include "../src/Exception.h"
+#include "../src/Visitor.h"
 #include <functional>
 #include <type_traits>
 
