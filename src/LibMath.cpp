@@ -1,10 +1,29 @@
 #include "LibMath.h"
 #include <random>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 namespace lib {
 namespace math {
+
+    int Abs(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (api.GetStackSize() < 1)
+        {
+            api.ArgCountError(1);
+            return 0;
+        }
+
+        if (!api.IsNumber(0))
+        {
+            api.ArgTypeError(0, luna::ValueT_Number);
+            return 0;
+        }
+
+        api.PushNumber(std::abs(api.GetNumber(0)));
+        return 1;
+    }
 
     // Rand engine for math.random function
     class RandEngine
@@ -18,7 +37,7 @@ namespace math {
         static constexpr result_type min() { return 0; }
         static constexpr result_type max() { return RAND_MAX; }
 #endif // _MSC_VER
-        result_type operator() () { return rand(); }
+        result_type operator() () { return std::rand(); }
 
         RandEngine() { }
         RandEngine(const RandEngine&) = delete;
@@ -89,7 +108,7 @@ namespace math {
             return 0;
         }
 
-        srand(static_cast<unsigned int>(api.GetNumber(0)));
+        std::srand(static_cast<unsigned int>(api.GetNumber(0)));
         return 0;
     }
 
@@ -97,6 +116,7 @@ namespace math {
     {
         luna::Library lib(state);
         luna::TableFuncReg math[] = {
+            { "abs", Abs },
             { "random", Random },
             { "randomseed", RandomSeed }
         };
