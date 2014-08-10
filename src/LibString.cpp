@@ -8,8 +8,8 @@ namespace string {
     int Byte(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_String,
-            luna::ValueT_Number, luna::ValueT_Number>())
+        if (!api.CheckArgs(1, luna::ValueT_String,
+                           luna::ValueT_Number, luna::ValueT_Number))
             return 0;
 
         int params = api.GetStackSize();

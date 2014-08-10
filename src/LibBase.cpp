@@ -55,7 +55,7 @@ namespace base {
     int Puts(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_String>())
+        if (!api.CheckArgs(1, luna::ValueT_String))
             return 0;
 
         printf("%s", api.GetCString(0));
@@ -65,7 +65,7 @@ namespace base {
     int Type(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1>())
+        if (!api.CheckArgs(1))
             return 0;
 
         const luna::Value *v = api.GetValue(0);
@@ -102,7 +102,7 @@ namespace base {
     int DoIPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<2, luna::ValueT_Table, luna::ValueT_Number>())
+        if (!api.CheckArgs(2, luna::ValueT_Table, luna::ValueT_Number))
             return 0;
 
         luna::Table *t = api.GetTable(0);
@@ -124,7 +124,7 @@ namespace base {
     int IPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_Table>())
+        if (!api.CheckArgs(1, luna::ValueT_Table))
             return 0;
 
         luna::Table *t = api.GetTable(0);
@@ -137,7 +137,7 @@ namespace base {
     int DoPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<2, luna::ValueT_Table>())
+        if (!api.CheckArgs(2, luna::ValueT_Table))
             return 0;
 
         luna::Table *t = api.GetTable(0);
@@ -158,7 +158,7 @@ namespace base {
     int Pairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_Table>())
+        if (!api.CheckArgs(1, luna::ValueT_Table))
             return 0;
 
         luna::Table *t = api.GetTable(0);

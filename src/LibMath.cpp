@@ -9,7 +9,7 @@ namespace math {
     int Abs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_Number>())
+        if (!api.CheckArgs(1, luna::ValueT_Number))
             return 0;
 
         api.PushNumber(std::abs(api.GetNumber(0)));
@@ -38,7 +38,7 @@ namespace math {
     int Random(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<0, luna::ValueT_Number, luna::ValueT_Number>())
+        if (!api.CheckArgs(0, luna::ValueT_Number, luna::ValueT_Number))
             return 0;
 
         int params = api.GetStackSize();
@@ -72,7 +72,7 @@ namespace math {
     int RandomSeed(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (!api.CheckArgs<1, luna::ValueT_Number>())
+        if (!api.CheckArgs(1, luna::ValueT_Number))
             return 0;
 
         std::srand(static_cast<unsigned int>(api.GetNumber(0)));

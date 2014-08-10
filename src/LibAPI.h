@@ -22,48 +22,47 @@ namespace luna
 
         // Helper functions for check API arguments
         // e.g.
-        //   bool result = CheckArgs<2, ValueT_String, ValueT_Number>();
+        //   bool result = CheckArgs(2, ValueT_String, ValueT_Number);
         //   2: min arguments to call API
         //   ValueT_String: type of the first argument
         //   ValueT_Number: type of the second argument
         //   all arguments are valid when result == true
-        template<typename>
         bool CheckArgs(int index, int params)
         {
             // No more expect argument to check, success
             return true;
         }
 
-        template<typename, ValueT Type, ValueT... ValueTypes>
-        bool CheckArgs(int index, int params)
+        template<typename... ValueTypes>
+        bool CheckArgs(int index, int params, ValueT type, ValueTypes... types)
         {
             // All arguments check success
             if (index == params)
                 return true;
 
             // Check type of the index + 1 argument
-            if (GetValueType(index) != Type)
+            if (GetValueType(index) != type)
             {
-                ArgTypeError(index, Type);
+                ArgTypeError(index, type);
                 return false;
             }
 
             // Check remain arguments
-            return CheckArgs<void, ValueTypes...>(++index, params);
+            return CheckArgs(++index, params, types...);
         }
 
-        template<int MinCount, ValueT... ValueTypes>
-        bool CheckArgs()
+        template<typename... ValueTypes>
+        bool CheckArgs(int minCount, ValueTypes... types)
         {
             // Check count of arguments
             auto params = GetStackSize();
-            if (params < MinCount)
+            if (params < minCount)
             {
-                ArgCountError(MinCount);
+                ArgCountError(minCount);
                 return false;
             }
 
-            return CheckArgs<void, ValueTypes...>(0, params);
+            return CheckArgs(0, params, types...);
         }
 
         // Get count of value in this function stack
