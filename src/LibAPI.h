@@ -20,6 +20,52 @@ namespace luna
     public:
         explicit StackAPI(State *state);
 
+        // Helper functions for check API arguments
+        // e.g.
+        //   bool result = CheckArgs<2, ValueT_String, ValueT_Number>();
+        //   2: min arguments to call API
+        //   ValueT_String: type of the first argument
+        //   ValueT_Number: type of the second argument
+        //   all arguments are valid when result == true
+        template<typename>
+        bool CheckArgs(int index, int params)
+        {
+            // No more expect argument to check, success
+            return true;
+        }
+
+        template<typename, ValueT Type, ValueT... ValueTypes>
+        bool CheckArgs(int index, int params)
+        {
+            // All arguments check success
+            if (index == params)
+                return true;
+
+            // Check type of the index + 1 argument
+            if (GetValueType(index) != Type)
+            {
+                ArgTypeError(index, Type);
+                return false;
+            }
+
+            // Check remain arguments
+            return CheckArgs<void, ValueTypes...>(++index, params);
+        }
+
+        template<int MinCount, ValueT... ValueTypes>
+        bool CheckArgs()
+        {
+            // Check count of arguments
+            auto params = GetStackSize();
+            if (params < MinCount)
+            {
+                ArgCountError(MinCount);
+                return false;
+            }
+
+            return CheckArgs<void, ValueTypes...>(0, params);
+        }
+
         // Get count of value in this function stack
         int GetStackSize() const;
 

@@ -9,17 +9,8 @@ namespace math {
     int Abs(luna::State *state)
     {
         luna::StackAPI api(state);
-        if (api.GetStackSize() < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_Number>())
             return 0;
-        }
-
-        if (!api.IsNumber(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Number);
-            return 0;
-        }
 
         api.PushNumber(std::abs(api.GetNumber(0)));
         return 1;
@@ -47,8 +38,10 @@ namespace math {
     int Random(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
+        if (!api.CheckArgs<0, luna::ValueT_Number, luna::ValueT_Number>())
+            return 0;
 
+        int params = api.GetStackSize();
         if (params == 0)
         {
             RandEngine engine;
@@ -57,11 +50,6 @@ namespace math {
         }
         else if (params == 1)
         {
-            if (!api.IsNumber(0))
-            {
-                api.ArgTypeError(0, luna::ValueT_Number);
-                return 0;
-            }
             auto max = static_cast<unsigned long long>(api.GetNumber(0));
 
             RandEngine engine;
@@ -70,17 +58,6 @@ namespace math {
         }
         else if (params >= 2)
         {
-            if (!api.IsNumber(0))
-            {
-                api.ArgTypeError(0, luna::ValueT_Number);
-                return 0;
-            }
-            if (!api.IsNumber(1))
-            {
-                api.ArgTypeError(1, luna::ValueT_Number);
-                return 0;
-            }
-
             auto min = static_cast<long long>(api.GetNumber(0));
             auto max = static_cast<long long>(api.GetNumber(1));
 
@@ -95,18 +72,8 @@ namespace math {
     int RandomSeed(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_Number>())
             return 0;
-        }
-
-        if (!api.IsNumber(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Number);
-            return 0;
-        }
 
         std::srand(static_cast<unsigned int>(api.GetNumber(0)));
         return 0;

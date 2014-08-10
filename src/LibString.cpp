@@ -8,40 +8,19 @@ namespace string {
     int Byte(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_String,
+            luna::ValueT_Number, luna::ValueT_Number>())
             return 0;
-        }
 
-        if (!api.IsString(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_String);
-            return 0;
-        }
+        int params = api.GetStackSize();
 
         int i = 1;
         if (params >= 2)
-        {
-            if (!api.IsNumber(1))
-            {
-                api.ArgTypeError(1, luna::ValueT_Number);
-                return 0;
-            }
             i = static_cast<int>(api.GetNumber(1));
-        }
 
         int j = i;
         if (params >= 3)
-        {
-            if (!api.IsNumber(2))
-            {
-                api.ArgTypeError(2, luna::ValueT_Number);
-                return 0;
-            }
             j = static_cast<int>(api.GetNumber(2));
-        }
 
         if (i <= 0)
             return 0;

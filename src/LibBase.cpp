@@ -55,18 +55,8 @@ namespace base {
     int Puts(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_String>())
             return 0;
-        }
-
-        if (!api.IsString(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_String);
-            return 0;
-        }
 
         printf("%s", api.GetCString(0));
         return 0;
@@ -75,12 +65,8 @@ namespace base {
     int Type(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1>())
             return 0;
-        }
 
         const luna::Value *v = api.GetValue(0);
         luna::ValueT type = v->type_ == luna::ValueT_Upvalue ?
@@ -116,24 +102,8 @@ namespace base {
     int DoIPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 2)
-        {
-            api.ArgCountError(2);
+        if (!api.CheckArgs<2, luna::ValueT_Table, luna::ValueT_Number>())
             return 0;
-        }
-
-        if (!api.IsTable(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Table);
-            return 0;
-        }
-
-        if (!api.IsNumber(1))
-        {
-            api.ArgTypeError(1, luna::ValueT_Number);
-            return 0;
-        }
 
         luna::Table *t = api.GetTable(0);
         double num = api.GetNumber(1) + 1;
@@ -154,18 +124,8 @@ namespace base {
     int IPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_Table>())
             return 0;
-        }
-
-        if (!api.IsTable(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Table);
-            return 0;
-        }
 
         luna::Table *t = api.GetTable(0);
         api.PushCFunction(DoIPairs);
@@ -177,18 +137,8 @@ namespace base {
     int DoPairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 2)
-        {
-            api.ArgCountError(2);
+        if (!api.CheckArgs<2, luna::ValueT_Table>())
             return 0;
-        }
-
-        if (!api.IsTable(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Table);
-            return 0;
-        }
 
         luna::Table *t = api.GetTable(0);
         luna::Value *last_key = api.GetValue(1);
@@ -208,18 +158,8 @@ namespace base {
     int Pairs(luna::State *state)
     {
         luna::StackAPI api(state);
-        int params = api.GetStackSize();
-        if (params < 1)
-        {
-            api.ArgCountError(1);
+        if (!api.CheckArgs<1, luna::ValueT_Table>())
             return 0;
-        }
-
-        if (!api.IsTable(0))
-        {
-            api.ArgTypeError(0, luna::ValueT_Table);
-            return 0;
-        }
 
         luna::Table *t = api.GetTable(0);
         api.PushCFunction(DoPairs);
