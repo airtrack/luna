@@ -6,14 +6,74 @@
 namespace lib {
 namespace math {
 
-    int Abs(luna::State *state)
+// Define one parameter one return value math function
+#define MATH_FUNCTION(name, std_name)                       \
+    int name(luna::State *state)                            \
+    {                                                       \
+        luna::StackAPI api(state);                          \
+        if (!api.CheckArgs(1, luna::ValueT_Number))         \
+            return 0;                                       \
+        api.PushNumber(std::std_name(api.GetNumber(0)));    \
+        return 1;                                           \
+    }
+
+// Define two parameters one return value math function
+#define MATH_FUNCTION2(name, std_name)                      \
+    int name(luna::State *state)                            \
+    {                                                       \
+        luna::StackAPI api(state);                          \
+        if (!api.CheckArgs(2, luna::ValueT_Number,          \
+                           luna::ValueT_Number))            \
+            return 0;                                       \
+        api.PushNumber(std::std_name(api.GetNumber(0),      \
+                                     api.GetNumber(1)));    \
+        return 1;                                           \
+    }
+
+    MATH_FUNCTION(Abs, abs)
+    MATH_FUNCTION(Acos, acos)
+    MATH_FUNCTION(Asin, asin)
+    MATH_FUNCTION(Atan, atan)
+    MATH_FUNCTION(Ceil, ceil)
+    MATH_FUNCTION(Cos, cos)
+    MATH_FUNCTION(Cosh, cosh)
+    MATH_FUNCTION(Exp, exp)
+    MATH_FUNCTION(Floor, floor)
+    MATH_FUNCTION(Sin, sin)
+    MATH_FUNCTION(Sinh, sinh)
+    MATH_FUNCTION(Sqrt, sqrt)
+    MATH_FUNCTION(Tan, tan)
+    MATH_FUNCTION(Tanh, tanh)
+
+    MATH_FUNCTION2(Atan2, atan2)
+    MATH_FUNCTION2(Fmod, fmod)
+    MATH_FUNCTION2(Ldexp, ldexp)
+    MATH_FUNCTION2(Pow, pow)
+
+    int Frexp(luna::State *state)
     {
         luna::StackAPI api(state);
         if (!api.CheckArgs(1, luna::ValueT_Number))
             return 0;
 
-        api.PushNumber(std::abs(api.GetNumber(0)));
-        return 1;
+        int exp = 0;
+        auto m = std::frexp(api.GetNumber(0), &exp);
+        api.PushNumber(m);
+        api.PushNumber(exp);
+        return 2;
+    }
+
+    int Modf(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number))
+            return 0;
+
+        double ipart = 0.0;
+        auto fpart = std::modf(api.GetNumber(0), &ipart);
+        api.PushNumber(ipart);
+        api.PushNumber(fpart);
+        return 2;
     }
 
     // Rand engine for math.random function
@@ -84,6 +144,25 @@ namespace math {
         luna::Library lib(state);
         luna::TableFuncReg math[] = {
             { "abs", Abs },
+            { "acos", Acos },
+            { "asin", Asin },
+            { "atan", Atan },
+            { "atan2", Atan2 },
+            { "ceil", Ceil },
+            { "cos", Cos },
+            { "cosh", Cosh },
+            { "exp", Exp },
+            { "floor", Floor },
+            { "fmod", Fmod },
+            { "frexp", Frexp },
+            { "ldexp", Ldexp },
+            { "modf", Modf },
+            { "pow", Pow },
+            { "sin", Sin },
+            { "sinh", Sinh },
+            { "sqrt", Sqrt },
+            { "tan", Tan },
+            { "tanh", Tanh },
             { "random", Random },
             { "randomseed", RandomSeed }
         };
