@@ -50,6 +50,91 @@ namespace math {
     MATH_FUNCTION2(Ldexp, ldexp)
     MATH_FUNCTION2(Pow, pow)
 
+    int Deg(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number))
+            return 0;
+
+        api.PushNumber(api.GetNumber(0) / M_PI * 180);
+        return 1;
+    }
+
+    int Rad(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number))
+            return 0;
+
+        api.PushNumber(api.GetNumber(0) / 180 * M_PI);
+        return 1;
+    }
+
+    int Log(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number, luna::ValueT_Number))
+            return 0;
+
+        auto l = std::log(api.GetNumber(0));
+        if (api.GetStackSize() > 1)
+        {
+            auto b = std::log(api.GetNumber(1));
+            l /= b;
+        }
+
+        api.PushNumber(l);
+        return 1;
+    }
+
+    int Min(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number))
+            return 0;
+
+        auto min = api.GetNumber(0);
+        auto params = api.GetStackSize();
+        for (int i = 1; i < params; ++i)
+        {
+            if (!api.IsNumber(i))
+            {
+                api.ArgTypeError(i, luna::ValueT_Number);
+                return 0;
+            }
+
+            auto n = api.GetNumber(i);
+            if (n < min) min = n;
+        }
+
+        api.PushNumber(min);
+        return 1;
+    }
+
+    int Max(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Number))
+            return 0;
+
+        auto max = api.GetNumber(0);
+        auto params = api.GetStackSize();
+        for (int i = 1; i < params; ++i)
+        {
+            if (!api.IsNumber(i))
+            {
+                api.ArgTypeError(i, luna::ValueT_Number);
+                return 0;
+            }
+
+            auto n = api.GetNumber(i);
+            if (n > max) max = n;
+        }
+
+        api.PushNumber(max);
+        return 1;
+    }
+
     int Frexp(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -101,7 +186,7 @@ namespace math {
         if (!api.CheckArgs(0, luna::ValueT_Number, luna::ValueT_Number))
             return 0;
 
-        int params = api.GetStackSize();
+        auto params = api.GetStackSize();
         if (params == 0)
         {
             RandEngine engine;
@@ -142,7 +227,7 @@ namespace math {
     void RegisterLibMath(luna::State *state)
     {
         luna::Library lib(state);
-        luna::TableFuncReg math[] = {
+        luna::TableMemberReg math[] = {
             { "abs", Abs },
             { "acos", Acos },
             { "asin", Asin },
@@ -151,20 +236,27 @@ namespace math {
             { "ceil", Ceil },
             { "cos", Cos },
             { "cosh", Cosh },
+            { "deg", Deg },
             { "exp", Exp },
             { "floor", Floor },
             { "fmod", Fmod },
             { "frexp", Frexp },
             { "ldexp", Ldexp },
+            { "log", Log },
+            { "max", Max },
+            { "min", Min },
             { "modf", Modf },
             { "pow", Pow },
+            { "rad", Rad },
+            { "random", Random },
+            { "randomseed", RandomSeed },
             { "sin", Sin },
             { "sinh", Sinh },
             { "sqrt", Sqrt },
             { "tan", Tan },
             { "tanh", Tanh },
-            { "random", Random },
-            { "randomseed", RandomSeed }
+            { "huge", HUGE_VAL },
+            { "pi", M_PI }
         };
 
         lib.RegisterTableFunction("math", math);

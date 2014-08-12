@@ -111,11 +111,37 @@ namespace luna
         Stack *stack_;
     };
 
-    // For register table functions
-    struct TableFuncReg
+    // For register table member
+    struct TableMemberReg
     {
+        // Member name
         const char *name_;
-        CFunctionType func_;
+
+        // Member value
+        union
+        {
+            CFunctionType func_;
+            double number_;
+            const char *str_;
+        };
+
+        // Member value type
+        ValueT type_;
+
+        TableMemberReg(const char *name, CFunctionType func)
+            : name_(name), func_(func), type_(ValueT_CFunction)
+        {
+        }
+
+        TableMemberReg(const char *name, double number)
+            : name_(name), number_(number), type_(ValueT_Number)
+        {
+        }
+
+        TableMemberReg(const char *name, const char *str)
+            : name_(name), str_(str), type_(ValueT_String)
+        {
+        }
     };
 
     // This class register C function to luna
@@ -128,17 +154,19 @@ namespace luna
         void RegisterFunc(const char *name, CFunctionType func);
 
         // Register a table of functions
-        void RegisterTableFunction(const char *name, const TableFuncReg *table,
+        void RegisterTableFunction(const char *name, const TableMemberReg *table,
                                    std::size_t size);
 
         template<std::size_t N>
-        void RegisterTableFunction(const char *name, const TableFuncReg (&table)[N])
+        void RegisterTableFunction(const char *name, const TableMemberReg (&table)[N])
         {
             RegisterTableFunction(name, table, N);
         }
 
     private:
         void RegisterFunc(Table *table, const char *name, CFunctionType func);
+        void RegisterNumber(Table *table, const char *name, double number);
+        void RegisterString(Table *table, const char *name, const char *str);
 
         State *state_;
         Table *global_;

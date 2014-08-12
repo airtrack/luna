@@ -187,7 +187,7 @@ namespace luna
         RegisterFunc(global_, name, func);
     }
 
-    void Library::RegisterTableFunction(const char *name, const TableFuncReg *table,
+    void Library::RegisterTableFunction(const char *name, const TableMemberReg *table,
                                         std::size_t size)
     {
         Value k;
@@ -202,7 +202,19 @@ namespace luna
 
         for (std::size_t i = 0; i < size; ++i)
         {
-            RegisterFunc(t, table[i].name_, table[i].func_);
+            switch (table[i].type_)
+            {
+                case ValueT_CFunction:
+                    RegisterFunc(t, table[i].name_, table[i].func_);
+                    break;
+                case ValueT_Number:
+                    RegisterNumber(t, table[i].name_, table[i].number_);
+                    break;
+                case ValueT_String:
+                    RegisterString(t, table[i].name_, table[i].str_);
+                    break;
+                default: break;
+            }
         }
     }
 
@@ -215,6 +227,30 @@ namespace luna
         Value v;
         v.type_ = ValueT_CFunction;
         v.cfunc_ = func;
+        table->SetValue(k, v);
+    }
+
+    void Library::RegisterNumber(Table *table, const char *name, double number)
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = state_->GetString(name);
+
+        Value v;
+        v.type_ = ValueT_Number;
+        v.num_ = number;
+        table->SetValue(k, v);
+    }
+
+    void Library::RegisterString(Table *table, const char *name, const char *str)
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = state_->GetString(name);
+
+        Value v;
+        v.type_ = ValueT_String;
+        v.str_ = state_->GetString(str);
         table->SetValue(k, v);
     }
 } // namespace luna

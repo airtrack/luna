@@ -67,7 +67,7 @@ namespace string {
     void RegisterLibString(luna::State *state)
     {
         luna::Library lib(state);
-        luna::TableFuncReg string[] = {
+        luna::TableMemberReg string[] = {
             { "byte", Byte },
             { "char", Char }
         };
