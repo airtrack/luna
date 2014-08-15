@@ -30,6 +30,7 @@ namespace luna
         GCObjectType_Closure,
         GCObjectType_Upvalue,
         GCObjectType_String,
+        GCObjectType_UserData,
     };
 
     class Table;
@@ -37,6 +38,7 @@ namespace luna
     class Closure;
     class Upvalue;
     class String;
+    class UserData;
 
     // Visitor for visit all GC objects
     class GCObjectVisitor
@@ -48,6 +50,7 @@ namespace luna
         virtual bool Visit(Closure *) = 0;
         virtual bool Visit(Upvalue *) = 0;
         virtual bool Visit(String *) = 0;
+        virtual bool Visit(UserData *) = 0;
     };
 
     // Base class of GC objects, GC use this class to manipulate
@@ -70,9 +73,9 @@ namespace luna
         GCObject *next_;
         // Generation flag
         unsigned int generation_ : 2;
-        // GC flag
+        // GCFlag
         unsigned int gc_ : 2;
-        // GC object type
+        // GCObjectType
         unsigned int gc_obj_type_ : 4;
     };
 
@@ -108,6 +111,7 @@ namespace luna
         Closure * NewClosure(GCGeneration gen = GCGen0);
         Upvalue * NewUpvalue(GCGeneration gen = GCGen0);
         String * NewString(GCGeneration gen = GCGen0);
+        UserData * NewUserData(GCGeneration gen = GCGen0);
 
         // Set GC object barrier
         void SetBarrier(GCObject *obj);

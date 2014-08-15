@@ -37,6 +37,9 @@ namespace base {
                 case luna::ValueT_Table:
                     printf("table:\t%p", api.GetTable(i));
                     break;
+                case luna::ValueT_UserData:
+                    printf("userdata:\t%p", api.GetUserData(i));
+                    break;
                 case luna::ValueT_CFunction:
                     printf("function:\t%p", api.GetCFunction(i));
                     break;
@@ -87,6 +90,9 @@ namespace base {
                 break;
             case luna::ValueT_Table:
                 api.PushString("table");
+                break;
+            case luna::ValueT_UserData:
+                api.PushString("userdata");
                 break;
             case luna::ValueT_Closure:
             case luna::ValueT_CFunction:

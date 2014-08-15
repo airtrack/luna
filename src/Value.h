@@ -12,6 +12,7 @@ namespace luna
     class Closure;
     class Upvalue;
     class Table;
+    class UserData;
     class State;
 
     typedef int (*CFunctionType)(State *);
@@ -26,6 +27,7 @@ namespace luna
         ValueT_Closure,
         ValueT_Upvalue,
         ValueT_Table,
+        ValueT_UserData,
         ValueT_CFunction,
     };
 
@@ -39,6 +41,7 @@ namespace luna
             Closure *closure_;
             Upvalue *upvalue_;
             Table *table_;
+            UserData *user_data_;
             CFunctionType cfunc_;
             double num_;
             bool bvalue_;
@@ -56,21 +59,27 @@ namespace luna
         void Accept(GCObjectVisitor *v) const;
 
         const char * TypeName() const;
-        static const char *TypeName(ValueT type);
+        static const char * TypeName(ValueT type);
     };
 
     inline bool operator == (const Value &left, const Value &right)
     {
-        return left.type_ == right.type_ &&
-                ((left.type_ == ValueT_Nil) ||
-                 (left.type_ == ValueT_Bool && left.bvalue_ == right.bvalue_) ||
-                 (left.type_ == ValueT_Number && left.num_ == right.num_) ||
-                 (left.type_ == ValueT_Obj && left.obj_ == right.obj_) ||
-                 (left.type_ == ValueT_String && left.str_ == right.str_) ||
-                 (left.type_ == ValueT_Closure && left.closure_ == right.closure_) ||
-                 (left.type_ == ValueT_Upvalue && left.upvalue_ == right.upvalue_) ||
-                 (left.type_ == ValueT_Table && left.table_ == right.table_) ||
-                 (left.type_ == ValueT_CFunction && left.cfunc_ == right.cfunc_));
+        if (left.type_ != right.type_)
+            return false;
+
+        switch (left.type_)
+        {
+            case ValueT_Nil: return true;
+            case ValueT_Bool: return left.bvalue_ == right.bvalue_;
+            case ValueT_Number: return left.num_ == right.num_;
+            case ValueT_Obj: return left.obj_ == right.obj_;
+            case ValueT_String: return left.str_ == right.str_;
+            case ValueT_Closure: return left.closure_ == right.closure_;
+            case ValueT_Upvalue: return left.upvalue_ == right.upvalue_;
+            case ValueT_Table: return left.table_ == right.table_;
+            case ValueT_UserData: return left.user_data_ == right.user_data_;
+            case ValueT_CFunction: return left.cfunc_ == right.cfunc_;
+        }
     }
 
     inline bool operator != (const Value &left, const Value &right)
@@ -86,24 +95,29 @@ namespace std
     {
         size_t operator () (const luna::Value &t) const
         {
-            if (t.type_ == luna::ValueT_Nil)
-                return hash<int>()(0);
-            else if (t.type_ == luna::ValueT_Bool)
-                return hash<bool>()(t.bvalue_);
-            else if (t.type_ == luna::ValueT_Number)
-                return hash<double>()(t.num_);
-            else if (t.type_ == luna::ValueT_String)
-                return hash<void *>()(t.str_);
-            else if (t.type_ == luna::ValueT_Closure)
-                return hash<void *>()(t.closure_);
-            else if (t.type_ == luna::ValueT_Upvalue)
-                return hash<void *>()(t.upvalue_);
-            else if (t.type_ == luna::ValueT_Table)
-                return hash<void *>()(t.table_);
-            else if (t.type_ == luna::ValueT_CFunction)
-                return hash<void *>()(reinterpret_cast<void *>(t.cfunc_));
-            else
-                return hash<void *>()(t.obj_);
+            switch (t.type_)
+            {
+                case luna::ValueT_Nil:
+                    return hash<int>()(0);
+                case luna::ValueT_Bool:
+                    return hash<bool>()(t.bvalue_);
+                case luna::ValueT_Number:
+                    return hash<double>()(t.num_);
+                case luna::ValueT_String:
+                    return hash<void *>()(t.str_);
+                case luna::ValueT_Closure:
+                    return hash<void *>()(t.closure_);
+                case luna::ValueT_Upvalue:
+                    return hash<void *>()(t.upvalue_);
+                case luna::ValueT_Table:
+                    return hash<void *>()(t.table_);
+                case luna::ValueT_UserData:
+                    return hash<void *>()(t.user_data_);
+                case luna::ValueT_CFunction:
+                    return hash<void *>()(reinterpret_cast<void *>(t.cfunc_));
+                default:
+                    return hash<void *>()(t.obj_);
+            }
         }
     };
 } // namespace std

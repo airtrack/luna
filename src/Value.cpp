@@ -3,6 +3,7 @@
 #include "Table.h"
 #include "String.h"
 #include "Upvalue.h"
+#include "UserData.h"
 
 namespace luna
 {
@@ -30,6 +31,9 @@ namespace luna
             case ValueT_Table:
                 table_->Accept(v);
                 break;
+            case ValueT_UserData:
+                user_data_->Accept(v);
+                break;
         }
     }
 
@@ -50,6 +54,7 @@ namespace luna
             case ValueT_Closure: return "function";
             case ValueT_Upvalue: return "upvalue";
             case ValueT_Table: return "table";
+            case ValueT_UserData: return "userdata";
             default: return "unknown type";
         }
     }

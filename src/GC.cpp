@@ -3,6 +3,7 @@
 #include "Function.h"
 #include "Upvalue.h"
 #include "String.h"
+#include "UserData.h"
 #include <assert.h>
 #include <time.h>
 
@@ -25,6 +26,7 @@ namespace luna
         virtual bool Visit(Closure *c) { return VisitObj(c); }
         virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
+        virtual bool Visit(UserData *u) { return VisitObj(u); }
 
     private:
         bool VisitObj(GCObject *obj)
@@ -46,6 +48,7 @@ namespace luna
         virtual bool Visit(Closure *c) { return VisitObj(c); }
         virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
+        virtual bool Visit(UserData *u) { return VisitObj(u); }
 
     private:
         bool VisitObj(GCObject *obj)
@@ -75,6 +78,7 @@ namespace luna
         virtual bool Visit(Closure *c) { return VisitObj(c); }
         virtual bool Visit(Upvalue *u) { return VisitObj(u); }
         virtual bool Visit(String *s) { return VisitObj(s); }
+        virtual bool Visit(UserData *u) { return VisitObj(u); }
 
     private:
         bool VisitObj(GCObject *obj)
@@ -163,6 +167,14 @@ namespace luna
         s->gc_obj_type_ = GCObjectType_String;
         SetObjectGen(s, gen);
         return s;
+    }
+
+    UserData * GC::NewUserData(GCGeneration gen)
+    {
+        auto u = new UserData;
+        u->gc_obj_type_ = GCObjectType_UserData;
+        SetObjectGen(u, gen);
+        return u;
     }
 
     void GC::SetBarrier(GCObject *obj)

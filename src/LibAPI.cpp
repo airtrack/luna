@@ -80,6 +80,15 @@ namespace luna
             return nullptr;
     }
 
+    UserData * StackAPI::GetUserData(int index)
+    {
+        Value *v = GetValue(index);
+        if (v)
+            return v->user_data_;
+        else
+            return nullptr;
+    }
+
     CFunctionType StackAPI::GetCFunction(int index)
     {
         Value *v = GetValue(index);

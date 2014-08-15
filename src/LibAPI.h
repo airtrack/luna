@@ -86,6 +86,7 @@ namespace luna
         bool GetBool(int index);
         Closure * GetClosure(int index);
         Table * GetTable(int index);
+        UserData * GetUserData(int index);
         CFunctionType GetCFunction(int index);
         Value * GetValue(int index);
 
