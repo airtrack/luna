@@ -216,18 +216,31 @@ namespace luna
         v.table_ = t;
         global_->SetValue(k, v);
 
+        RegisterToTable(t, table, size);
+    }
+
+    void Library::RegisterMetatable(const char *name, const TableMemberReg *table,
+                                    std::size_t size)
+    {
+        auto t = state_->GetMetatable(name);
+        RegisterToTable(t, table, size);
+    }
+
+    void Library::RegisterToTable(Table *table, const TableMemberReg *table_reg,
+                                  std::size_t size)
+    {
         for (std::size_t i = 0; i < size; ++i)
         {
-            switch (table[i].type_)
+            switch (table_reg[i].type_)
             {
                 case ValueT_CFunction:
-                    RegisterFunc(t, table[i].name_, table[i].func_);
+                    RegisterFunc(table, table_reg[i].name_, table_reg[i].func_);
                     break;
                 case ValueT_Number:
-                    RegisterNumber(t, table[i].name_, table[i].number_);
+                    RegisterNumber(table, table_reg[i].name_, table_reg[i].number_);
                     break;
                 case ValueT_String:
-                    RegisterString(t, table[i].name_, table[i].str_);
+                    RegisterString(table, table_reg[i].name_, table_reg[i].str_);
                     break;
                 default: break;
             }

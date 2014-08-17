@@ -13,6 +13,8 @@
 		CE05E06016EF7EBF00D1F623 /* VM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE05E05F16EF7EBF00D1F623 /* VM.cpp */; };
 		CE08845016889B1400E05968 /* UnitTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE0884351688981400E05968 /* UnitTest.cpp */; };
 		CE1302D316BC2E0400DC6A08 /* LunaC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1302D216BC2E0400DC6A08 /* LunaC.cpp */; };
+		CE17383D19A0C6A5002C16A7 /* LibIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE17383B19A0C6A5002C16A7 /* LibIO.cpp */; };
+		CE17383E19A0C6A5002C16A7 /* LibIO.h in Headers */ = {isa = PBXBuildFile; fileRef = CE17383C19A0C6A5002C16A7 /* LibIO.h */; };
 		CE1DC67F168A0595004EAEBC /* TestLex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1DC67D168A0595004EAEBC /* TestLex.cpp */; };
 		CE1DC682168A099F004EAEBC /* libluna.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8F1AF916875AE6001FBAA6 /* libluna.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE1E694A16941F940060DE44 /* Token.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1E694916941F940060DE44 /* Token.h */; };
@@ -129,6 +131,8 @@
 		CE0884351688981400E05968 /* UnitTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = UnitTest.cpp; path = ../test/UnitTest.cpp; sourceTree = "<group>"; };
 		CE08844616889AA400E05968 /* unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = unittest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE1302D216BC2E0400DC6A08 /* LunaC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LunaC.cpp; path = ../src/LunaC.cpp; sourceTree = "<group>"; };
+		CE17383B19A0C6A5002C16A7 /* LibIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LibIO.cpp; path = ../src/LibIO.cpp; sourceTree = "<group>"; };
+		CE17383C19A0C6A5002C16A7 /* LibIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LibIO.h; path = ../src/LibIO.h; sourceTree = "<group>"; };
 		CE19539216835C0400504CCD /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = String.h; path = ../src/String.h; sourceTree = "<group>"; };
 		CE1953941683648900504CCD /* State.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = State.cpp; path = ../src/State.cpp; sourceTree = "<group>"; };
 		CE19539516836BC100504CCD /* ModuleManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ModuleManager.h; path = ../src/ModuleManager.h; sourceTree = "<group>"; };
@@ -243,6 +247,8 @@
 				CE477AF016F5E588001F2B0A /* LibAPI.h */,
 				CE30E90216F75C06006CB767 /* LibBase.cpp */,
 				CE30E90016F75B7A006CB767 /* LibBase.h */,
+				CE17383B19A0C6A5002C16A7 /* LibIO.cpp */,
+				CE17383C19A0C6A5002C16A7 /* LibIO.h */,
 				CE2BEAEC18B08FD9002E49EA /* LibMath.cpp */,
 				CE2BEAED18B08FD9002E49EA /* LibMath.h */,
 				CE77044C18AF5EA90090C063 /* LibString.cpp */,
@@ -343,6 +349,7 @@
 				CE77044B18AF5E630090C063 /* LibString.h in Headers */,
 				CEDBE61316C8D9D1005FDB2A /* OpCode.h in Headers */,
 				CEFF9B87184E2CDD008A7A25 /* CodeGenerate.h in Headers */,
+				CE17383E19A0C6A5002C16A7 /* LibIO.h in Headers */,
 				CE75E31716D6769B00A008A8 /* Runtime.h in Headers */,
 				CEB44B1C1866D0A700748389 /* Upvalue.h in Headers */,
 				CE05E05E16EF7E2D00D1F623 /* VM.h in Headers */,
@@ -504,6 +511,7 @@
 				CE30E90316F75C06006CB767 /* LibBase.cpp in Sources */,
 				CE8C6C0D199E38EF003E6509 /* UserData.cpp in Sources */,
 				CE0242321701EF6200CC59BE /* Bootstrap.cpp in Sources */,
+				CE17383D19A0C6A5002C16A7 /* LibIO.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

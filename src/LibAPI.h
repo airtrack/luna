@@ -172,7 +172,18 @@ namespace luna
             RegisterTableFunction(name, table, N);
         }
 
+        // Register a metatable
+        void RegisterMetatable(const char *name, const TableMemberReg *table,
+                               std::size_t size);
+
+        template<std::size_t N>
+        void RegisterMetatable(const char *name, const TableMemberReg (&table)[N])
+        {
+            RegisterMetatable(name, table, N);
+        }
+
     private:
+        void RegisterToTable(Table *table, const TableMemberReg *table_reg, std::size_t size);
         void RegisterFunc(Table *table, const char *name, CFunctionType func);
         void RegisterNumber(Table *table, const char *name, double number);
         void RegisterString(Table *table, const char *name, const char *str);

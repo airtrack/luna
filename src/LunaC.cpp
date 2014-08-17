@@ -3,6 +3,7 @@
 #include "Bootstrap.h"
 #include "Exception.h"
 #include "LibBase.h"
+#include "LibIO.h"
 #include "LibMath.h"
 #include "LibString.h"
 #include <stdio.h>
@@ -22,6 +23,7 @@ int main(int argc, const char **argv)
         luna::Bootstrap bootstrap(&state);
 
         lib::base::RegisterLibBase(&state);
+        lib::io::RegisterLibIO(&state);
         lib::math::RegisterLibMath(&state);
         lib::string::RegisterLibString(&state);
 
