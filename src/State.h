@@ -68,12 +68,19 @@ namespace luna
         Closure * NewClosure();
         Upvalue * NewUpvalue();
         Table * NewTable();
+        UserData * NewUserData();
 
         // Get current CallInfo
         CallInfo * GetCurrentCall();
 
         // Get global table value
         Value * GetGlobal();
+
+        // Metatable operations
+        // Return metatable, create when metatable not existed
+        Table * GetMetatable(const char *metatable_name);
+        // Erase metatable
+        void EraseMetatable(const char *metatable_name);
 
         // For call c function
         void ClearCFunctionError()
@@ -94,6 +101,8 @@ namespace luna
     private:
         // Full GC root
         void FullGCRoot(GCObjectVisitor *v);
+
+        Table * GetMetatables();
 
         std::unique_ptr<ModuleManager> module_manager_;
         std::unique_ptr<StringPool> string_pool_;

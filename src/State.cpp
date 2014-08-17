@@ -5,9 +5,12 @@
 #include "Function.h"
 #include "Table.h"
 #include "TextInStream.h"
+#include <cassert>
 
 namespace luna
 {
+#define METATABLES "__metatables"
+
     State::State()
     {
         module_manager_.reset(new ModuleManager(this));
@@ -27,6 +30,15 @@ namespace luna
         // New global table
         global_.table_ = NewTable();
         global_.type_ = ValueT_Table;
+
+        // New table for store metatables
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = GetString(METATABLES);
+        Value v;
+        v.type_ = ValueT_Table;
+        v.table_ = NewTable();
+        global_.table_->SetValue(k, v);
     }
 
     State::~State()
@@ -104,6 +116,11 @@ namespace luna
         return gc_->NewTable();
     }
 
+    UserData * State::NewUserData()
+    {
+        return gc_->NewUserData();
+    }
+
     CallInfo * State::GetCurrentCall()
     {
         if (calls_.empty())
@@ -114,6 +131,38 @@ namespace luna
     Value * State::GetGlobal()
     {
         return &global_;
+    }
+
+    Table * State::GetMetatable(const char *metatable_name)
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = GetString(metatable_name);
+
+        auto metatables = GetMetatables();
+        auto metatable = metatables->GetValue(k);
+
+        // Create table when metatable not existed
+        if (metatable.type_ == ValueT_Nil)
+        {
+            metatable.type_ = ValueT_Table;
+            metatable.table_ = NewTable();
+            metatables->SetValue(k, metatable);
+        }
+
+        assert(metatable.type_ == ValueT_Table);
+        return metatable.table_;
+    }
+
+    void State::EraseMetatable(const char *metatable_name)
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = GetString(metatable_name);
+
+        Value nil;
+        auto metatables = GetMetatables();
+        metatables->SetValue(k, nil);
     }
 
     void State::FullGCRoot(GCObjectVisitor *v)
@@ -136,5 +185,16 @@ namespace luna
                 call.func_->Accept(v);
             }
         }
+    }
+
+    Table * State::GetMetatables()
+    {
+        Value k;
+        k.type_ = ValueT_String;
+        k.str_ = GetString(METATABLES);
+
+        auto v = global_.table_->GetValue(k);
+        assert(v.type_ == ValueT_Table);
+        return v.table_;
     }
 } // namespace luna

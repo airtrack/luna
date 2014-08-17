@@ -20,6 +20,9 @@ namespace luna
     public:
         explicit StackAPI(State *state);
 
+        StackAPI(const StackAPI&) = delete;
+        void operator = (const StackAPI&) = delete;
+
         // Helper functions for check API arguments
         // e.g.
         //   bool result = CheckArgs(2, ValueT_String, ValueT_Number);
@@ -77,6 +80,7 @@ namespace luna
         bool IsBool(int index) { return GetValueType(index) == ValueT_Bool; }
         bool IsClosure(int index) { return GetValueType(index) == ValueT_Closure; }
         bool IsTable(int index) { return GetValueType(index) == ValueT_Table; }
+        bool IsUserData(int index) { return GetValueType(index) == ValueT_UserData; }
         bool IsCFunction(int index) { return GetValueType(index) == ValueT_CFunction; }
 
         // Get value from stack by index
@@ -97,6 +101,7 @@ namespace luna
         void PushString(const std::string &str);
         void PushBool(bool value);
         void PushTable(Table *table);
+        void PushUserData(UserData *user_data);
         void PushCFunction(CFunctionType function);
         void PushValue(const Value &value);
 
@@ -145,11 +150,14 @@ namespace luna
         }
     };
 
-    // This class register C function to luna
+    // This class provide register C function/data to luna
     class Library
     {
     public:
         explicit Library(State *state);
+
+        Library(const Library&) = delete;
+        void operator = (const Library&) = delete;
 
         // Register global function 'func' as 'name'
         void RegisterFunc(const char *name, CFunctionType func);

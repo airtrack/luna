@@ -99,6 +99,9 @@ namespace luna
         explicit GC(const GCObjectDeleter &obj_deleter = DefaultDeleter(), bool log = false);
         ~GC();
 
+        GC(const GC&) = delete;
+        void operator = (const GC&) = delete;
+
         void ResetDeleter(const GCObjectDeleter &obj_deleter = DefaultDeleter())
         { obj_deleter_ = obj_deleter; }
 

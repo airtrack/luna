@@ -153,6 +153,13 @@ namespace luna
         v->table_ = table;
     }
 
+    void StackAPI::PushUserData(UserData *user_data)
+    {
+        Value *v = PushValue();
+        v->type_ = ValueT_UserData;
+        v->user_data_ = user_data;
+    }
+
     void StackAPI::PushCFunction(CFunctionType function)
     {
         Value *v = PushValue();
