@@ -50,15 +50,27 @@ namespace luna
         ValueT type_;
 
         Value() : obj_(nullptr), type_(ValueT_Nil) { }
+        Value(bool bvalue) : bvalue_(bvalue), type_(ValueT_Bool) { }
+        Value(double num) : num_(num), type_(ValueT_Number) { }
+        Value(String *str) : str_(str), type_(ValueT_String) { }
+        Value(Closure *closure) : closure_(closure), type_(ValueT_Closure) { }
+        Value(Upvalue *upvalue) : upvalue_(upvalue), type_(ValueT_Upvalue) { }
+        Value(Table *table) : table_(table), type_(ValueT_Table) { }
+        Value(UserData *user_data) : user_data_(user_data), type_(ValueT_UserData) { }
+        Value(CFunctionType cfunc) : cfunc_(cfunc), type_(ValueT_CFunction) { }
 
-        void SetNil() { obj_ = nullptr; type_ = ValueT_Nil; }
-        void SetBool(bool bvalue) { bvalue_ = bvalue; type_ = ValueT_Bool; }
+        void SetNil()
+        { obj_ = nullptr; type_ = ValueT_Nil; }
+
+        void SetBool(bool bvalue)
+        { bvalue_ = bvalue; type_ = ValueT_Bool; }
+
         bool IsFalse() const
         { return type_ == ValueT_Nil || (type_ == ValueT_Bool && !bvalue_); }
 
         void Accept(GCObjectVisitor *v) const;
-
         const char * TypeName() const;
+
         static const char * TypeName(ValueT type);
     };
 
