@@ -1,6 +1,7 @@
 #include "VM.h"
 #include "State.h"
 #include "Table.h"
+#include "UserData.h"
 #include "Function.h"
 #include "Exception.h"
 #include <assert.h>
@@ -251,12 +252,22 @@ namespace luna
                 case OpType_SetTable:
                     GET_REGISTER_ABC(i);
                     CheckTableType(a, b, "set", "to");
-                    a->table_->SetValue(*b, *c);
+                    if (a->type_ == ValueT_Table)
+                        a->table_->SetValue(*b, *c);
+                    else if (a->type_ == ValueT_UserData)
+                        a->user_data_->GetMetatable()->SetValue(*b, *c);
+                    else
+                        assert(0);
                     break;
                 case OpType_GetTable:
                     GET_REGISTER_ABC(i);
                     CheckTableType(a, b, "get", "from");
-                    *c = a->table_->GetValue(*b);
+                    if (a->type_ == ValueT_Table)
+                        *c = a->table_->GetValue(*b);
+                    else if (a->type_ == ValueT_UserData)
+                        *c = a->user_data_->GetMetatable()->GetValue(*b);
+                    else
+                        assert(0);
                     break;
                 case OpType_ForInit:
                     GET_REGISTER_ABC(i);
@@ -670,14 +681,15 @@ namespace luna
     void VM::CheckTableType(const Value *t, const Value *k,
                             const char *op, const char *desc) const
     {
-        if (t->type_ != ValueT_Table)
-        {
-            auto ns = GetOperandNameAndScope(t);
-            auto line = GetCurrentInstructionLine();
-            auto key_name = k->type_ == ValueT_String ? k->str_->GetCStr() : "?";
-            std::string op_desc = std::string(op) + " table key '" + key_name + "' " + desc;
-            throw RuntimeException(t, ns.first, ns.second, op_desc.c_str(), line);
-        }
+        if (t->type_ == ValueT_Table ||
+            (t->type_ == ValueT_UserData && t->user_data_->GetMetatable()))
+            return ;
+
+        auto ns = GetOperandNameAndScope(t);
+        auto line = GetCurrentInstructionLine();
+        auto key_name = k->type_ == ValueT_String ? k->str_->GetCStr() : "?";
+        std::string op_desc = std::string(op) + " table key '" + key_name + "' " + desc;
+        throw RuntimeException(t, ns.first, ns.second, op_desc.c_str(), line);
     }
 
     void VM::ReportTypeError(const Value *v, const char *op) const
