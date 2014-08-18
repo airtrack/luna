@@ -6,6 +6,7 @@
 *.DS_Store
 *.sublime-project
 *.sublime-workspace
+*.xcodeproj
 bin/
 lib/
 ipch/
@@ -16,5 +17,6 @@ project.xcworkspace/
 xcuserdata/
 CMakeCache.txt
 CMakeFiles/
+CMakeScripts/
 cmake_install.cmake
 Makefile
