@@ -1,8 +1,8 @@
-#include "../src/GC.h"
-#include "../src/Table.h"
-#include "../src/Function.h"
-#include "../src/String.h"
-#include "../src/Value.h"
+#include "luna/GC.h"
+#include "luna/Table.h"
+#include "luna/Function.h"
+#include "luna/String.h"
+#include "luna/Value.h"
 
 #ifdef _MSC_VER
 #include <Windows.h>

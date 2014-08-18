@@ -1,6 +1,6 @@
 #include "UnitTest.h"
-#include "../src/Table.h"
-#include "../src/String.h"
+#include "luna/Table.h"
+#include "luna/String.h"
 
 TEST_CASE(table1)
 {

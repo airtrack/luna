@@ -1,13 +1,13 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
-#include "../src/Lex.h"
-#include "../src/Parser.h"
-#include "../src/State.h"
-#include "../src/String.h"
-#include "../src/TextInStream.h"
-#include "../src/Exception.h"
-#include "../src/Visitor.h"
+#include "luna/Lex.h"
+#include "luna/Parser.h"
+#include "luna/State.h"
+#include "luna/String.h"
+#include "luna/TextInStream.h"
+#include "luna/Exception.h"
+#include "luna/Visitor.h"
 #include <functional>
 #include <type_traits>
 

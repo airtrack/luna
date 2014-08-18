@@ -1,9 +1,9 @@
 #include "UnitTest.h"
-#include "../src/Lex.h"
-#include "../src/State.h"
-#include "../src/String.h"
-#include "../src/TextInStream.h"
-#include "../src/Exception.h"
+#include "luna/Lex.h"
+#include "luna/State.h"
+#include "luna/String.h"
+#include "luna/TextInStream.h"
+#include "luna/Exception.h"
 #include <functional>
 
 namespace

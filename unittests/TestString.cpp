@@ -1,6 +1,6 @@
 #include "UnitTest.h"
-#include "../src/String.h"
-#include "../src/StringPool.h"
+#include "luna/String.h"
+#include "luna/StringPool.h"
 
 TEST_CASE(string1)
 {

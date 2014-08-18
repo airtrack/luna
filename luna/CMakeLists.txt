@@ -1,0 +1,35 @@
+add_library(luna
+    Bootstrap.cpp
+    CodeGenerate.cpp
+    Function.cpp
+    GC.cpp
+    Lex.cpp
+    LibAPI.cpp
+    LibBase.cpp
+    LibIO.cpp
+    LibMath.cpp
+    LibString.cpp
+    ModuleManager.cpp
+    Parser.cpp
+    Runtime.cpp
+    SemanticAnalysis.cpp
+    State.cpp
+    String.cpp
+    StringPool.cpp
+    SyntaxTree.cpp
+    Table.cpp
+    TextInStream.cpp
+    Token.cpp
+    Upvalue.cpp
+    UserData.cpp
+    Value.cpp
+    VM.cpp
+    )
+
+add_executable(lunac
+    LunaC.cpp
+    )
+
+target_link_libraries(lunac
+    luna
+    )

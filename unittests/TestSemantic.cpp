@@ -1,6 +1,6 @@
 #include "UnitTest.h"
 #include "TestCommon.h"
-#include "../src/SemanticAnalysis.h"
+#include "luna/SemanticAnalysis.h"
 
 namespace
 {

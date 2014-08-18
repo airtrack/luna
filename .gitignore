@@ -12,3 +12,11 @@ Release/
 DerivedData/
 project.xcworkspace/
 xcuserdata/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+libluna.a
+lunac
+gctest
+unittest
