@@ -6,6 +6,8 @@
 *.DS_Store
 *.sublime-project
 *.sublime-workspace
+bin/
+lib/
 ipch/
 Debug/
 Release/
@@ -16,7 +18,3 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
-libluna.a
-lunac
-gctest
-unittest
