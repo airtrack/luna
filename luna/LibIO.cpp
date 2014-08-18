@@ -46,6 +46,31 @@ namespace io {
         return 0;
     }
 
+    int Setvbuf(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(2, luna::ValueT_UserData,
+                           luna::ValueT_String, luna::ValueT_Number))
+            return 0;
+
+        auto user_data = api.GetUserData(0);
+        auto mode = api.GetString(1)->GetStdString();
+
+        std::size_t size = BUFSIZ;
+        if (api.GetStackSize() > 2)
+            size = static_cast<std::size_t>(api.GetNumber(2));
+
+        auto file = reinterpret_cast<std::FILE *>(user_data->GetData());
+        if (mode == "no")
+            std::setvbuf(file, nullptr, _IONBF, 0);
+        else if (mode == "full")
+            std::setvbuf(file, nullptr, _IOFBF, size);
+        else if (mode == "line")
+            std::setvbuf(file, nullptr, _IOLBF, size);
+
+        return 0;
+    }
+
     int Write(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -112,6 +137,7 @@ namespace io {
         luna::TableMemberReg file[] = {
             { "close", Close },
             { "flush", Flush },
+            { "setvbuf", Setvbuf },
             { "write", Write }
         };
 
