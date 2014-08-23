@@ -98,6 +98,7 @@ namespace luna
         void PushNil();
         void PushNumber(double num);
         void PushString(const char *string);
+        void PushString(const char *str, std::size_t len);
         void PushString(const std::string &str);
         void PushBool(bool value);
         void PushTable(Table *table);

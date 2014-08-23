@@ -23,6 +23,97 @@ namespace io {
         return 2;
     }
 
+    void ReadBytes(luna::StackAPI &api, std::FILE *file, int bytes)
+    {
+        if (bytes <= 0)
+            api.PushString("");
+        else
+        {
+            std::vector<char> buf(bytes);
+            bytes = std::fread(&buf[0], sizeof(buf[0]), bytes, file);
+            if (bytes == 0)
+                api.PushNil();
+            else
+                api.PushString(&buf[0], bytes);
+        }
+    }
+
+    void ReadByFormat(luna::StackAPI &api, std::FILE *file,
+                      const std::string format)
+    {
+        if (format == "*n")
+        {
+            // Read a number
+            double num = 0.0;
+            if (std::fscanf(file, "%lg", &num) == 1)
+                api.PushNumber(num);
+            else
+                api.PushNil();
+        }
+        else if (format == "*a")
+        {
+            // Read total content of file
+            auto cur = std::ftell(file);
+            std::fseek(file, 0, SEEK_END);
+            auto bytes = std::ftell(file) - cur;
+            std::fseek(file, cur, SEEK_SET);
+            if (bytes == 0)
+                api.PushString("");
+            else
+            {
+                std::vector<char> buf(bytes);
+                bytes = std::fread(&buf[0], sizeof(buf[0]), bytes, file);
+                api.PushString(&buf[0], bytes);
+            }
+        }
+        else if (format == "*l" || format == "*L")
+        {
+            // Read line
+            const std::size_t part = 128;
+            const std::size_t part_count = part + 1;
+
+            std::size_t count = 0;
+            std::vector<char> buf(part_count);
+            do
+            {
+                if (!std::fgets(&buf[count], part_count, file))
+                {
+                    // EOF or an error occured
+                    // if count is 0, push a nil as end of file
+                    // otherwise, push the buf as string
+                    if (count == 0)
+                        api.PushNil();
+                    else
+                        api.PushString(&buf[0], count);
+                    break;
+                }
+                else
+                {
+                    auto size = buf.size();
+                    while (count < size - 1 &&
+                            buf[count] != '\n' && buf[count] != '\0')
+                        ++count;
+                    // buf[size - 1] must be '\0'
+                    if (count == size - 1)
+                    {
+                        // '\n' is not exist, extend buf to continue read
+                        buf.resize(size + part);
+                    }
+                    else
+                    {
+                        // If buf[count] is '\n', keep '\n' when
+                        // format is "*L"
+                        if (buf[count] == '\n' && format == "*L") ++count;
+                        api.PushString(&buf[0], count);
+                        break;
+                    }
+                }
+            } while (true);
+        }
+        else
+            api.PushNil();
+    }
+
     int Close(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -44,6 +135,36 @@ namespace io {
         auto user_data = api.GetUserData(0);
         std::fflush(reinterpret_cast<std::FILE *>(user_data->GetData()));
         return 0;
+    }
+
+    int Read(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_UserData))
+            return 0;
+
+        auto user_data = api.GetUserData(0);
+        auto file = reinterpret_cast<std::FILE *>(user_data->GetData());
+
+        auto params = api.GetStackSize();
+        for (int i = 1; i < params; ++i)
+        {
+            auto type = api.GetValueType(i);
+            if (type == luna::ValueT_Number)
+            {
+                auto bytes = static_cast<int>(api.GetNumber(i));
+                ReadBytes(api, file, bytes);
+            }
+            else if (type == luna::ValueT_String)
+            {
+                auto format = api.GetString(i)->GetStdString();
+                ReadByFormat(api, file, format);
+            }
+            else
+                api.PushNil();
+        }
+
+        return params - 1;
     }
 
     int Seek(luna::State *state)
@@ -175,6 +296,7 @@ namespace io {
         luna::TableMemberReg file[] = {
             { "close", Close },
             { "flush", Flush },
+            { "read", Read },
             { "seek", Seek },
             { "setvbuf", Setvbuf },
             { "write", Write }
