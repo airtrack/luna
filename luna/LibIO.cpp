@@ -290,6 +290,36 @@ namespace io {
         return 1;
     }
 
+    int Stdin(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        auto user_data = state->NewUserData();
+        auto metatable = state->GetMetatable(METATABLE_FILE);
+        user_data->Set(stdin, metatable);
+        api.PushUserData(user_data);
+        return 1;
+    }
+
+    int Stdout(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        auto user_data = state->NewUserData();
+        auto metatable = state->GetMetatable(METATABLE_FILE);
+        user_data->Set(stdout, metatable);
+        api.PushUserData(user_data);
+        return 1;
+    }
+
+    int Stderr(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        auto user_data = state->NewUserData();
+        auto metatable = state->GetMetatable(METATABLE_FILE);
+        user_data->Set(stderr, metatable);
+        api.PushUserData(user_data);
+        return 1;
+    }
+
     void RegisterLibIO(luna::State *state)
     {
         luna::Library lib(state);
@@ -305,7 +335,10 @@ namespace io {
         lib.RegisterMetatable(METATABLE_FILE, file);
 
         luna::TableMemberReg io[] = {
-            { "open", Open }
+            { "open", Open },
+            { "stdin", Stdin },
+            { "stdout", Stdout },
+            { "stderr", Stderr }
         };
 
         lib.RegisterTableFunction("io", io);
