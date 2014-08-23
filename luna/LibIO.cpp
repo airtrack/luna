@@ -46,6 +46,44 @@ namespace io {
         return 0;
     }
 
+    int Seek(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_UserData,
+                           luna::ValueT_String, luna::ValueT_Number))
+            return 0;
+
+        auto user_data = api.GetUserData(0);
+        auto file = reinterpret_cast<std::FILE *>(user_data->GetData());
+
+        auto params = api.GetStackSize();
+        if (params > 1)
+        {
+            auto whence = api.GetString(1)->GetStdString();
+            long offset = 0;
+            if (params > 2)
+                offset = static_cast<long>(api.GetNumber(2));
+
+            int res = 0;
+            if (whence == "set")
+                res = std::fseek(file, offset, SEEK_SET);
+            else if (whence == "cur")
+                res = std::fseek(file, offset, SEEK_CUR);
+            else if (whence == "end")
+                res = std::fseek(file, offset, SEEK_END);
+
+            if (res != 0)
+                return PushError(api);
+        }
+
+        auto pos = std::ftell(file);
+        if (pos < 0)
+            return PushError(api);
+
+        api.PushNumber(pos);
+        return 1;
+    }
+
     int Setvbuf(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -137,6 +175,7 @@ namespace io {
         luna::TableMemberReg file[] = {
             { "close", Close },
             { "flush", Flush },
+            { "seek", Seek },
             { "setvbuf", Setvbuf },
             { "write", Write }
         };
