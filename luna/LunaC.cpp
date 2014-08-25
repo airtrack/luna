@@ -6,6 +6,7 @@
 #include "LibIO.h"
 #include "LibMath.h"
 #include "LibString.h"
+#include "LibTable.h"
 #include <stdio.h>
 
 int main(int argc, const char **argv)
@@ -26,6 +27,7 @@ int main(int argc, const char **argv)
         lib::io::RegisterLibIO(&state);
         lib::math::RegisterLibMath(&state);
         lib::string::RegisterLibString(&state);
+        lib::table::RegisterLibTable(&state);
 
         state.LoadModule(argv[1]);
         bootstrap.Prepare();

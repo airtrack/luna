@@ -9,6 +9,7 @@ add_library(luna
     LibIO.cpp
     LibMath.cpp
     LibString.cpp
+    LibTable.cpp
     ModuleManager.cpp
     Parser.cpp
     Runtime.cpp
