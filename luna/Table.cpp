@@ -48,19 +48,32 @@ namespace luna
             return false;
 
         if (index == array_size + 1)
-        {
-            AppendToArray(value);
+            AppendAndMergeFromHashToArray(value);
+        else
+            (*array_)[index - 1] = value;
 
-            // move all continuous key from hash to array
-            Value key;
-            key.num_ = ++index;
-            key.type_ = ValueT_Number;
-            while (MoveHashToArray(key))
-                key.num_ = ++index;
-        }
+        return true;
+    }
+
+    bool Table::InsertArrayValue(std::size_t index, const Value &value)
+    {
+        if (index < 1)
+            return false;
+
+        std::size_t array_size = ArraySize();
+        if (index > array_size + 1)
+            return false;
+
+        if (index == array_size + 1)
+            AppendAndMergeFromHashToArray(value);
         else
         {
-            (*array_)[index - 1] = value;
+            // Insert value
+            auto it = array_->begin();
+            std::advance(it, index - 1);
+            array_->insert(it, value);
+            // Try to merge from hash to array
+            MergeFromHashToArray();
         }
 
         return true;
@@ -174,11 +187,28 @@ namespace luna
         return array_ ? array_->size() : 0;
     }
 
+    void Table::AppendAndMergeFromHashToArray(const Value &value)
+    {
+        AppendToArray(value);
+        MergeFromHashToArray();
+    }
+
     void Table::AppendToArray(const Value &value)
     {
         if (!array_)
             array_.reset(new Array);
         array_->push_back(value);
+    }
+
+    void Table::MergeFromHashToArray()
+    {
+        auto index = ArraySize();
+        Value key;
+        key.num_ = ++index;
+        key.type_ = ValueT_Number;
+
+        while (MoveHashToArray(key))
+            key.num_ = ++index;
     }
 
     bool Table::MoveHashToArray(const Value &key)

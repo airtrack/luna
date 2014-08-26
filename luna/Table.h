@@ -18,8 +18,15 @@ namespace luna
         virtual void Accept(GCObjectVisitor *v);
 
         // Set array value by index, return true if success.
-        // 'index' start from 1.
+        // 'index' start from 1, if 'index' == ArraySize() + 1,
+        // then append value to array.
         bool SetArrayValue(std::size_t index, const Value &value);
+
+        // If 'index' == ArraySize() + 1, then append value to array,
+        // otherwise shifting up all values which start from 'index',
+        // and insert value to 'index' of array.
+        // Return true when insert success.
+        bool InsertArrayValue(std::size_t index, const Value &value);
 
         // Add key-value into table.
         // If key is number and key fit with array, then insert into array,
@@ -45,8 +52,15 @@ namespace luna
         typedef std::vector<Value> Array;
         typedef std::unordered_map<Value, Value> Hash;
 
+        // Combine AppendToArray and MergeFromHashToArray
+        void AppendAndMergeFromHashToArray(const Value &value);
+
         // Append value to array.
         void AppendToArray(const Value &value);
+
+        // Try to move values from hash to array which keys start from
+        // ArraySize() + 1
+        void MergeFromHashToArray();
 
         // Move hash table key-value pair to array which key is number and key
         // fit with array, return true if move success.

@@ -101,3 +101,32 @@ TEST_CASE(table3)
     value = t.GetValue(nil);
     EXPECT_TRUE(value.type_ == luna::ValueT_Nil);
 }
+
+TEST_CASE(table4)
+{
+    luna::Table t;
+    luna::Value key;
+    luna::Value value;
+
+    value.type_ = luna::ValueT_Number;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        value.num_ = i + 1;
+        t.InsertArrayValue(i + 1, value);
+    }
+
+    value.num_ = 0;
+    t.InsertArrayValue(1, value);
+
+    EXPECT_TRUE(t.ArraySize() == 4);
+
+    key.type_ = luna::ValueT_Number;
+    for (int i = 0; i < 4; ++i)
+    {
+        key.num_ = i + 1;
+        value = t.GetValue(key);
+        EXPECT_TRUE(value.type_ == luna::ValueT_Number);
+        EXPECT_TRUE(value.num_ == i);
+    }
+}
