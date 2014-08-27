@@ -15,7 +15,7 @@ API
 ---
 
 Global function|Description
---------|----
+---------------|-----------
 print(...)|Print values to stdout
 puts(string)|Print a *string* to stdout
 ipairs(table)|Returns a iterator to iterate array part of a *table*
@@ -24,7 +24,7 @@ type(value)|Returns type of a *value*
 getline()|Returns a line string which gets from stdin
 
 IO table|Description
---|-----------
+--------|-----------
 io.open(path [, mode])|Returns a file of *path* by *mode* when open success, otherwise returns nil and error description, *mode* is same with c function *fopen*, default is "r".
 io.stdin()|Returns a file of stdin
 io.stdout()|Returns a file of stdout
