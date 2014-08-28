@@ -5,6 +5,33 @@
 namespace lib {
 namespace table {
 
+    int Insert(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(2, luna::ValueT_Table))
+            return 0;
+
+        auto params = api.GetStackSize();
+        auto table = api.GetTable(0);
+        auto index = table->ArraySize() + 1;
+        int value = 1;
+
+        if (params > 2)
+        {
+            if (!api.IsNumber(1))
+            {
+                api.ArgTypeError(1, luna::ValueT_Number);
+                return 0;
+            }
+
+            index = static_cast<decltype(index)>(api.GetNumber(1));
+            value = 2;
+        }
+
+        api.PushBool(table->InsertArrayValue(index, *api.GetValue(value)));
+        return 1;
+    }
+
     int Pack(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -52,6 +79,7 @@ namespace table {
     {
         luna::Library lib(state);
         luna::TableMemberReg table[] = {
+            { "insert", Insert },
             { "pack", Pack },
             { "unpack", Unpack }
         };
