@@ -45,6 +45,30 @@ namespace table {
         return 1;
     }
 
+    int Remove(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_Table, luna::ValueT_Number))
+            return 0;
+
+        auto table = api.GetTable(0);
+        auto index = table->ArraySize();
+
+        // There is no elements in array of table.
+        if (index == 0)
+        {
+            api.PushBool(false);
+            return 1;
+        }
+
+        auto params = api.GetStackSize();
+        if (params > 1)
+            index = static_cast<decltype(index)>(api.GetNumber(1));
+
+        api.PushBool(table->EraseArrayValue(index));
+        return 1;
+    }
+
     int Unpack(luna::State *state)
     {
         luna::StackAPI api(state);
@@ -81,6 +105,7 @@ namespace table {
         luna::TableMemberReg table[] = {
             { "insert", Insert },
             { "pack", Pack },
+            { "remove", Remove },
             { "unpack", Unpack }
         };
 
