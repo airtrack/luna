@@ -90,13 +90,28 @@ namespace luna
 
         // Hash part
         if (!hash_)
+        {
+            // If value is nil and hash part is not existed, then do nothing
+            if (value.IsNil())
+                return ;
             hash_.reset(new Hash);
+        }
 
         auto it = hash_->find(key);
         if (it != hash_->end())
-            it->second = value;
+        {
+            // If value is nil, then just erase the element
+            if (value.IsNil())
+                hash_->erase(it);
+            else
+                it->second = value;
+        }
         else
-            hash_->insert(std::make_pair(key, value));
+        {
+            // If key is not existed and value is not nil, then insert it
+            if (!value.IsNil())
+                hash_->insert(std::make_pair(key, value));
+        }
     }
 
     Value Table::GetValue(const Value &key) const

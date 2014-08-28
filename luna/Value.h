@@ -65,6 +65,9 @@ namespace luna
         void SetBool(bool bvalue)
         { bvalue_ = bvalue; type_ = ValueT_Bool; }
 
+        bool IsNil() const
+        { return type_ == ValueT_Nil; }
+
         bool IsFalse() const
         { return type_ == ValueT_Nil || (type_ == ValueT_Bool && !bvalue_); }
 
