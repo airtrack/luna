@@ -28,6 +28,11 @@ namespace luna
         // Return true when insert success.
         bool InsertArrayValue(std::size_t index, const Value &value);
 
+        // Erase the value by 'index' in array if 'index' is legal,
+        // shifting down all values which start from 'index' + 1.
+        // Return true when erase success.
+        bool EraseArrayValue(std::size_t index);
+
         // Add key-value into table.
         // If key is number and key fit with array, then insert into array,
         // otherwise insert into hash table.
@@ -46,6 +51,7 @@ namespace luna
         // is no key-value pair any more.
         bool NextKeyValue(const Value &key, Value &next_key, Value &next_value);
 
+        // Return the number of array part elements.
         std::size_t ArraySize() const;
 
     private:

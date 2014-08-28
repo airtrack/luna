@@ -79,6 +79,17 @@ namespace luna
         return true;
     }
 
+    bool Table::EraseArrayValue(std::size_t index)
+    {
+        if (index < 1 || index > ArraySize())
+            return false;
+
+        auto it = array_->begin();
+        std::advance(it, index - 1);
+        array_->erase(it);
+        return true;
+    }
+
     void Table::SetValue(const Value &key, const Value &value)
     {
         // Try array part
