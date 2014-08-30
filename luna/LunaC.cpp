@@ -1,6 +1,4 @@
 #include "State.h"
-#include "VM.h"
-#include "Bootstrap.h"
 #include "Exception.h"
 #include "LibBase.h"
 #include "LibIO.h"
@@ -20,8 +18,6 @@ int main(int argc, const char **argv)
     try
     {
         luna::State state;
-        luna::VM vm(&state);
-        luna::Bootstrap bootstrap(&state);
 
         lib::base::RegisterLibBase(&state);
         lib::io::RegisterLibIO(&state);
@@ -29,9 +25,7 @@ int main(int argc, const char **argv)
         lib::string::RegisterLibString(&state);
         lib::table::RegisterLibTable(&state);
 
-        state.LoadModule(argv[1]);
-        bootstrap.Prepare();
-        vm.Execute();
+        state.DoModule(argv[1]);
     }
     catch (const luna::OpenFileFail &exp)
     {

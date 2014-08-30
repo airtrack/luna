@@ -1,6 +1,7 @@
 #include "State.h"
-#include "Lex.h"
 #include "GC.h"
+#include "VM.h"
+#include "Lex.h"
 #include "String.h"
 #include "Function.h"
 #include "Table.h"
@@ -57,8 +58,14 @@ namespace luna
         module_manager_->LoadModule(module_name);
     }
 
-    void State::LoadString(const std::string &script_str)
+    void State::DoModule(const std::string &module_name)
     {
+        LoadModule(module_name);
+        if (CallFunction(stack_.top_ - 1, 0, 0))
+        {
+            VM vm(this);
+            vm.Execute();
+        }
     }
 
     bool State::CallFunction(Value *f, int arg_count, int expect_result)

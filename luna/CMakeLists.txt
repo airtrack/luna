@@ -1,5 +1,4 @@
 add_library(luna
-    Bootstrap.cpp
     CodeGenerate.cpp
     Function.cpp
     GC.cpp

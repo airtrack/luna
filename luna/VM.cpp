@@ -50,14 +50,20 @@ namespace luna
         assert(!state_->calls_.empty());
 
         while (!state_->calls_.empty())
+        {
+            // If current stack frame is a frame of a c function,
+            // do not continue execute instructions, just return
+            if (state_->calls_.back().func_->type_ == ValueT_CFunction)
+                return ;
             ExecuteFrame();
+        }
     }
 
     void VM::ExecuteFrame()
     {
         CallInfo *call = &state_->calls_.back();
-        Closure *cl = call->func_ ? call->func_->closure_ : nullptr;
-        Function *proto = cl ? cl->GetPrototype() : nullptr;
+        Closure *cl = call->func_->closure_;
+        Function *proto = cl->GetPrototype();
         Value *a = nullptr;
         Value *b = nullptr;
         Value *c = nullptr;
@@ -285,8 +291,7 @@ namespace luna
             }
         }
 
-        // For bootstrap CallInfo, we use call->register_ as new top
-        Value *new_top = call->func_ ? call->func_ : call->register_;
+        Value *new_top = call->func_;
         // Reset top value
         state_->stack_.SetNewTop(new_top);
         // Set expect results

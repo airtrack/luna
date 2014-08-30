@@ -44,7 +44,6 @@ namespace luna
         friend class VM;
         friend class StackAPI;
         friend class Library;
-        friend class Bootstrap;
         friend class CodeGenerateVisitor;
     public:
         State();
@@ -56,9 +55,13 @@ namespace luna
         // Add module search path
         void AddModulePath(const std::string &path);
 
-        // Load modules
+        // Load module, if load success, then push a module closure on stack,
+        // otherwise throw Exception
         void LoadModule(const std::string &module_name);
-        void LoadString(const std::string &script_str);
+
+        // Load module and call the module function when the module
+        // loaded success.
+        void DoModule(const std::string &module_name);
 
         // Call an in stack function
         // If f is a closure, then create a stack frame and return true,
@@ -79,12 +82,12 @@ namespace luna
         // Get current CallInfo
         CallInfo * GetCurrentCall();
 
-        // Get global table value
+        // Get the global table value
         Value * GetGlobal();
 
-        // Metatable operations
         // Return metatable, create when metatable not existed
         Table * GetMetatable(const char *metatable_name);
+
         // Erase metatable
         void EraseMetatable(const char *metatable_name);
 
@@ -97,33 +100,38 @@ namespace luna
         { return &cfunc_error_; }
 
         // Get the GC
-        GC& GetGC()
-        { return *gc_; }
+        GC& GetGC() { return *gc_; }
 
         // Check and run GC
-        void CheckRunGC()
-        { gc_->CheckGC(); }
+        void CheckRunGC() { gc_->CheckGC(); }
 
     private:
         // Full GC root
         void FullGCRoot(GCObjectVisitor *v);
 
+        // For CallFunction
         void CallClosure(Value *f, int expect_result);
         void CallCFunction(Value *f, int expect_result);
         void CheckCFunctionError();
 
+        // Get the table which stores all metatables
         Table * GetMetatables();
 
+        // Manage all modules
         std::unique_ptr<ModuleManager> module_manager_;
+        // All strings in the pool
         std::unique_ptr<StringPool> string_pool_;
+        // The GC
         std::unique_ptr<GC> gc_;
 
-        // For c function error
+        // Error of call c function
         CFunctionError cfunc_error_;
 
-        // For VM
+        // Stack data
         Stack stack_;
+        // Stack frames
         std::list<CallInfo> calls_;
+        // Global table
         Value global_;
     };
 } // namespace luna
