@@ -44,6 +44,7 @@ namespace luna
         friend class VM;
         friend class StackAPI;
         friend class Library;
+        friend class ModuleManager;
         friend class CodeGenerateVisitor;
     public:
         State();
@@ -52,8 +53,8 @@ namespace luna
         State(const State&) = delete;
         void operator = (const State&) = delete;
 
-        // Add module search path
-        void AddModulePath(const std::string &path);
+        // Check module loaded or not
+        bool IsModuleLoaded(const std::string &module_name) const;
 
         // Load module, if load success, then push a module closure on stack,
         // otherwise throw Exception

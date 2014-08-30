@@ -12,10 +12,10 @@
 namespace luna
 {
 #define METATABLES "__metatables"
+#define MODULES_TABLE "__modules"
 
     State::State()
     {
-        module_manager_.reset(new ModuleManager(this));
         string_pool_.reset(new StringPool);
 
         // Init GC
@@ -41,6 +41,16 @@ namespace luna
         v.type_ = ValueT_Table;
         v.table_ = NewTable();
         global_.table_->SetValue(k, v);
+
+        // New table for store modules
+        k.type_ = ValueT_String;
+        k.str_ = GetString(MODULES_TABLE);
+        v.type_ = ValueT_Table;
+        v.table_ = NewTable();
+        global_.table_->SetValue(k, v);
+
+        // Init module manager
+        module_manager_.reset(new ModuleManager(this, v.table_));
     }
 
     State::~State()
@@ -48,14 +58,18 @@ namespace luna
         gc_->ResetDeleter();
     }
 
-    void State::AddModulePath(const std::string &path)
+    bool State::IsModuleLoaded(const std::string &module_name) const
     {
-        module_manager_->AddModulePath(path);
+        return module_manager_->IsLoaded(module_name);
     }
 
     void State::LoadModule(const std::string &module_name)
     {
-        module_manager_->LoadModule(module_name);
+        auto value = module_manager_->GetModuleClosure(module_name);
+        if (value.IsNil())
+            module_manager_->LoadModule(module_name);
+        else
+            *stack_.top_++ = value;
     }
 
     void State::DoModule(const std::string &module_name)

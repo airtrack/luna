@@ -2,6 +2,7 @@
 #include "Lex.h"
 #include "Parser.h"
 #include "State.h"
+#include "Table.h"
 #include "Exception.h"
 #include "SemanticAnalysis.h"
 #include "CodeGenerate.h"
@@ -10,9 +11,21 @@
 
 namespace luna
 {
-    ModuleManager::ModuleManager(State *state)
-        : state_(state)
+    ModuleManager::ModuleManager(State *state, Table *modules)
+        : state_(state), modules_(modules)
     {
+    }
+
+    bool ModuleManager::IsLoaded(const std::string &module_name) const
+    {
+        auto value = GetModuleClosure(module_name);
+        return !value.IsNil();
+    }
+
+    Value ModuleManager::GetModuleClosure(const std::string &module_name) const
+    {
+        Value key(state_->GetString(module_name));
+        return modules_->GetValue(key);
     }
 
     void ModuleManager::LoadModule(const std::string &module_name)
@@ -32,5 +45,10 @@ namespace luna
 
         // Generate code
         CodeGenerate(ast.get(), state_);
+
+        // Add to modules' table
+        Value key(state_->GetString(module_name));
+        Value value = *(state_->stack_.top_ - 1);
+        modules_->SetValue(key, value);
     }
 } // namespace luna
