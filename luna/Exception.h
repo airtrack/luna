@@ -101,36 +101,38 @@ namespace luna
     {
     public:
         RuntimeException(const Value *v, const char *v_name,
-                         const char *v_scope, const char *op, int line)
+                         const char *v_scope, const char *op,
+                         int line, const char *module)
         {
             char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d: attempt to %s %s '%s' (a %s value)",
-                     line, op, v_scope, v_name, v->TypeName());
+            snprintf(buffer, sizeof(buffer), "%s:%d: attempt to %s %s '%s' (a %s value)",
+                     module, line, op, v_scope, v_name, v->TypeName());
             what_ = buffer;
         }
 
-        RuntimeException(const Value *v1, const Value *v2, const char *op, int line)
+        RuntimeException(const Value *v1, const Value *v2, const char *op,
+                         int line, const char *module)
         {
             char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d: attempt to %s %s with %s",
-                     line, op, v1->TypeName(), v2->TypeName());
+            snprintf(buffer, sizeof(buffer), "%s:%d: attempt to %s %s with %s",
+                     module, line, op, v1->TypeName(), v2->TypeName());
             what_ = buffer;
         }
 
-        RuntimeException(const Value *v, const char *v_name,
-                         const char *expect_type, int line)
+        RuntimeException(const Value *v, const char *v_name, const char *expect_type,
+                         int line, const char *module)
         {
             char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d: %s is a %s value, expect a %s value",
-                     line, v_name, v->TypeName(), expect_type);
+            snprintf(buffer, sizeof(buffer), "%s:%d: %s is a %s value, expect a %s value",
+                     module, line, v_name, v->TypeName(), expect_type);
             what_ = buffer;
         }
 
-        RuntimeException(const char *desc, int line)
+        RuntimeException(const char *desc, int line, const char *module)
         {
             char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d: %s",
-                     line, desc);
+            snprintf(buffer, sizeof(buffer), "%s:%d: %s",
+                     module, line, desc);
             what_ = buffer;
         }
     };

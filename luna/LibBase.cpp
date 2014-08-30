@@ -1,6 +1,8 @@
 #include "LibBase.h"
 #include "Table.h"
 #include "Upvalue.h"
+#include "State.h"
+#include "String.h"
 #include <string>
 #include <iostream>
 #include <assert.h>
@@ -183,6 +185,19 @@ namespace base {
         return 1;
     }
 
+    int Require(luna::State *state)
+    {
+        luna::StackAPI api(state);
+        if (!api.CheckArgs(1, luna::ValueT_String))
+            return 0;
+
+        auto module = api.GetString(0)->GetStdString();
+        if (!state->IsModuleLoaded(module))
+            state->DoModule(module);
+
+        return 0;
+    }
+
     void RegisterLibBase(luna::State *state)
     {
         luna::Library lib(state);
@@ -192,6 +207,7 @@ namespace base {
         lib.RegisterFunc("pairs", Pairs);
         lib.RegisterFunc("type", Type);
         lib.RegisterFunc("getline", GetLine);
+        lib.RegisterFunc("require", Require);
     }
 
 } // namespace base

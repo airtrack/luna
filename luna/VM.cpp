@@ -319,8 +319,8 @@ namespace luna
         } catch (const CallCFuncException &e)
         {
             // Calculate line number of the call
-            int line = GetCurrentInstructionLine();
-            throw RuntimeException(e.What().c_str(), line);
+            auto pos = GetCurrentInstructionPos();
+            throw RuntimeException(e.What().c_str(), pos.first, pos.second);
         }
     }
 
@@ -445,8 +445,8 @@ namespace luna
         }
         else
         {
-            auto line = GetCurrentInstructionLine();
-            throw RuntimeException(op1, op2, "concat", line);
+            auto pos = GetCurrentInstructionPos();
+            throw RuntimeException(op1, op2, "concat", pos.first, pos.second);
         }
 
         dst->type_ = ValueT_String;
@@ -456,20 +456,23 @@ namespace luna
     {
         if (var->type_ != ValueT_Number)
         {
+            auto pos = GetCurrentInstructionPos();
             throw RuntimeException(var, "'for' init", "number",
-                                   GetCurrentInstructionLine());
+                                   pos.first, pos.second);
         }
 
         if (limit->type_ != ValueT_Number)
         {
+            auto pos = GetCurrentInstructionPos();
             throw RuntimeException(limit, "'for' limit", "number",
-                                   GetCurrentInstructionLine());
+                                   pos.first, pos.second);
         }
 
         if (step->type_ != ValueT_Number)
         {
+            auto pos = GetCurrentInstructionPos();
             throw RuntimeException(step, "'for' step", "number",
-                                   GetCurrentInstructionLine());
+                                   pos.first, pos.second);
         }
     }
 
@@ -541,11 +544,12 @@ namespace luna
         return { unknown_name, scope_null };
     }
 
-    int VM::GetCurrentInstructionLine() const
+    std::pair<int, const char *> VM::GetCurrentInstructionPos() const
     {
         GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
-        return proto->GetInstructionLine(index);
+        return { proto->GetInstructionLine(index),
+                 proto->GetModule()->GetCStr() };
     }
 
     void VM::CheckType(const Value *v, ValueT type, const char *op) const
@@ -558,8 +562,8 @@ namespace luna
     {
         if (v1->type_ != ValueT_Number || v2->type_ != ValueT_Number)
         {
-            auto line = GetCurrentInstructionLine();
-            throw RuntimeException(v1, v2, op, line);
+            auto pos = GetCurrentInstructionPos();
+            throw RuntimeException(v1, v2, op, pos.first, pos.second);
         }
     }
 
@@ -569,8 +573,8 @@ namespace luna
         if (v1->type_ != v2->type_ ||
             (v1->type_ != ValueT_Number && v1->type_ != ValueT_String))
         {
-            auto line = GetCurrentInstructionLine();
-            throw RuntimeException(v1, v2, op, line);
+            auto pos = GetCurrentInstructionPos();
+            throw RuntimeException(v1, v2, op, pos.first, pos.second);
         }
     }
 
@@ -582,16 +586,17 @@ namespace luna
             return ;
 
         auto ns = GetOperandNameAndScope(t);
-        auto line = GetCurrentInstructionLine();
+        auto pos = GetCurrentInstructionPos();
         auto key_name = k->type_ == ValueT_String ? k->str_->GetCStr() : "?";
         std::string op_desc = std::string(op) + " table key '" + key_name + "' " + desc;
-        throw RuntimeException(t, ns.first, ns.second, op_desc.c_str(), line);
+        throw RuntimeException(t, ns.first, ns.second,
+                op_desc.c_str(), pos.first, pos.second);
     }
 
     void VM::ReportTypeError(const Value *v, const char *op) const
     {
         auto ns = GetOperandNameAndScope(v);
-        auto line = GetCurrentInstructionLine();
-        throw RuntimeException(v, ns.first, ns.second, op, line);
+        auto pos = GetCurrentInstructionPos();
+        throw RuntimeException(v, ns.first, ns.second, op, pos.first, pos.second);
     }
 } // namespace luna

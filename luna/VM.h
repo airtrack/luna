@@ -33,7 +33,7 @@ namespace luna
         std::pair<const char *, const char *>
         GetOperandNameAndScope(const Value *a) const;
 
-        int GetCurrentInstructionLine() const;
+        std::pair<int, const char *> GetCurrentInstructionPos() const;
 
         void CheckType(const Value *v, ValueT type, const char *op) const;
 
