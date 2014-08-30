@@ -60,6 +60,12 @@ namespace luna
         void LoadModule(const std::string &module_name);
         void LoadString(const std::string &script_str);
 
+        // Call an in stack function
+        // If f is a closure, then create a stack frame and return true,
+        // call VM::Execute() to execute the closure instructions.
+        // Return false when f is a c function.
+        bool CallFunction(Value *f, int arg_count, int expect_result);
+
         // New GCObjects
         String * GetString(const std::string &str);
         String * GetString(const char *str, std::size_t len);
@@ -101,6 +107,10 @@ namespace luna
     private:
         // Full GC root
         void FullGCRoot(GCObjectVisitor *v);
+
+        void CallClosure(Value *f, int expect_result);
+        void CallCFunction(Value *f, int expect_result);
+        void CheckCFunctionError();
 
         Table * GetMetatables();
 

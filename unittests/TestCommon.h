@@ -33,7 +33,7 @@ public:
 
     std::unique_ptr<luna::SyntaxTree> Parse()
     {
-        return parser_.Parse(&lexer_);
+        return luna::Parse(&lexer_);
     }
 
     luna::State * GetState()
@@ -46,7 +46,6 @@ private:
     luna::State state_;
     luna::String name_;
     luna::Lexer lexer_;
-    luna::Parser parser_;
 };
 
 #define MATCH_AST_TYPE(ast, not_match_stmt)                             \

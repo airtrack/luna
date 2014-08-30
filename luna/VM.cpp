@@ -290,8 +290,8 @@ namespace luna
         // Reset top value
         state_->stack_.SetNewTop(new_top);
         // Set expect results
-        if (call->expect_result != EXP_VALUE_COUNT_ANY)
-            state_->stack_.SetNewTop(new_top + call->expect_result);
+        if (call->expect_result_ != EXP_VALUE_COUNT_ANY)
+            state_->stack_.SetNewTop(new_top + call->expect_result_);
 
         // Pop current CallInfo, and return to last CallInfo
         state_->calls_.pop_back();
@@ -299,104 +299,24 @@ namespace luna
 
     bool VM::Call(Value *a, Instruction i)
     {
-        // Set stack top when arg_count is fixed
-        int arg_count = Instruction::GetParamB(i) - 1;
-        if (arg_count != EXP_VALUE_COUNT_ANY)
-            state_->stack_.top_ = a + 1 + arg_count;
-
-        int expect_result = Instruction::GetParamC(i) - 1;
-        if (a->type_ == ValueT_Closure)
-        {
-            // We need enter next ExecuteFrame
-            CallClosure(a, expect_result);
-            return true;
-        }
-        else if (a->type_ == ValueT_CFunction)
-        {
-            CallCFunction(a, expect_result);
-            return false;
-        }
-        else
+        if (a->type_ != ValueT_Closure &&
+            a->type_ != ValueT_CFunction)
         {
             ReportTypeError(a, "call");
             return true;
         }
-    }
 
-    void VM::CallClosure(Value *a, int expect_result)
-    {
-        CallInfo callee;
-        Function *callee_proto = a->closure_->GetPrototype();
-
-        callee.func_ = a;
-        callee.instruction_ = callee_proto->GetOpCodes();
-        callee.end_ = callee.instruction_ + callee_proto->OpCodeSize();
-        callee.expect_result = expect_result;
-
-        Value *arg = a + 1;
-        int fixed_args = callee_proto->FixedArgCount();
-
-        // Fixed arg start from base register
-        if (callee_proto->HasVararg())
+        try
         {
-            Value *top = state_->stack_.top_;
-            callee.register_ = top;
-            int count = top - arg;
-            for (int i = 0; i < count && i < fixed_args; ++i)
-                *top++ = *arg++;
-        }
-        else
+            int arg_count = Instruction::GetParamB(i) - 1;
+            int expect_result = Instruction::GetParamC(i) - 1;
+            return state_->CallFunction(a, arg_count, expect_result);
+        } catch (const CallCFuncException &e)
         {
-            callee.register_ = arg;
+            // Calculate line number of the call
+            int line = GetCurrentInstructionLine();
+            throw RuntimeException(e.What().c_str(), line);
         }
-
-        state_->stack_.SetNewTop(callee.register_ + fixed_args);
-        state_->calls_.push_back(callee);
-    }
-
-    void VM::CallCFunction(Value *a, int expect_result)
-    {
-        // Push the c function CallInfo
-        CallInfo callee;
-        callee.register_ = a + 1;
-        callee.func_ = a;
-        callee.expect_result = expect_result;
-        state_->calls_.push_back(callee);
-
-        // Call c function
-        CFunctionType cfunc = a->cfunc_;
-        state_->ClearCFunctionError();
-        int res_count = cfunc(state_);
-        CheckCFuntionError();
-
-        Value *src = nullptr;
-        if (res_count > 0)
-            src = state_->stack_.top_ - res_count;
-
-        // Copy c function result to caller stack
-        Value *dst = a;
-        if (expect_result == EXP_VALUE_COUNT_ANY)
-        {
-            for (int i = 0; i < res_count; ++i)
-                *dst++ = *src++;
-        }
-        else
-        {
-            int count = std::min(expect_result, res_count);
-            for (int i = 0; i < count; ++i)
-                *dst++ = *src++;
-            // Set all remain expect results to nil
-            count = expect_result - res_count;
-            for (int i = 0; i < count; ++i, ++dst)
-                dst->SetNil();
-        }
-
-        // Set registers which after dst to nil
-        // and set new stack top pointer
-        state_->stack_.SetNewTop(dst);
-
-        // Pop the c function CallInfo
-        state_->calls_.pop_back();
     }
 
     void VM::GenerateClosure(Value *a, Instruction i)
@@ -478,7 +398,7 @@ namespace luna
         auto src = a;
         auto dst = call->func_;
 
-        int expect_result = call->expect_result;
+        int expect_result = call->expect_result_;
         int result_count = state_->stack_.top_ - src;
         if (expect_result == EXP_VALUE_COUNT_ANY)
         {
@@ -621,35 +541,6 @@ namespace luna
         GET_CALLINFO_AND_PROTO();
         auto index = call->instruction_ - 1 - proto->GetOpCodes();
         return proto->GetInstructionLine(index);
-    }
-
-    void VM::CheckCFuntionError() const
-    {
-        auto error = state_->GetCFunctionErrorData();
-        if (error->type_ == CFuntionErrorType_NoError)
-            return ;
-
-        char buffer[128] = { 0 };
-        if (error->type_ == CFuntionErrorType_ArgCount)
-        {
-            snprintf(buffer, sizeof(buffer), "expect %d arguments",
-                     error->expect_arg_count_);
-        }
-        else if (error->type_ == CFuntionErrorType_ArgType)
-        {
-            auto &call = state_->calls_.back();
-            auto arg = call.register_ + error->arg_index_;
-            snprintf(buffer, sizeof(buffer),
-                     "argument #%d is a %s value, expect a %s value",
-                     error->arg_index_ + 1, arg->TypeName(),
-                     Value::TypeName(error->expect_type_));
-        }
-
-        // Pop the c function CallInfo, then GetCurrentInstructionLine
-        // can calculate line number of the call
-        state_->calls_.pop_back();
-        int line = GetCurrentInstructionLine();
-        throw RuntimeException(buffer, line);
     }
 
     void VM::CheckType(const Value *v, ValueT type, const char *op) const

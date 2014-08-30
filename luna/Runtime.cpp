@@ -24,7 +24,7 @@ namespace luna
           func_(nullptr),
           instruction_(nullptr),
           end_(nullptr),
-          expect_result(0)
+          expect_result_(0)
     {
     }
 } // namespace luna

@@ -914,7 +914,7 @@ namespace
 
 namespace luna
 {
-    std::unique_ptr<SyntaxTree> Parser::Parse(Lexer *lexer)
+    std::unique_ptr<SyntaxTree> Parse(Lexer *lexer)
     {
         ParserImpl impl(lexer);
         return impl.Parse();

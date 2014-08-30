@@ -88,6 +88,15 @@ namespace luna
         }
     };
 
+    class CallCFuncException : public Exception
+    {
+    public:
+        explicit CallCFuncException(const char *what)
+        {
+            what_ = what;
+        }
+    };
+
     class RuntimeException : public Exception
     {
     public:

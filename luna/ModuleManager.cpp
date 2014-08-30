@@ -25,8 +25,7 @@ namespace luna
                     [&is] () { return is.GetChar(); });
 
         // Parse to AST
-        Parser parser;
-        auto ast = parser.Parse(&lexer);
+        auto ast = Parse(&lexer);
 
         // Semantic analysis
         SemanticAnalysis(ast.get(), state_);

@@ -21,8 +21,6 @@ namespace luna
 
         // Execute next frame if return true
         bool Call(Value *a, Instruction i);
-        void CallClosure(Value *a, int expect_result);
-        void CallCFunction(Value *a, int expect_result);
 
         void GenerateClosure(Value *a, Instruction i);
         void CopyVarArg(Value *a, Instruction i);
@@ -36,8 +34,6 @@ namespace luna
         GetOperandNameAndScope(const Value *a) const;
 
         int GetCurrentInstructionLine() const;
-
-        void CheckCFuntionError() const;
 
         void CheckType(const Value *v, ValueT type, const char *op) const;
 
