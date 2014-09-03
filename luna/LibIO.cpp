@@ -11,11 +11,13 @@ namespace io {
 
 #define METATABLE_FILE "file"
 
+    // For close userdata file
     void CloseFile(void *data)
     {
         std::fclose(reinterpret_cast<std::FILE *>(data));
     }
 
+    // Helper function for report strerror
     int PushError(luna::StackAPI &api)
     {
         api.PushNil();
@@ -23,6 +25,7 @@ namespace io {
         return 2;
     }
 
+    // Read by bytes for userdata file
     void ReadBytes(luna::StackAPI &api, std::FILE *file, int bytes)
     {
         if (bytes <= 0)
@@ -38,6 +41,7 @@ namespace io {
         }
     }
 
+    // Read by format for userdata file
     void ReadByFormat(luna::StackAPI &api, std::FILE *file,
                       const std::string format)
     {
