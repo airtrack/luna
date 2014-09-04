@@ -82,6 +82,16 @@ namespace luna
         }
     }
 
+    void State::DoString(const std::string &str, const std::string &name)
+    {
+        module_manager_->LoadString(str, name);
+        if (CallFunction(stack_.top_ - 1, 0, 0))
+        {
+            VM vm(this);
+            vm.Execute();
+        }
+    }
+
     bool State::CallFunction(Value *f, int arg_count, int expect_result)
     {
         assert(f->type_ == ValueT_Closure || f->type_ == ValueT_CFunction);

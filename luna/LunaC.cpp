@@ -7,24 +7,31 @@
 #include "LibTable.h"
 #include <stdio.h>
 
-int main(int argc, const char **argv)
+void Repl(luna::State &state)
 {
-    if (argc < 2)
-    {
-        printf("usage: %s file\n", argv[0]);
-        return 0;
-    }
+    printf("Luna 2.0 Copyright (C) 2014\n");
 
+    for (;;)
+    {
+        try
+        {
+            printf("> ");
+
+            char s[1024] = { 0 };
+            fgets(s, sizeof(s), stdin);
+            state.DoString(s, "stdin");
+        }
+        catch (const luna::Exception &exp)
+        {
+            printf("%s\n", exp.What().c_str());
+        }
+    }
+}
+
+void ExecuteFile(const char **argv, luna::State &state)
+{
     try
     {
-        luna::State state;
-
-        lib::base::RegisterLibBase(&state);
-        lib::io::RegisterLibIO(&state);
-        lib::math::RegisterLibMath(&state);
-        lib::string::RegisterLibString(&state);
-        lib::table::RegisterLibTable(&state);
-
         state.DoModule(argv[1]);
     }
     catch (const luna::OpenFileFail &exp)
@@ -34,6 +41,26 @@ int main(int argc, const char **argv)
     catch (const luna::Exception &exp)
     {
         printf("%s\n", exp.What().c_str());
+    }
+}
+
+int main(int argc, const char **argv)
+{
+    luna::State state;
+
+    lib::base::RegisterLibBase(&state);
+    lib::io::RegisterLibIO(&state);
+    lib::math::RegisterLibMath(&state);
+    lib::string::RegisterLibString(&state);
+    lib::table::RegisterLibTable(&state);
+
+    if (argc < 2)
+    {
+        Repl(state);
+    }
+    else
+    {
+        ExecuteFile(argv, state);
     }
 
     return 0;

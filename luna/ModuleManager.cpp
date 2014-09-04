@@ -36,7 +36,24 @@ namespace luna
 
         Lexer lexer(state_, state_->GetString(module_name),
                     [&is] () { return is.GetChar(); });
+        Load(lexer);
 
+        // Add to modules' table
+        Value key(state_->GetString(module_name));
+        Value value = *(state_->stack_.top_ - 1);
+        modules_->SetValue(key, value);
+    }
+
+    void ModuleManager::LoadString(const std::string &str, const std::string &name)
+    {
+        io::text::InStringStream is(str);
+        Lexer lexer(state_, state_->GetString(name),
+                    [&is] () { return is.GetChar(); });
+        Load(lexer);
+    }
+
+    void ModuleManager::Load(Lexer &lexer)
+    {
         // Parse to AST
         auto ast = Parse(&lexer);
 
@@ -45,10 +62,5 @@ namespace luna
 
         // Generate code
         CodeGenerate(ast.get(), state_);
-
-        // Add to modules' table
-        Value key(state_->GetString(module_name));
-        Value value = *(state_->stack_.top_ - 1);
-        modules_->SetValue(key, value);
     }
 } // namespace luna

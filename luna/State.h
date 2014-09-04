@@ -64,6 +64,10 @@ namespace luna
         // loaded success.
         void DoModule(const std::string &module_name);
 
+        // Load string and call the string function when the string
+        // loaded success.
+        void DoString(const std::string &str, const std::string &name = "");
+
         // Call an in stack function
         // If f is a closure, then create a stack frame and return true,
         // call VM::Execute() to execute the closure instructions.
