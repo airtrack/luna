@@ -333,24 +333,23 @@ namespace luna
         if (error->type_ == CFuntionErrorType_NoError)
             return ;
 
-        char buffer[128] = { 0 };
+        CallCFuncException exp;
         if (error->type_ == CFuntionErrorType_ArgCount)
         {
-            snprintf(buffer, sizeof(buffer), "expect %d arguments",
-                     error->expect_arg_count_);
+            exp = CallCFuncException("expect ",
+                    error->expect_arg_count_, " arguments");
         }
         else if (error->type_ == CFuntionErrorType_ArgType)
         {
             auto &call = calls_.back();
             auto arg = call.register_ + error->arg_index_;
-            snprintf(buffer, sizeof(buffer),
-                     "argument #%d is a %s value, expect a %s value",
-                     error->arg_index_ + 1, arg->TypeName(),
-                     Value::TypeName(error->expect_type_));
+            exp = CallCFuncException("argument #", error->arg_index_ + 1,
+                    " is a ", arg->TypeName(), " value, expect a ",
+                    Value::TypeName(error->expect_type_), " value");
         }
 
         // Pop the c function CallInfo
         calls_.pop_back();
-        throw CallCFuncException(buffer);
+        throw exp;
     }
 } // namespace luna

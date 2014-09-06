@@ -99,9 +99,12 @@ namespace luna
     class CallCFuncException : public Exception
     {
     public:
-        explicit CallCFuncException(const char *what)
+        CallCFuncException() = default;
+
+        template<typename... Args>
+        CallCFuncException(Args&&... args)
         {
-            SetWhat(what);
+            SetWhat(std::forward<Args>(args)...);
         }
     };
 
