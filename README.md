@@ -22,6 +22,7 @@ ipairs(table)|Returns a iterator to iterate array part of a *table*
 pairs(table)|Returns a iterator to iterate a *table*(array and hash)
 type(value)|Returns type of a *value*
 getline()|Returns a line string which gets from stdin
+require(path)|Load the *path* module
 
 IO table|Description
 --------|-----------
@@ -82,5 +83,8 @@ string.sub(s, i [, j])|Returns the substring of *s*[*i*..*j*].
 
 Table table|Description
 -----------|-----------
+table.concat(t [, sep [, i [, j]]])|Concatenate *t*[*i*] .. *t*[*j*] to a string, insert *sep* between two elements, the default values for *i* is 1, *j* is #*t*, *sep* is an empty string.
+table.insert(t, [pos ,] value)|Insert the *value* at position *pos*, by default, the *value* append to the table *t*. Returns true when insert success.
 table.pack(...)|Pack all arguments into a table and returns it.
+table.remove(t [, pos])|Remove the element at position *pos*, by default, remove the last element. Returns true when remove success.
 table.unpack(t [, i [, j]])|Returns *t*[*i*] .. *t*[*j*] elements of table *t*, the default for *i* is 1, the default for *j* is #*t*.
