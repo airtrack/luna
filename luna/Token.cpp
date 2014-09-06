@@ -1,11 +1,6 @@
 #include "Token.h"
 #include "String.h"
-#include <stdio.h>
-
-#ifdef _MSC_VER
-#define snprintf(buffer, size, fmt, ...)	\
-    _snprintf_s(buffer, size, _TRUNCATE, fmt, __VA_ARGS__)
-#endif // _MSC_VER
+#include <sstream>
 
 namespace luna
 {
@@ -25,9 +20,9 @@ namespace luna
         int token = t.token_;
         if (token == Token_Number)
         {
-            char number[32] = { 0 };
-            snprintf(number, sizeof(number), "%g", t.number_);
-            str = number;
+            std::ostringstream oss;
+            oss << t.number_;
+            str = oss.str();
         }
         else if (token == Token_Id || token == Token_String)
         {
