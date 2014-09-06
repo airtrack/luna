@@ -21,8 +21,8 @@ namespace luna
     if (index >= MAX_CLOSURE_UPVALUE_COUNT)                             \
     {                                                                   \
         throw CodeGenerateException(                                    \
-            "%d: too many upvalues in function defined in %s",          \
-            function->GetLine(), function->GetModule()->GetCStr());     \
+            function->GetModule()->GetCStr(), function->GetLine(),      \
+            "too many upvalues in function");                           \
     }
 
     struct LocalNameInfo
@@ -400,9 +400,9 @@ namespace luna
             if (IsRegisterCountOverflow())
             {
                 throw CodeGenerateException(
-                    "%d: too many local variables in function defined in %s",
+                    GetCurrentFunction()->GetModule()->GetCStr(),
                     GetCurrentFunction()->GetLine(),
-                    GetCurrentFunction()->GetModule()->GetCStr());
+                    "too many local variables in function");
             }
             return id;
         }
@@ -1133,9 +1133,9 @@ namespace luna
             catch (const CodeGenerateException &)
             {
                 throw CodeGenerateException(
-                    "%d: expression of local name list is too complex in %s",
+                    GetCurrentFunction()->GetModule()->GetCStr(),
                     l_namelist_stmt->line_,
-                    GetCurrentFunction()->GetModule()->GetCStr());
+                    "expression of local name list is too complex");
             }
         }
 
@@ -1155,8 +1155,9 @@ namespace luna
         if (IsRegisterCountOverflow())
         {
             throw CodeGenerateException(
-                "%d: assignment statement is too complex in %s",
-                assign_stmt->line_, GetCurrentFunction()->GetModule()->GetCStr());
+                GetCurrentFunction()->GetModule()->GetCStr(),
+                assign_stmt->line_,
+                "assignment statement is too complex");
         }
 
         try
@@ -1171,8 +1172,9 @@ namespace luna
             // catch it, throw new exception to report assignment statement
             // is too complex
             throw CodeGenerateException(
-                "%d: assignment statement is too complex in %s",
-                assign_stmt->line_, GetCurrentFunction()->GetModule()->GetCStr());
+                GetCurrentFunction()->GetModule()->GetCStr(),
+                assign_stmt->line_,
+                "assignment statement is too complex");
         }
 
         // Assign results to var list
@@ -1661,8 +1663,8 @@ namespace luna
             if (IsRegisterCountOverflow())
             {
                 throw CodeGenerateException(
-                    "%d: too many local variables or too complex expression in %s",
-                    exp_list->line_, GetCurrentFunction()->GetModule()->GetCStr());
+                    GetCurrentFunction()->GetModule()->GetCStr(), exp_list->line_,
+                    "too many local variables or too complex expression");
             }
         };
 

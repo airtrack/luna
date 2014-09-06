@@ -829,14 +829,9 @@ namespace
             if (look_ahead_.token_ != Token_EOF)
             {
                 current_ = look_ahead_;
-
-                if (look_ahead2_.token_ == Token_EOF)
-                    look_ahead_ = TokenDetail();
-                else
-                {
-                    look_ahead_ = look_ahead2_;
-                    look_ahead2_ = TokenDetail();
-                }
+                look_ahead_ = look_ahead2_;
+                if (look_ahead2_.token_ != Token_EOF)
+                    look_ahead2_.token_ = Token_EOF;
             }
             else
             {

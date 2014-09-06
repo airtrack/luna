@@ -33,8 +33,9 @@ namespace luna
     private:
         int Next()
         {
-            ++column_;
-            return in_stream_();
+            auto c = in_stream_();
+            if (c != EOF) ++column_;
+            return c;
         }
 
         void LexNewLine();
@@ -62,7 +63,7 @@ namespace luna
         State *state_;
         String *module_;
         CharInStream in_stream_;
-        
+
         int current_;
         int line_;
         int column_;

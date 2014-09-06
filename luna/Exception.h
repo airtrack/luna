@@ -3,137 +3,139 @@
 
 #include "Token.h"
 #include "Value.h"
-#include <stdio.h>
+#include "String.h"
 #include <string>
+#include <sstream>
 #include <utility>
-
-#ifdef _MSC_VER
-#define snprintf(buffer, size, fmt, ...)	\
-    _snprintf_s(buffer, size, _TRUNCATE, fmt, __VA_ARGS__)
-#endif // _MSC_VER
 
 namespace luna
 {
+    // Base exception for luna, all exceptions throwed by luna
+    // are derived from this class
     class Exception
     {
     public:
-        std::string What() const { return what_; }
+        const std::string& What() const { return what_; }
 
     protected:
+        // Helper functions for format string of exception
+        void SetWhat(std::ostringstream &) { }
+
+        template<typename Arg, typename... Args>
+        void SetWhat(std::ostringstream &oss, Arg&& arg, Args&&... args)
+        {
+            oss << std::forward<Arg>(arg);
+            SetWhat(oss, std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void SetWhat(Args&&... args)
+        {
+            std::ostringstream oss;
+            SetWhat(oss, std::forward<Args>(args)...);
+            what_ = oss.str();
+        }
+
+    private:
         std::string what_;
     };
 
+    // Module file open failed, this exception will be throwed
     class OpenFileFail : public Exception
     {
     public:
         explicit OpenFileFail(const std::string &file)
         {
-            what_ = file;
+            SetWhat(file);
         }
     };
 
+    // For lexer report error of token
     class LexException : public Exception
     {
     public:
-        LexException(int line, int column, const char *str)
-        {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d:%d %s", line, column, str);
-            what_ = buffer;
-        }
-
         template<typename... Args>
-        LexException(int line, int column, const char *format, Args&&... args)
+        LexException(const char *module, int line, int column, Args&&... args)
         {
-            char buffer[128] = { 0 };
-            int len = snprintf(buffer, sizeof(buffer), "%d:%d ", line, column);
-            snprintf(buffer + len, sizeof(buffer) - len, format, std::forward<Args>(args)...);
-            what_ = buffer;
+            SetWhat(module, ':', line, ':', column, ' ',
+                    std::forward<Args>(args)...);
         }
     };
 
+    // For parser report grammer error
     class ParseException : public Exception
     {
     public:
         ParseException(const char *str, const TokenDetail &t)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d:%d '%s' %s", t.line_, t.column_,
-                     GetTokenStr(t).c_str(), str);
-            what_ = buffer;
+            SetWhat(t.module_->GetCStr(), ':', t.line_, ':', t.column_, " '",
+                    GetTokenStr(t), "' ", str);
         }
     };
 
+    // For semantic analysor report semantic error
     class SemanticException : public Exception
     {
     public:
         SemanticException(const char *str, const TokenDetail &t)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%d:%d '%s' %s", t.line_, t.column_,
-                     GetTokenStr(t).c_str(), str);
-            what_ = buffer;
+            SetWhat(t.module_->GetCStr(), ':', t.line_, ':', t.column_, " '",
+                    GetTokenStr(t), "' ", str);
         }
     };
 
+    // For code generator report error
     class CodeGenerateException : public Exception
     {
     public:
         template<typename... Args>
-        CodeGenerateException(const char *format, Args&&... args)
+        CodeGenerateException(const char *module, int line, Args&&... args)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), format, std::forward<Args>(args)...);
-            what_ = buffer;
+            SetWhat(module, ':', line, ' ', std::forward<Args>(args)...);
         }
     };
 
+    // Report error of call c function
     class CallCFuncException : public Exception
     {
     public:
         explicit CallCFuncException(const char *what)
         {
-            what_ = what;
+            SetWhat(what);
         }
     };
 
+    // For VM report runtime error
     class RuntimeException : public Exception
     {
     public:
-        RuntimeException(const Value *v, const char *v_name,
-                         const char *v_scope, const char *op,
-                         int line, const char *module)
+        RuntimeException(const char *module, int line, const char *desc)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%s:%d: attempt to %s %s '%s' (a %s value)",
-                     module, line, op, v_scope, v_name, v->TypeName());
-            what_ = buffer;
+            SetWhat(module, ':', line, ' ', desc);
         }
 
-        RuntimeException(const Value *v1, const Value *v2, const char *op,
-                         int line, const char *module)
+        RuntimeException(const char *module, int line,
+                         const Value *v, const char *v_name,
+                         const char *expect_type)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%s:%d: attempt to %s %s with %s",
-                     module, line, op, v1->TypeName(), v2->TypeName());
-            what_ = buffer;
+            SetWhat(module, ':', line, ' ', v_name, " is a ",
+                    v->TypeName(), " value, expect a ", expect_type, " value");
         }
 
-        RuntimeException(const Value *v, const char *v_name, const char *expect_type,
-                         int line, const char *module)
+        RuntimeException(const char *module, int line,
+                         const Value *v, const char *v_name,
+                         const char *v_scope, const char *op)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%s:%d: %s is a %s value, expect a %s value",
-                     module, line, v_name, v->TypeName(), expect_type);
-            what_ = buffer;
+            SetWhat(module, ':', line, " attempt to ", op, ' ',
+                    v_scope, " '", v_name, "' (a ", v->TypeName(), " value)");
         }
 
-        RuntimeException(const char *desc, int line, const char *module)
+        RuntimeException(const char *module, int line,
+                         const Value *v1, const Value *v2,
+                         const char *op)
         {
-            char buffer[128] = { 0 };
-            snprintf(buffer, sizeof(buffer), "%s:%d: %s",
-                     module, line, desc);
-            what_ = buffer;
+            SetWhat(module, ':', line, " attempt to ", op, ' ',
+                    v1->TypeName(), " with ", v2->TypeName());
         }
     };
 } // namespace luna
