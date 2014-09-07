@@ -1,0 +1,10 @@
+language: cpp
+compiler:
+    - clang
+script: cmake -G "Unix Makefiles" && make
+notifications:
+    email:
+        - superking.airtrack@gmail.com
+os:
+    - linux
+    - osx
