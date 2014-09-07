@@ -1,3 +1,5 @@
+Linux & OSX: ![Build with clang](https://travis-ci.org/airtrack/luna.svg)
+
 Luna
 ====
 An interpreter of lua-like language written in C++ 11.
