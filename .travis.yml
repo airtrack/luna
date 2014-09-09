@@ -1,7 +1,7 @@
 language: cpp
 compiler:
     - clang
-script: cmake -G "Unix Makefiles" && make
+script: cmake -G "Unix Makefiles" && make && ./bin/unittest
 notifications:
     email:
         - superking.airtrack@gmail.com

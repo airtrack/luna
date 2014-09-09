@@ -18,7 +18,7 @@ public:
         all_.push_back(test);
     }
 
-    void RunAllTestCase()
+    int RunAllTestCase()
     {
         int pass = 0;
         int failed = 0;
@@ -55,6 +55,7 @@ public:
         }
 
         printf("%d cases: %d passed, %d failed\n", pass + failed, pass, failed);
+        return failed;
     }
 
 private:
@@ -85,6 +86,5 @@ bool UnitTestBase::IsTestOK() const
 
 int main()
 {
-    UnitTestManager::GetInstance().RunAllTestCase();
-    return 0;
+    return UnitTestManager::GetInstance().RunAllTestCase();
 }
