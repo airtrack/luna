@@ -45,12 +45,12 @@ namespace luna
 
         int LexNumber(TokenDetail *detail);
         int LexNumberX(TokenDetail *detail, bool integer_part,
-                       std::function<bool (int)> is_number_char,
-                       std::function<bool (int)> is_exponent);
+                       const std::function<bool (int)> &is_number_char,
+                       const std::function<bool (int)> &is_exponent);
         int LexNumberXFractional(TokenDetail *detail,
                                  bool integer_part, bool point,
-                                 std::function<bool (int)> is_number_char,
-                                 std::function<bool (int)> is_exponent);
+                                 const std::function<bool (int)> &is_number_char,
+                                 const std::function<bool (int)> &is_exponent);
 
         int LexXEqual(TokenDetail *detail, int equal_token);
 

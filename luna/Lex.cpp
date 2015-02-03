@@ -281,8 +281,8 @@ namespace luna
     }
 
     int Lexer::LexNumberX(TokenDetail *detail, bool integer_part,
-                          std::function<bool (int)> is_number_char,
-                          std::function<bool (int)> is_exponent)
+                          const std::function<bool (int)> &is_number_char,
+                          const std::function<bool (int)> &is_exponent)
     {
         while (is_number_char(current_))
         {
@@ -305,8 +305,8 @@ namespace luna
 
     int Lexer::LexNumberXFractional(TokenDetail *detail,
                                     bool integer_part, bool point,
-                                    std::function<bool (int)> is_number_char,
-                                    std::function<bool (int)> is_exponent)
+                                    const std::function<bool (int)> &is_number_char,
+                                    const std::function<bool (int)> &is_exponent)
     {
         bool fractional_part = false;
         while (is_number_char(current_))
