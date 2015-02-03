@@ -456,19 +456,19 @@ namespace luna
         {
             current_ = Next();
             if (current_ == 'a')
-                token_buffer_.push_back(7);
+                token_buffer_.push_back('\a');
             else if (current_ == 'b')
-                token_buffer_.push_back(8);
+                token_buffer_.push_back('\b');
             else if (current_ == 'f')
-                token_buffer_.push_back(12);
+                token_buffer_.push_back('\f');
             else if (current_ == 'n')
-                token_buffer_.push_back(10);
+                token_buffer_.push_back('\n');
             else if (current_ == 'r')
-                token_buffer_.push_back(13);
+                token_buffer_.push_back('\r');
             else if (current_ == 't')
-                token_buffer_.push_back(9);
+                token_buffer_.push_back('\t');
             else if (current_ == 'v')
-                token_buffer_.push_back(11);
+                token_buffer_.push_back('\v');
             else if (current_ == '\\')
                 token_buffer_.push_back('\\');
             else if (current_ == '"')
