@@ -27,9 +27,13 @@ add_library(luna
     )
 
 add_executable(lunac
-    LunaC.cpp
+    Luna.cpp
     )
 
 target_link_libraries(lunac
     luna
+    )
+
+set_target_properties(lunac
+    PROPERTIES OUTPUT_NAME luna
     )
