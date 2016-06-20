@@ -205,6 +205,10 @@ namespace luna
                                       it->second.begin_pc_, end_pc);
             }
 
+            // add one instruction to close block
+            auto instruction = Instruction::ABCode(OpType_FillNil, block->register_start_id_, current_function_->register_id_);
+            function->AddInstruction(instruction, 0);
+
             current_function_->current_block_ = block->parent_;
             current_function_->register_id_ = block->register_start_id_;
             delete block;
