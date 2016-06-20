@@ -28,7 +28,8 @@ namespace luna
 #define GET_REGISTER_B(i)       (call->register_ + Instruction::GetParamB(i))
 #define GET_REGISTER_C(i)       (call->register_ + Instruction::GetParamC(i))
 #define GET_UPVALUE_B(i)        (cl->GetUpvalue(Instruction::GetParamB(i)))
-#define GET_REAL_VALUE(a)       (a->type_ == ValueT_Upvalue ? a->upvalue_->GetValue() : a)
+#define GET_REAL_VALUE(a)       (a)
+//#define GET_REAL_VALUE(a)       (a->type_ == ValueT_Upvalue ? a->upvalue_->GetValue() : a)
 
 #define GET_REGISTER_ABC(i)                                 \
     a = GET_REGISTER_A(i);                                  \
@@ -347,12 +348,13 @@ namespace luna
                 {
                     auto upvalue = state_->NewUpvalue();
                     upvalue->SetValue(*reg);
-                    reg->type_ = ValueT_Upvalue;
-                    reg->upvalue_ = upvalue;
+                    //reg->type_ = ValueT_Upvalue;
+                    //reg->upvalue_ = upvalue;
                     new_closure->AddUpvalue(upvalue);
                 }
                 else
                 {
+                    assert(!"unreachable no reg change to upval");
                     new_closure->AddUpvalue(reg->upvalue_);
                 }
             }
