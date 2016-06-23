@@ -908,34 +908,37 @@ namespace luna
                                                 limit_register, step_register);
         function->AddInstruction(instruction, line);
 
-        auto name_register = GenerateRegisterId();
-        InsertName(num_for->name_.str_, name_register);
-
         LOOP_GUARD(num_for);
-        // Prepare name value
-        instruction = Instruction::ABCode(OpType_Move, name_register, var_register);
-        function->AddInstruction(instruction, line);
+        {
+            CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
 
-        // Check 'for', continue loop or not
-        instruction = Instruction::ABCCode(OpType_ForStep, var_register,
-                                           limit_register, step_register);
-        function->AddInstruction(instruction, line);
+            // Check 'for', continue loop or not
+            instruction = Instruction::ABCCode(OpType_ForStep, var_register,
+                limit_register, step_register);
+            function->AddInstruction(instruction, line);
 
-        // Break loop, prepare to jump to the end of the loop
-        instruction.opcode_ = 0;
-        int index = function->AddInstruction(instruction, line);
-        AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpTail);
+            // Break loop, prepare to jump to the end of the loop
+            instruction.opcode_ = 0;
+            int index = function->AddInstruction(instruction, line);
+            AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpTail);
 
-        num_for->block_->Accept(this, nullptr);
+            auto name_register = GenerateRegisterId();
+            InsertName(num_for->name_.str_, name_register);
 
-        // var = var + step
-        instruction = Instruction::ABCCode(OpType_Add, var_register,
-                                           var_register, step_register);
-        function->AddInstruction(instruction, line);
+            // Prepare name value
+            instruction = Instruction::ABCode(OpType_Move, name_register, var_register);
+            function->AddInstruction(instruction, line);
 
+            num_for->block_->Accept(this, nullptr);
+
+            // var = var + step
+            instruction = Instruction::ABCCode(OpType_Add, var_register,
+                var_register, step_register);
+            function->AddInstruction(instruction, line);
+        }
         // Jump to the begin of the loop
         instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
-        index = function->AddInstruction(instruction, line);
+        int index = function->AddInstruction(instruction, line);
         AddLoopJumpInfo(num_for, index, LoopJumpInfo::JumpHead);
     }
 
@@ -950,18 +953,19 @@ namespace luna
         ExpListData exp_list_data{ func_register, var_register + 1 };
         gen_for->exp_list_->Accept(this, &exp_list_data);
 
-        // Alloca registers for names
-        auto name_start = GetNextRegisterId();
-        NameListData name_list_data{ false };
-        gen_for->name_list_->Accept(this, &name_list_data);
-        auto name_end = GetNextRegisterId();
-        assert(name_start < name_end);
-
         auto function = GetCurrentFunction();
         auto line = gen_for->line_;
         LOOP_GUARD(gen_for);
         {
-            REGISTER_GENERATOR_GUARD();
+            CODE_GENERATE_GUARD(EnterBlock, LeaveBlock);
+            
+            // Alloca registers for names
+            auto name_start = GetNextRegisterId();
+            NameListData name_list_data{ false };
+            gen_for->name_list_->Accept(this, &name_list_data);
+            auto name_end = GetNextRegisterId();
+            assert(name_start < name_end);
+
             // Alloca temp registers for call iterate function
             auto temp_func = GenerateRegisterId();
             auto temp_state = GenerateRegisterId();
@@ -992,8 +996,10 @@ namespace luna
 
             // Copy first name value to var_register
             move(var_register, name_start);
+
+            gen_for->block_->Accept(this, nullptr);
         }
-        gen_for->block_->Accept(this, nullptr);
+        
 
         // Jump to loop start
         auto instruction = Instruction::AsBxCode(OpType_Jmp, 0, 0);
