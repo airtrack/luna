@@ -95,6 +95,8 @@ namespace luna
             case ValueT_UserData: return left.user_data_ == right.user_data_;
             case ValueT_CFunction: return left.cfunc_ == right.cfunc_;
         }
+
+        return false;
     }
 
     inline bool operator != (const Value &left, const Value &right)

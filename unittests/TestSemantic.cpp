@@ -10,7 +10,7 @@ namespace
         g_parser.SetInput(s);
         auto ast = g_parser.Parse();
         luna::SemanticAnalysis(ast.get(), g_parser.GetState());
-        return std::move(ast);
+        return ast;
     }
 } // namespace
 

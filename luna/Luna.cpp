@@ -18,8 +18,10 @@ void Repl(luna::State &state)
             printf("> ");
 
             char s[1024] = { 0 };
-            fgets(s, sizeof(s), stdin);
-            state.DoString(s, "stdin");
+            auto input = fgets(s, sizeof(s), stdin);
+            if (!input)
+                break;
+            state.DoString(input, "stdin");
         }
         catch (const luna::Exception &exp)
         {
