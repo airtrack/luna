@@ -276,6 +276,12 @@ namespace luna
         else
         {
             callee.register_ = arg;
+            // fill nil for overflow args
+            auto new_top = callee.register_ + fixed_args;
+            for (auto arg = stack_.top_; arg < new_top; arg++)
+            {
+                arg->SetNil();
+            }
         }
 
         stack_.SetNewTop(callee.register_ + fixed_args);
