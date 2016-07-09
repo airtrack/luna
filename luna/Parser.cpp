@@ -73,9 +73,7 @@ namespace
                     assert(left);
                     exp = std::unique_ptr<BinaryExpression>(
                         new BinaryExpression(std::move(left), std::move(exp), op));
-                    op = TokenDetail();
-                    left_priority = 0;
-                    exp = ParseExp(std::move(exp), NextToken(), right_priority);
+                    return ParseExp(std::move(exp), NextToken(), right_priority);
                 }
                 else
                 {
